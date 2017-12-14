@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">CommonAndroidMvvm</string>
+    <string name="decimal_format">%1$.2f</string>
+    <string name="empty_list">List is empty</string>
+
+    <string name="select_all">Select all</string>
+    <string name="delete_selected">Delete selected</string>
+
+    <string name="confirm">Confirm</string>
+    <string name="confirm_delete">Delete %1$d selected elements?</string>
+</resources>
