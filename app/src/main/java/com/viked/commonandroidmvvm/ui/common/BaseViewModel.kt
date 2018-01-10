@@ -7,13 +7,14 @@ import android.util.SparseArray
 import com.viked.commonandroidmvvm.log.log
 import com.viked.commonandroidmvvm.rx.SubscriptionBuilder
 import com.viked.commonandroidmvvm.text.TextWrapper
+import com.viked.commonandroidmvvm.ui.common.delegate.error.BaseError
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 
 /**
  * Created by yevgeniishein on 10/9/17.
  */
-open class BaseViewModel : ViewModel() {
+open class BaseViewModel(val titleId: Int = 0) : ViewModel() {
 
     private val subscriptionsHolder = SparseArray<Disposable>()
 
@@ -21,9 +22,13 @@ open class BaseViewModel : ViewModel() {
 
     val progress = ObservableBoolean(false)
 
-    open val titleId = 0
+    val error = ObservableField<BaseError>()
 
     val title: ObservableField<TextWrapper> = ObservableField(TextWrapper(titleId))
+
+    open fun loadData() {
+        //request initial data
+    }
 
     override public fun onCleared() {
         subscription.dispose()
@@ -44,12 +49,19 @@ open class BaseViewModel : ViewModel() {
                 return
             }
         }
+        if (!silent) {
+            progress.set(true)
+        }
         subscriptionsHolder.append(key, subscriptionBuilder.invoke().subscribeOnModel(silent))
     }
 
     private fun <T> SubscriptionBuilder<T>.subscribeOnModel(silent: Boolean): Disposable = this
             .setProgress(silent)
             .addOnError { it.log() }
+            .addOnError {
+                if (it is BaseError) error.set(it)
+                else if (it.cause != null && it.cause is BaseError) error.set(it.cause as BaseError)
+            }
             .subscribe()
             .also { subscription.add(it) }
 
@@ -57,6 +69,7 @@ open class BaseViewModel : ViewModel() {
         if (!silent) this
                 .addOnSubscribe { progress.set(true) }
                 .addOnComplete { progress.set(false) }
+                .addOnDispose { progress.set(false) }
                 .addOnError { progress.set(false) }
     }
 }

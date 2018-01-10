@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Context
 import android.support.v4.app.FragmentManager
 import android.view.inputmethod.InputMethodManager
-import com.viked.commonandroidmvvm.ui.fragment.BaseFragment
 
 /**
  * Created by yevgeniishein on 10/7/17.

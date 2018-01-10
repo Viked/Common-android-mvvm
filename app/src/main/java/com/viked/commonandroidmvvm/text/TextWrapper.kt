@@ -11,6 +11,6 @@ class TextWrapper(@StringRes private val stringId: Int, private val text: String
     constructor(text: String) : this(0, text, null)
     constructor(consumer: (Context) -> String) : this(0, "", consumer)
 
-    fun get(context: Context) = consumer?.invoke(context) ?: if (stringId > 0) context.getString(stringId) else text
+    operator fun get(context: Context) = consumer?.invoke(context) ?: if (stringId > 0) context.getString(stringId) else text
 
 }

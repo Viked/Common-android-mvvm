@@ -6,8 +6,8 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.hannesdorfmann.adapterdelegates3.AdapterDelegate
-import com.viked.commonandroidmvvm.ui.list.click.BaseClickComponent
-import com.viked.commonandroidmvvm.ui.list.click.ClickComponent
+import com.zfort.nexter.ui.list.click.BaseClickComponent
+import com.zfort.nexter.ui.list.click.ClickComponent
 
 /**
  * Created by Viked on 12/31/2016.
@@ -25,11 +25,15 @@ abstract class BaseAdapterDelegate<T : ViewDataBinding>(val inflater: LayoutInfl
 
     open fun setOnClickListeners(binding: T) {
         binding.root.setOnClickListener { getItemFromBinding(binding)?.run { onItemClickListener.handleClick(it, this) } }
-        binding.root.setOnClickListener { getItemFromBinding(binding)?.run { onLongClickListener.handleClick(it, this) } }
+        binding.root.setOnLongClickListener {
+            getItemFromBinding(binding)?.run { onLongClickListener.handleClick(it, this) }
+            return@setOnLongClickListener true
+        }
     }
 
     override fun onBindViewHolder(items: List<ItemWrapper>, position: Int, holder: RecyclerView.ViewHolder, payloads: MutableList<Any>) {
         bindViewHolder(holder as BindingViewHolder<T>, items[position])
+        holder.itemView.requestLayout()
     }
 
     public override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder =

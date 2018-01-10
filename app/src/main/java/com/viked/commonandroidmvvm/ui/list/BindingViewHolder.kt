@@ -6,4 +6,4 @@ import android.support.v7.widget.RecyclerView
 /**
  * Created by yevgeniishein on 10/22/17.
  */
-class BindingViewHolder<T : ViewDataBinding> (val binding: T) : RecyclerView.ViewHolder(binding.root)
+class BindingViewHolder<T : ViewDataBinding>(val binding: T) : RecyclerView.ViewHolder(binding.root)

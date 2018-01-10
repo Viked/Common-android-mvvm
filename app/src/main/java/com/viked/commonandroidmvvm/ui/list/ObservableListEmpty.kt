@@ -2,7 +2,6 @@ package com.viked.commonandroidmvvm.ui.list
 
 import android.databinding.ObservableBoolean
 import android.databinding.ObservableList
-import com.viked.commonandroidmvvm.ui.list.ItemWrapper
 
 /**
  * Created by yevgeniishein on 10/28/17.

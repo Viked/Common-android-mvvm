@@ -1,4 +1,4 @@
-package com.viked.commonandroidmvvm.ui.list.click
+package com.zfort.nexter.ui.list.click
 
 import android.view.View
 import com.viked.commonandroidmvvm.ui.list.ItemWrapper

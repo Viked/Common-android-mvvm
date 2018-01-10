@@ -1,7 +1,6 @@
-apply plugin: 'com.android.application'
+apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
-apply plugin: 'kotlin-kapt'
 
 android {
 
@@ -9,12 +8,10 @@ android {
     buildToolsVersion project.ext.buildToolsVersion
 
     defaultConfig {
-        applicationId "com.viked.commonandroidmvvm"
         minSdkVersion project.ext.minSdkVersion
         targetSdkVersion project.ext.compileSdkVersion
         versionCode 1
         versionName "1.0"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
     }
 
@@ -31,11 +28,6 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'com.android.support.test:runner:1.0.1'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
 
     // Support libraries
     compile "com.android.support:appcompat-v7:$support_version"
@@ -54,10 +46,6 @@ dependencies {
     compile "android.arch.lifecycle:extensions:$arch_version"
 
     compile 'com.hannesdorfmann:adapterdelegates3:3.0.1'
-
-    kapt "com.android.databinding:compiler:3.0.1"
-
-    compile "com.github.QuadFlask:colorpicker:$color_picker"
 
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
 

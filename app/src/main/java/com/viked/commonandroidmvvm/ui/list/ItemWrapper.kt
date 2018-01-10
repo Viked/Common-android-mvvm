@@ -5,9 +5,7 @@ import android.databinding.ObservableBoolean
 /**
  * Created by yevgeniishein on 10/9/17.
  */
-abstract class ItemWrapper(val value: Any) {
-
-    abstract val selectable: Boolean
+open class ItemWrapper(val value: Any, val selectable: Boolean = false, val name: String = "") {
 
     val selected = ObservableBoolean(false)
 }
