@@ -2,7 +2,7 @@ package com.viked.commonandroidmvvm.ui.list
 
 import android.databinding.ViewDataBinding
 import com.viked.commonandroidmvvm.R
-import com.zfort.nexter.ui.binding.addOnPropertyChangeListener
+import com.viked.commonandroidmvvm.ui.binding.addOnPropertyChangeListener
 
 /**
  * Created by yevgeniishein on 10/20/17.

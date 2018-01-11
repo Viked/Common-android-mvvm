@@ -12,7 +12,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import com.viked.commonandroidmvvm.text.TextWrapper
-import com.zfort.nexter.ui.binding.FabBindingContext
 import com.viked.commonandroidmvvm.ui.common.HideKeyoardClickListener
 import com.viked.commonandroidmvvm.ui.list.ItemWrapper
 import kotlin.math.roundToInt

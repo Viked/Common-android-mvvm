@@ -5,7 +5,7 @@ import android.databinding.ObservableList
 import android.support.v4.widget.SwipeRefreshLayout
 import com.viked.commonandroidmvvm.R
 import com.viked.commonandroidmvvm.rx.SubscriptionBuilder
-import com.viked.commonandroidmvvm.ui.common.BaseViewModel
+import com.viked.commonandroidmvvm.ui.fragment.BaseViewModel
 
 /**
  * Created by yevgeniishein on 10/15/17.

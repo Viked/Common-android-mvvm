@@ -2,7 +2,7 @@ package com.viked.commonandroidmvvm.ui.common.delegate.error
 
 import android.databinding.ObservableField
 import android.support.v7.app.AlertDialog
-import com.viked.commonandroidmvvm.ui.common.BaseActivity
+import com.viked.commonandroidmvvm.ui.activity.BaseActivity
 import com.viked.commonandroidmvvm.ui.common.delegate.BaseViewDelegate
 
 /**

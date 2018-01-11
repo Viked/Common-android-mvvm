@@ -2,7 +2,7 @@ package com.viked.commonandroidmvvm.ui.list
 
 import android.databinding.ViewDataBinding
 import com.viked.commonandroidmvvm.ui.common.AutoClearedValue
-import com.viked.commonandroidmvvm.ui.common.BaseFragment
+import com.viked.commonandroidmvvm.ui.fragment.BaseFragment
 
 /**
  * Created by yevgeniishein on 10/20/17.

@@ -3,7 +3,7 @@ package com.viked.commonandroidmvvm.ui.common.delegate.progress
 import android.app.ProgressDialog
 import android.databinding.ObservableBoolean
 import com.viked.commonandroidmvvm.R
-import com.viked.commonandroidmvvm.ui.common.BaseActivity
+import com.viked.commonandroidmvvm.ui.activity.BaseActivity
 import com.viked.commonandroidmvvm.ui.common.delegate.BaseViewDelegate
 
 /**

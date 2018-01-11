@@ -1,4 +1,4 @@
-package com.viked.commonandroidmvvm.ui.common
+package com.viked.commonandroidmvvm.ui.fragment
 
 import android.arch.lifecycle.ViewModelProvider
 import android.arch.lifecycle.ViewModelProviders
@@ -12,7 +12,9 @@ import android.view.ViewGroup
 import com.viked.commonandroidmvvm.di.Injectable
 import com.viked.commonandroidmvvm.log.log
 import com.viked.commonandroidmvvm.text.TextWrapper
-import com.zfort.nexter.ui.binding.addOnPropertyChangeListener
+import com.viked.commonandroidmvvm.ui.common.AutoClearedValue
+import com.viked.commonandroidmvvm.ui.activity.BaseActivity
+import com.viked.commonandroidmvvm.ui.binding.addOnPropertyChangeListener
 import com.viked.commonandroidmvvm.ui.common.delegate.error.DialogErrorDelegate
 import com.viked.commonandroidmvvm.ui.common.delegate.error.ErrorDelegate
 import com.viked.commonandroidmvvm.ui.common.delegate.progress.DialogProgressDelegate

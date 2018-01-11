@@ -1,4 +1,4 @@
-package com.zfort.nexter.ui.binding
+package com.viked.commonandroidmvvm.ui.binding
 
 import android.support.annotation.DrawableRes
 

@@ -35,7 +35,8 @@ abstract class SubscriptionBuilder<T> {
 
 fun <T> Flowable<T>.buildSubscription() = object : SubscriptionBuilder<T>() {
     override fun subscribe(): Disposable {
-        return subscribeOn(Schedulers.io())
+        return onBackpressureBuffer()
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(onNext, onError, onComplete, onSubscribe)
     }

@@ -34,4 +34,16 @@ abstract class BaseActivity : AppCompatActivity(), HasSupportFragmentInjector {
         }
     }
 
+    var active = false
+
+    override fun onPause() {
+        super.onPause()
+        active = false
+    }
+
+    override fun onResume() {
+        super.onResume()
+        active = true
+    }
+
 }

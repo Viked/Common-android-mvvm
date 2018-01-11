@@ -1,7 +1,7 @@
 package com.viked.commonandroidmvvm.ui.common.delegate.error
 
 import com.viked.commonandroidmvvm.text.TextWrapper
-import com.viked.commonandroidmvvm.ui.common.BaseActivity
+import com.viked.commonandroidmvvm.ui.activity.BaseActivity
 
 /**
  * Created by shein on 1/9/2018.

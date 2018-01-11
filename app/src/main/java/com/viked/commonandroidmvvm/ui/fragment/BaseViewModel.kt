@@ -1,4 +1,4 @@
-package com.viked.commonandroidmvvm.ui.common
+package com.viked.commonandroidmvvm.ui.fragment
 
 import android.arch.lifecycle.ViewModel
 import android.databinding.ObservableBoolean
