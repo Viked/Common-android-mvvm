@@ -12,9 +12,10 @@ import android.view.ViewGroup
 import com.viked.commonandroidmvvm.di.Injectable
 import com.viked.commonandroidmvvm.log.log
 import com.viked.commonandroidmvvm.text.TextWrapper
-import com.viked.commonandroidmvvm.ui.common.AutoClearedValue
 import com.viked.commonandroidmvvm.ui.activity.BaseActivity
 import com.viked.commonandroidmvvm.ui.binding.addOnPropertyChangeListener
+import com.viked.commonandroidmvvm.ui.common.AutoClearedValue
+import com.viked.commonandroidmvvm.ui.common.Cancelable
 import com.viked.commonandroidmvvm.ui.common.delegate.error.DialogErrorDelegate
 import com.viked.commonandroidmvvm.ui.common.delegate.error.ErrorDelegate
 import com.viked.commonandroidmvvm.ui.common.delegate.progress.DialogProgressDelegate
@@ -24,7 +25,7 @@ import javax.inject.Inject
 /**
  * Created by yevgeniishein on 10/9/17.
  */
-abstract class BaseFragment<T : BaseViewModel, B : ViewDataBinding> : Fragment(), Injectable {
+abstract class BaseFragment<T : BaseViewModel, B : ViewDataBinding> : Fragment(), Injectable, Cancelable {
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
@@ -75,7 +76,7 @@ abstract class BaseFragment<T : BaseViewModel, B : ViewDataBinding> : Fragment()
         super.onDestroyView()
     }
 
-    open fun handleOnBackPressed() = viewModel.value?.progress?.get() ?: false
+    override fun handleOnBackPressed() = viewModel.value?.progress?.get() ?: false
 
     open fun onCreateAdditionalViews(inflater: LayoutInflater?, container: ViewGroup?) {
         //Init toolbar view if need

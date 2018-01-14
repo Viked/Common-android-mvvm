@@ -1,7 +1,6 @@
 package com.viked.commonandroidmvvm.ui.list
 
 import android.databinding.ObservableList
-import android.support.annotation.NonNull
 import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
 import com.hannesdorfmann.adapterdelegates3.AdapterDelegatesManager
@@ -24,7 +23,7 @@ open class DelegateRecyclerViewAdapter(val items: ObservableList<ItemWrapper>) :
         }
     }
 
-    open fun addDelegate(@NonNull delegate: BaseAdapterDelegate<*>) {
+    open fun addDelegate(delegate: BaseAdapterDelegate<*>) {
         delegatesManager.addDelegate(++delegateViewType, delegate)
     }
 

@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.support.v4.app.FragmentManager
 import android.view.inputmethod.InputMethodManager
+import com.viked.commonandroidmvvm.ui.common.Cancelable
 import com.viked.commonandroidmvvm.ui.fragment.BaseFragment
 
 /**
@@ -24,6 +25,6 @@ fun Context.hideKeyboard() {
 fun FragmentManager.handleOnBackPressed(): Boolean {
     val fragment = fragments
             ?.filter { it != null && it.isVisible && it is BaseFragment<*, *> }
-            ?.find { (it is BaseFragment<*, *> && it.handleOnBackPressed()) || it.childFragmentManager.handleOnBackPressed() }
+            ?.find { (it is Cancelable && it.handleOnBackPressed()) || it.childFragmentManager.handleOnBackPressed() }
     return fragment != null
 }
