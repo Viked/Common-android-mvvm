@@ -28,4 +28,9 @@ abstract class BaseListFragment<T : BaseListViewModel, B : ViewDataBinding> : Ba
         super.initView(binding, viewModel)
         initRecyclerView(binding, viewModel)
     }
+
+    override fun onResume() {
+        super.onResume()
+        viewModel.value?.onRefresh()
+    }
 }

@@ -34,7 +34,10 @@ abstract class BaseListViewModel(titleId: Int = 0) : BaseViewModel(titleId), Swi
     open fun addListSubscription(subscriptionBuilder: SubscriptionBuilder<List<ItemWrapper>>) =
             subscriptionBuilder.addOnSubscribe { list.clear() }
                     .addOnError { list.clear() }
-                    .addOnNext { list.addAll(it) }
+                    .addOnNext {
+                        list.clear()
+                        list.addAll(it)
+                    }
 
     override fun onRefresh() {
         loadData()
