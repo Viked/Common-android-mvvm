@@ -1,12 +1,12 @@
 package com.viked.commonandroidmvvm.ui.fragment
 
 import android.arch.lifecycle.ViewModel
-import android.databinding.ObservableBoolean
 import android.databinding.ObservableField
 import android.util.SparseArray
 import com.viked.commonandroidmvvm.log.log
 import com.viked.commonandroidmvvm.rx.SubscriptionBuilder
 import com.viked.commonandroidmvvm.text.TextWrapper
+import com.viked.commonandroidmvvm.ui.binding.ProgressObservable
 import com.viked.commonandroidmvvm.ui.common.delegate.error.BaseError
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
@@ -20,7 +20,7 @@ open class BaseViewModel(val titleId: Int = 0) : ViewModel() {
 
     private val subscription: CompositeDisposable = CompositeDisposable()
 
-    val progress = ObservableBoolean(false)
+    val progress = ProgressObservable(false)
 
     val error = ObservableField<BaseError>()
 

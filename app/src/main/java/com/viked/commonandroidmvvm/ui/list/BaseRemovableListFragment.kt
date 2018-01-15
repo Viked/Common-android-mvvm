@@ -13,8 +13,8 @@ import com.viked.commonandroidmvvm.ui.common.AutoClearedValue
  */
 abstract class BaseRemovableListFragment<T : BaseRemovableListViewModel, B : ViewDataBinding> : BaseSelectableListFragment<T, B>() {
 
-    lateinit var selectAllButton: AutoClearedValue<MenuItem>
-    lateinit var deleteButton: AutoClearedValue<MenuItem>
+    var selectAllButton: AutoClearedValue<MenuItem>? = null
+    var deleteButton: AutoClearedValue<MenuItem>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,8 +53,8 @@ abstract class BaseRemovableListFragment<T : BaseRemovableListViewModel, B : Vie
 
     override fun updateIcons(selectMode: Boolean, canSelectAll: Boolean) {
         super.updateIcons(selectMode, canSelectAll)
-        deleteButton.value?.isVisible = selectMode
-        selectAllButton.value?.isVisible = canSelectAll
+        deleteButton?.value?.isVisible = selectMode
+        selectAllButton?.value?.isVisible = canSelectAll
     }
 
 }
