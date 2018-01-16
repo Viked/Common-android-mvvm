@@ -119,7 +119,7 @@ abstract class BaseFragment<T : BaseViewModel, B : ViewDataBinding> : Fragment()
 
     protected fun setTitle(title: TextWrapper?) {
         val activity = activity()
-        if (activity?.active == true && title != null) {
+        if (activity != null && title != null) {
             val newTitle = title[activity]
             if (newTitle.isNotEmpty()) {
                 activity.title = newTitle
