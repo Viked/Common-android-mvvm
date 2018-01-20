@@ -9,7 +9,9 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.crashlytics.android.answers.CustomEvent
 import com.viked.commonandroidmvvm.di.Injectable
+import com.viked.commonandroidmvvm.log.Analytic
 import com.viked.commonandroidmvvm.log.log
 import com.viked.commonandroidmvvm.text.TextWrapper
 import com.viked.commonandroidmvvm.ui.activity.BaseActivity
@@ -29,6 +31,9 @@ abstract class BaseFragment<T : BaseViewModel, B : ViewDataBinding> : Fragment()
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
+
+    @Inject
+    lateinit var analytic: Analytic
 
     lateinit var progressDelegate: AutoClearedValue<ProgressDelegate>
 
@@ -58,6 +63,7 @@ abstract class BaseFragment<T : BaseViewModel, B : ViewDataBinding> : Fragment()
             initView(binding, viewModel)
             progressDelegate = AutoClearedValue(this, initProgressDelegate(binding, viewModel, activity))
             errorDelegate = AutoClearedValue(this, initErrorDelegate(binding, viewModel, activity))
+            logStartEvent()
         } else {
             RuntimeException("BaseFragment has empty params\nbinding: ${this.binding.value}\nviewModel: ${this.viewModel.value}").log()
         }
@@ -125,5 +131,9 @@ abstract class BaseFragment<T : BaseViewModel, B : ViewDataBinding> : Fragment()
                 activity.title = newTitle
             }
         }
+    }
+
+    private fun logStartEvent() {
+        analytic.log(CustomEvent("Screen viewed").putCustomAttribute("name", this::class.java.simpleName))
     }
 }

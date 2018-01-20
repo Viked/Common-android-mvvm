@@ -16,7 +16,7 @@ class PreferenceHelper @Inject constructor(val context: Application) {
     operator fun <T> get(id: Int): T? = getPreferenceValue(id) as T?
     operator fun set(id: Int, value: Any) = setPreferenceValue(id, value)
 
-    private fun getPreferenceValue(id: Int): Any = preferences.all[context.getString(id)] ?: error("Empty field")
+    private fun getPreferenceValue(id: Int): Any? = preferences.all[context.getString(id)]
 
     private fun setPreferenceValue(id: Int, value: Any) {
         val key = context.getString(id)
