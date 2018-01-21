@@ -3,6 +3,7 @@ package com.viked.commonandroidmvvm.ui.preference
 import android.arch.lifecycle.ViewModelProvider
 import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
+import android.support.v14.preference.MultiSelectListPreference
 import android.support.v7.preference.*
 import android.support.v7.preference.internal.AbstractMultiSelectListPreference
 import com.viked.commonandroidmvvm.di.Injectable
@@ -92,7 +93,7 @@ abstract class BasePreferenceFragment<T : BasePreferenceViewModel> : PreferenceF
     open fun initDialogDelegates(dialogDelegates: MutableList<DialogPreferenceDelegate<*>>) {
         dialogDelegates.add(DialogPreferenceDelegate(EditTextPreference::class.java, { EditTextPreferenceDialogFragmentCompat.newInstance(it) }))
         dialogDelegates.add(DialogPreferenceDelegate(ListPreference::class.java, { ListPreferenceDialogFragmentCompat.newInstance(it) }))
-        dialogDelegates.add(DialogPreferenceDelegate(AbstractMultiSelectListPreference::class.java, { MultiSelectListPreferenceDialogFragmentCompat.newInstance(it) }))
+        dialogDelegates.add(DialogPreferenceDelegate(MultiSelectListPreference::class.java, { MultiSelectListPreferenceDialogFragmentCompat.newInstance(it) }))
         dialogDelegates.add(DialogPreferenceDelegate(TimePreference::class.java, { TimePreferenceDialogFragment.newInstance(it) }))
     }
 
