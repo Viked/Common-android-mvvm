@@ -5,8 +5,9 @@ import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.v14.preference.MultiSelectListPreference
 import android.support.v7.preference.*
-import android.support.v7.preference.internal.AbstractMultiSelectListPreference
+import com.crashlytics.android.answers.CustomEvent
 import com.viked.commonandroidmvvm.di.Injectable
+import com.viked.commonandroidmvvm.log.Analytic
 import com.viked.commonandroidmvvm.log.log
 import com.viked.commonandroidmvvm.preference.TimePreference
 import com.viked.commonandroidmvvm.preference.TimePreferenceDialogFragment
@@ -28,6 +29,9 @@ abstract class BasePreferenceFragment<T : BasePreferenceViewModel> : PreferenceF
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
+
+    @Inject
+    lateinit var analytic: Analytic
 
     lateinit var progressDelegate: AutoClearedValue<ProgressDelegate>
 
@@ -136,5 +140,8 @@ abstract class BasePreferenceFragment<T : BasePreferenceViewModel> : PreferenceF
         } ?: error("Tried to display dialog for unknown")
     }
 
+    private fun logStartEvent() {
+        analytic.log(CustomEvent("Screen viewed").putCustomAttribute("name", this::class.java.simpleName))
+    }
 
 }
