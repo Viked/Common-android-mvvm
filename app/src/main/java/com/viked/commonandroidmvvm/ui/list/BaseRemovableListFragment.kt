@@ -7,11 +7,12 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import com.viked.commonandroidmvvm.R
 import com.viked.commonandroidmvvm.ui.common.AutoClearedValue
+import com.viked.commonandroidmvvm.ui.dialog.ConfirmDialogFragment
 
 /**
  * Created by yevgeniishein on 1/13/18.
  */
-abstract class BaseRemovableListFragment<T : BaseRemovableListViewModel, B : ViewDataBinding> : BaseSelectableListFragment<T, B>() {
+abstract class BaseRemovableListFragment<T : BaseRemovableListViewModel, B : ViewDataBinding> : BaseSelectableListFragment<T, B>(), ConfirmDialogFragment.Callback {
 
     var selectAllButton: AutoClearedValue<MenuItem>? = null
     var deleteButton: AutoClearedValue<MenuItem>? = null
@@ -45,7 +46,7 @@ abstract class BaseRemovableListFragment<T : BaseRemovableListViewModel, B : Vie
                     true
                 }
                 R.id.delete -> {
-                    viewModel.value?.removeItems()
+                    ConfirmDialogFragment.newInstance(R.string.confirm_delete).show(childFragmentManager, ConfirmDialogFragment.TAG)
                     true
                 }
                 else -> super.onOptionsItemSelected(item)
@@ -57,4 +58,9 @@ abstract class BaseRemovableListFragment<T : BaseRemovableListViewModel, B : Vie
         selectAllButton?.value?.isVisible = canSelectAll
     }
 
+    override fun confirm(id: Int) {
+        if (id == R.string.confirm_delete) {
+            viewModel.value?.removeItems()
+        }
+    }
 }

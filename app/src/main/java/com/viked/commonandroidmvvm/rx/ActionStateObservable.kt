@@ -1,7 +1,6 @@
-package com.viked.commonandroidmvvm.ui.binding
+package com.viked.commonandroidmvvm.rx
 
 import android.databinding.ObservableField
-import com.viked.commonandroidmvvm.rx.SubscriptionBuilder
 
 /**
  * Created by yevgeniishein on 12/25/17.

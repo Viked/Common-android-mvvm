@@ -15,6 +15,7 @@ class ConfirmDialogFragment : DialogFragment() {
     companion object {
         private const val TITLE_KEY = "title_key"
         private const val ID_KEY = "id_key"
+        val TAG: String = ConfirmDialogFragment::class.java.simpleName
 
         fun newInstance(title: String, id: Int) =
                 ConfirmDialogFragment().apply {
