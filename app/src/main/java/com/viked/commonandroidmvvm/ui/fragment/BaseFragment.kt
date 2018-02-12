@@ -57,6 +57,7 @@ abstract class BaseFragment<T : BaseViewModel, B : ViewDataBinding> : Fragment()
         val activity = activity()
         if (binding != null && activity != null) {
             arguments?.run { initArguments(viewModel, this) }
+            viewModel.onInit()
             viewModel.loadData()
             setViewModelToBinding(binding, viewModel)
             initToolbar(activity, binding, viewModel)

@@ -18,7 +18,7 @@ open class BaseViewModel(val titleId: Int = 0) : ViewModel() {
 
     private val subscriptionsHolder = SparseArray<Disposable>()
 
-    private val subscription: CompositeDisposable = CompositeDisposable()
+    private var subscription: CompositeDisposable? = null
 
     val progress = ProgressObservable(false)
 
@@ -30,9 +30,14 @@ open class BaseViewModel(val titleId: Int = 0) : ViewModel() {
         //request initial data
     }
 
+    open fun onInit() {
+        subscription = CompositeDisposable()
+    }
+
     override public fun onCleared() {
-        subscription.dispose()
+        subscription?.dispose()
         subscriptionsHolder.clear()
+        subscription = null
         super.onCleared()
     }
 
@@ -63,7 +68,7 @@ open class BaseViewModel(val titleId: Int = 0) : ViewModel() {
                 else if (it.cause != null && it.cause is BaseError) error.set(it.cause as BaseError)
             }
             .subscribe()
-            .also { subscription.add(it) }
+            .also { subscription?.add(it) }
 
     private fun <T> SubscriptionBuilder<T>.setProgress(silent: Boolean) = apply {
         if (!silent) this
