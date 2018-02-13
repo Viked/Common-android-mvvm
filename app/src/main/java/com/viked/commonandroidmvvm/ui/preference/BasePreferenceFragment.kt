@@ -63,7 +63,7 @@ abstract class BasePreferenceFragment<T : BasePreferenceViewModel> : PreferenceF
             errorDelegate = AutoClearedValue(this, initErrorDelegate(viewModel, activity))
             initDialogDelegates(dialogDelegates)
             initPreferences(viewModel, activity)
-
+            logStartEvent()
         } else {
             RuntimeException("BaseFragment has empty params\nviewModel: ${this.viewModel.value}").log()
         }
