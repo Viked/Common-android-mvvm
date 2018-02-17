@@ -1,9 +1,14 @@
 package com.viked.commonandroidmvvm.ui.activity
 
+import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
 import android.view.MenuItem
 import com.viked.commonandroidmvvm.extentions.handleOnBackPressed
+import com.viked.commonandroidmvvm.ui.common.delegate.error.DialogErrorDelegate
+import com.viked.commonandroidmvvm.ui.common.delegate.error.ErrorDelegate
+import com.viked.commonandroidmvvm.ui.common.delegate.progress.DialogProgressDelegate
+import com.viked.commonandroidmvvm.ui.common.delegate.progress.ProgressDelegate
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector
 import javax.inject.Inject
@@ -15,6 +20,16 @@ abstract class BaseActivity : AppCompatActivity(), HasSupportFragmentInjector {
 
     @Inject
     lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
+
+    lateinit var progressDelegate: ProgressDelegate
+
+    lateinit var errorDelegate: ErrorDelegate
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        progressDelegate = DialogProgressDelegate(this)
+        errorDelegate = DialogErrorDelegate(this)
+    }
 
     override fun supportFragmentInjector(): DispatchingAndroidInjector<Fragment> =
             dispatchingAndroidInjector

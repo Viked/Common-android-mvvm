@@ -104,8 +104,11 @@ abstract class BasePreferenceFragment<T : BasePreferenceViewModel> : PreferenceF
     fun activity() = activity as BaseActivity?
 
     override fun onPause() {
-        progressDelegate.value?.unsubscribe()
-        errorDelegate.value?.unsubscribe()
+        val viewModel = viewModel.value
+        if (viewModel != null) {
+            progressDelegate.value?.unsubscribe(viewModel.progress)
+            errorDelegate.value?.unsubscribe(viewModel.error)
+        }
         super.onPause()
     }
 

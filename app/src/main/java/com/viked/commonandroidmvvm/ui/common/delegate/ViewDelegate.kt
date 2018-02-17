@@ -9,7 +9,7 @@ interface ViewDelegate<in T : Observable> {
 
     fun subscribe(observable: T)
 
-    fun unsubscribe()
+    fun unsubscribe(observable: T)
 
     fun update()
 

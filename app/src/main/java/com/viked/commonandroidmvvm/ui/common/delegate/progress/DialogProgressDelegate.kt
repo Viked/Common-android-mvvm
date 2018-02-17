@@ -1,6 +1,7 @@
 package com.viked.commonandroidmvvm.ui.common.delegate.progress
 
 import android.app.ProgressDialog
+import android.databinding.Observable
 import android.databinding.ObservableBoolean
 import com.viked.commonandroidmvvm.R
 import com.viked.commonandroidmvvm.ui.activity.BaseActivity
@@ -17,8 +18,8 @@ class DialogProgressDelegate(private val context: BaseActivity) : BaseViewDelega
                 setMessage(context.getString(R.string.loading))
             }
 
-    override fun unsubscribe() {
-        super.unsubscribe()
+    override fun unsubscribe(observable: ObservableBoolean) {
+        super.unsubscribe(observable)
         hideProgress()
     }
 
@@ -30,8 +31,8 @@ class DialogProgressDelegate(private val context: BaseActivity) : BaseViewDelega
         }
     }
 
-    override fun update() {
-        setProgress(observable?.get() == true)
+    override fun updateWithValue(observables: Set<Observable>) {
+        setProgress(observables.map { it as ObservableBoolean }.find { it.get() }?.get() == true)
     }
 
     override fun showProgress() {

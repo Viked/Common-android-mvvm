@@ -7,16 +7,23 @@ import android.databinding.Observable
  */
 abstract class BaseViewDelegate<T : Observable> : ViewDelegate<T> {
 
-    protected var observable: T? = null
+    private val mutableSet = mutableSetOf<Observable>()
+
+    abstract fun updateWithValue(observables: Set<Observable>)
 
     override fun subscribe(observable: T) {
-        this.observable = observable
         observable.addOnPropertyChangedCallback(callback)
+        mutableSet.add(observable)
         update()
     }
 
-    override fun unsubscribe() {
-        observable?.removeOnPropertyChangedCallback(callback)
+    override fun unsubscribe(observable: T) {
+        observable.removeOnPropertyChangedCallback(callback)
+        mutableSet.remove(observable)
+    }
+
+    override fun update() {
+        updateWithValue(mutableSet)
     }
 
     private val callback = object : Observable.OnPropertyChangedCallback() {

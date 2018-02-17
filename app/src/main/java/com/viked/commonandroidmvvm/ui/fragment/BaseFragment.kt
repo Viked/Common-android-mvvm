@@ -99,9 +99,11 @@ abstract class BaseFragment<T : BaseViewModel, B : ViewDataBinding> : Fragment()
         //Set clicks, other view features
     }
 
-    open fun initProgressDelegate(binding: B, viewModel: T, activity: BaseActivity) = DialogProgressDelegate(activity)
+    open fun initProgressDelegate(binding: B, viewModel: T, activity: BaseActivity) =
+            activity()?.progressDelegate ?: DialogProgressDelegate(activity)
 
-    open fun initErrorDelegate(binding: B, viewModel: T, activity: BaseActivity) = DialogErrorDelegate(activity)
+    open fun initErrorDelegate(binding: B, viewModel: T, activity: BaseActivity) =
+            activity()?.errorDelegate ?: DialogErrorDelegate(activity)
 
     open fun initArguments(viewModel: T, arguments: Bundle) {
         //Set initial data to view model
@@ -110,8 +112,11 @@ abstract class BaseFragment<T : BaseViewModel, B : ViewDataBinding> : Fragment()
     fun activity() = activity as BaseActivity?
 
     override fun onPause() {
-        progressDelegate.value?.unsubscribe()
-        errorDelegate.value?.unsubscribe()
+        val viewModel = viewModel.value
+        if (viewModel != null) {
+            progressDelegate.value?.unsubscribe(viewModel.progress)
+            errorDelegate.value?.unsubscribe(viewModel.error)
+        }
         super.onPause()
     }
 
