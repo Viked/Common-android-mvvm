@@ -1,6 +1,5 @@
 package com.viked.commonandroidmvvm.rx
 
-import com.viked.commonandroidmvvm.log.log
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Maybe
@@ -18,16 +17,15 @@ abstract class SubscriptionBuilder<T> {
 
     protected val onNext: CompositeConsumer<T> = CompositeConsumer()
     protected val onError: CompositeConsumer<Throwable> = CompositeConsumer<Throwable>()
-            .apply { add { it.log() } }
     protected val onComplete: CompositeAction = CompositeAction()
-    protected val onSubscribe: CompositeConsumer<Subscription> = CompositeConsumer()
+    protected val onSubscribe: CompositeAction = CompositeAction()
     protected val onDispose: CompositeAction = CompositeAction()
 
     fun addOnNext(consumer: (T) -> Unit) = apply { onNext.add(consumer) }
     fun addOnDispose(consumer: () -> Unit) = apply { onDispose.add(Action { consumer.invoke() }) }
     fun addOnError(consumer: (Throwable) -> Unit) = apply { onError.add(consumer) }
     fun addOnComplete(consumer: () -> Unit) = apply { onComplete.add(Action { consumer.invoke() }) }
-    fun addOnSubscribe(consumer: (Subscription) -> Unit) = apply { onSubscribe.add(consumer) }
+    fun addOnSubscribe(consumer: () -> Unit) = apply { onSubscribe.add(Action { consumer.invoke() }) }
 
     abstract fun subscribe(): Disposable
 
@@ -38,7 +36,11 @@ fun <T> Flowable<T>.buildSubscription() = object : SubscriptionBuilder<T>() {
         return onBackpressureBuffer()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(onNext, onError, onComplete, onSubscribe)
+                .doOnCancel { onDispose.run() }
+                .subscribe(onNext, onError, onComplete, CompositeConsumer<Subscription>().apply {
+                    add { it.request(Long.MAX_VALUE) }
+                    add { onSubscribe.run() }
+                }).apply { }
     }
 }
 
@@ -48,6 +50,7 @@ fun <T> Single<T>.buildSubscription() = object : SubscriptionBuilder<T>() {
         return subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnDispose { onDispose.run() }
+                .doOnSubscribe { onSubscribe.run() }
                 .subscribe(onNext, onError)
     }
 }
@@ -57,6 +60,7 @@ fun <T> Maybe<T>.buildSubscription() = object : SubscriptionBuilder<T>() {
         return subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnDispose { onDispose.run() }
+                .doOnSubscribe { onSubscribe.run() }
                 .subscribe(onNext, onError, onComplete)
     }
 }
@@ -66,6 +70,7 @@ fun Completable.buildSubscription() = object : SubscriptionBuilder<Any>() {
         return subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnDispose { onDispose.run() }
+                .doOnSubscribe { onSubscribe.run() }
                 .subscribe(onComplete, onError)
     }
 }

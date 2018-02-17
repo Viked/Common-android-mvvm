@@ -54,9 +54,6 @@ open class BaseViewModel(val titleId: Int = 0) : ViewModel() {
                 return
             }
         }
-        if (!silent) {
-            progress.set(true)
-        }
         subscriptionsHolder.append(key, subscriptionBuilder.invoke().subscribeOnModel(silent))
     }
 
