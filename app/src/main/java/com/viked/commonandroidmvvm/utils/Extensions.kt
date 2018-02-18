@@ -12,7 +12,7 @@ import java.util.*
 /**
  * Created by yevgeniishein on 7/25/17.
  */
-fun Double.cutDecimal(count: Int) = String.format("%.${count}f", this)
+fun Double.cutDecimal(count: Int) = String.format(Locale.ROOT, "%.${count}f", this)
 
 fun Context.openLink(link: String) {
     val i = Intent(ACTION_VIEW)

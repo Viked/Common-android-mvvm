@@ -2,7 +2,9 @@ package com.viked.commonandroidmvvm.ui.common
 
 import android.databinding.Observable
 import android.databinding.ObservableBoolean
+import android.text.InputFilter
 import android.view.MenuItem
+import android.widget.EditText
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -21,4 +23,8 @@ fun MenuItem.setVisibilityBinding(visibility: ObservableBoolean) {
 fun Long.getFormattedDate(): String {
     val dateFormat = SimpleDateFormat("dd/MM/yy")
     return dateFormat.format(Date(this))
+}
+
+fun EditText.addFilter(inputFilter: InputFilter) {
+    filters += inputFilter
 }
