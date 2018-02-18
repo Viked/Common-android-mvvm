@@ -13,11 +13,14 @@ import dagger.android.support.HasSupportFragmentInjector
 /**
  * Helper class to automatically inject fragments if they implement [Injectable].
  */
-abstract class BaseAppInjector<in T : Application> : Application.ActivityLifecycleCallbacks {
+abstract class BaseAppInjector<T : Application> : Application.ActivityLifecycleCallbacks {
+
+    var application: T? = null
 
     abstract fun initComponent(application: T)
 
     fun init(application: T) {
+        this.application = application
         initComponent(application)
         application.registerActivityLifecycleCallbacks(this)
     }

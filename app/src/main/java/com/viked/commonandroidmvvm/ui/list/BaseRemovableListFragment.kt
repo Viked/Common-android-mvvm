@@ -12,7 +12,7 @@ import com.viked.commonandroidmvvm.ui.dialog.ConfirmDialogFragment
 /**
  * Created by yevgeniishein on 1/13/18.
  */
-abstract class BaseRemovableListFragment<T : BaseRemovableListViewModel, B : ViewDataBinding> : BaseSelectableListFragment<T, B>(), ConfirmDialogFragment.Callback {
+abstract class BaseRemovableListFragment<T : BaseRemovableListViewModel<*>, B : ViewDataBinding> : BaseSelectableListFragment<T, B>(), ConfirmDialogFragment.Callback {
 
     var selectAllButton: AutoClearedValue<MenuItem>? = null
     var deleteButton: AutoClearedValue<MenuItem>? = null

@@ -6,7 +6,7 @@ import com.viked.commonandroidmvvm.rx.SubscriptionBuilder
 /**
  * Created by yevgeniishein on 10/15/17.
  */
-abstract class BaseSelectableListViewModel(titleId: Int = 0) : BaseListViewModel(titleId) {
+abstract class BaseSelectableListViewModel<T>(titleId: Int = 0) : BaseListViewModel<T>(titleId) {
 
     val selectMode = ObservableBoolean(false)
 
@@ -31,6 +31,6 @@ abstract class BaseSelectableListViewModel(titleId: Int = 0) : BaseListViewModel
                 false
             }
 
-    override fun addListSubscription(subscriptionBuilder: SubscriptionBuilder<List<ItemWrapper>>) =
+    override fun addListSubscription(subscriptionBuilder: SubscriptionBuilder<T>) =
             super.addListSubscription(subscriptionBuilder).addOnComplete { selectMode.set(false) }
 }

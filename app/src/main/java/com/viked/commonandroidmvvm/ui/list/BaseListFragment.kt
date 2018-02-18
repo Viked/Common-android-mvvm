@@ -7,7 +7,7 @@ import com.viked.commonandroidmvvm.ui.fragment.BaseFragment
 /**
  * Created by yevgeniishein on 10/20/17.
  */
-abstract class BaseListFragment<T : BaseListViewModel, B : ViewDataBinding> : BaseFragment<T, B>() {
+abstract class BaseListFragment<T : BaseListViewModel<*>, B : ViewDataBinding> : BaseFragment<T, B>() {
 
     lateinit var adapter: AutoClearedValue<DelegateRecyclerViewAdapter>
 

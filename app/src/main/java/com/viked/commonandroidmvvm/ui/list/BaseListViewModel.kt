@@ -10,7 +10,7 @@ import com.viked.commonandroidmvvm.ui.fragment.BaseViewModel
 /**
  * Created by yevgeniishein on 10/15/17.
  */
-abstract class BaseListViewModel(titleId: Int = 0) : BaseViewModel(titleId), SwipeRefreshLayout.OnRefreshListener {
+abstract class BaseListViewModel<T>(titleId: Int = 0) : BaseViewModel(titleId), SwipeRefreshLayout.OnRefreshListener {
 
     private val listLoadKey = 1
 
@@ -20,7 +20,9 @@ abstract class BaseListViewModel(titleId: Int = 0) : BaseViewModel(titleId), Swi
 
     var empty: ObservableListEmpty = ObservableListEmpty(list)
 
-    abstract fun getListSubscriptionBuilder(): SubscriptionBuilder<List<ItemWrapper>>
+    abstract fun getListSubscriptionBuilder(): SubscriptionBuilder<T>
+
+    abstract fun getList(model: T): List<ItemWrapper>
 
     override fun onCleared() {
         empty.clear()
@@ -31,12 +33,12 @@ abstract class BaseListViewModel(titleId: Int = 0) : BaseViewModel(titleId), Swi
         subscribe({ addListSubscription(getListSubscriptionBuilder()) }, listLoadKey, force = list.isNotEmpty())
     }
 
-    open fun addListSubscription(subscriptionBuilder: SubscriptionBuilder<List<ItemWrapper>>) =
-            subscriptionBuilder.addOnSubscribe { list.clear() }
+    open fun addListSubscription(subscriptionBuilder: SubscriptionBuilder<T>) =
+            subscriptionBuilder
                     .addOnError { list.clear() }
                     .addOnNext {
                         list.clear()
-                        list.addAll(it)
+                        list.addAll(getList(it))
                     }
 
     override fun onRefresh() {

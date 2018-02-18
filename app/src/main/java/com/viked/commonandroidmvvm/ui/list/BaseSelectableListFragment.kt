@@ -7,7 +7,7 @@ import com.viked.commonandroidmvvm.ui.binding.addOnPropertyChangeListener
 /**
  * Created by yevgeniishein on 10/20/17.
  */
-abstract class BaseSelectableListFragment<T : BaseSelectableListViewModel, B : ViewDataBinding> : BaseListFragment<T, B>() {
+abstract class BaseSelectableListFragment<T : BaseSelectableListViewModel<*>, B : ViewDataBinding> : BaseListFragment<T, B>() {
 
     override fun newAdapterInstance(viewModel: T): DelegateRecyclerViewAdapter {
         return SelectableDelegateRecyclerViewAdapter(viewModel.selectMode, viewModel.list)
