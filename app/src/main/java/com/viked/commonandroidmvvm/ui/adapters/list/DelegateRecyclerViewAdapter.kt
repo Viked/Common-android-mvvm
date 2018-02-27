@@ -1,15 +1,17 @@
-package com.viked.commonandroidmvvm.ui.list
+package com.viked.commonandroidmvvm.ui.adapters.list
 
 import android.databinding.ObservableList
 import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
 import com.hannesdorfmann.adapterdelegates3.AdapterDelegatesManager
+import com.viked.commonandroidmvvm.ui.adapters.AdapterDelegate
+import com.viked.commonandroidmvvm.ui.adapters.ListChangeCallback
 
 
 /**
  * Created by Viked on 12/24/2016.
  */
-open class DelegateRecyclerViewAdapter(val items: ObservableList<ItemWrapper>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+open class DelegateRecyclerViewAdapter(val items: ObservableList<ItemWrapper>) : RecyclerView.Adapter<RecyclerView.ViewHolder>(), AdapterDelegate {
 
     private var delegateViewType = 0
 
@@ -43,32 +45,27 @@ open class DelegateRecyclerViewAdapter(val items: ObservableList<ItemWrapper>) :
 
     override fun getItemCount(): Int = items.size
 
-    override fun onAttachedToRecyclerView(recyclerView: RecyclerView?) {
-        super.onAttachedToRecyclerView(recyclerView)
+    override fun subscribe() {
         items.addOnListChangedCallback(onListChangeCallback)
+        update()
     }
 
-    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView?) {
-        super.onDetachedFromRecyclerView(recyclerView)
+    override fun unsubscribe() {
         items.removeOnListChangedCallback(onListChangeCallback)
     }
 
-    private val onListChangeCallback: ObservableList.OnListChangedCallback<ObservableList<ItemWrapper>> =
-            object : ObservableList.OnListChangedCallback<ObservableList<ItemWrapper>>() {
+    override fun update() {
+        notifyDataSetChanged()
+    }
+
+    private val onListChangeCallback =
+            object : ListChangeCallback(Runnable { update() }) {
                 override fun onItemRangeRemoved(sender: ObservableList<ItemWrapper>?, positionStart: Int, itemCount: Int) {
                     notifyItemRangeRemoved(positionStart, itemCount)
                 }
 
-                override fun onItemRangeMoved(sender: ObservableList<ItemWrapper>?, fromPosition: Int, toPosition: Int, itemCount: Int) {
-                    notifyDataSetChanged()
-                }
-
                 override fun onItemRangeChanged(sender: ObservableList<ItemWrapper>?, positionStart: Int, itemCount: Int) {
                     notifyItemRangeChanged(positionStart, itemCount)
-                }
-
-                override fun onChanged(sender: ObservableList<ItemWrapper>?) {
-                    notifyDataSetChanged()
                 }
 
                 override fun onItemRangeInserted(sender: ObservableList<ItemWrapper>?, positionStart: Int, itemCount: Int) {

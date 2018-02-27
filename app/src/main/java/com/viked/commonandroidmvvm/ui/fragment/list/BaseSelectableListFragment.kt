@@ -1,7 +1,9 @@
-package com.viked.commonandroidmvvm.ui.list
+package com.viked.commonandroidmvvm.ui.fragment.list
 
 import android.databinding.ViewDataBinding
 import com.viked.commonandroidmvvm.R
+import com.viked.commonandroidmvvm.ui.adapters.list.DelegateRecyclerViewAdapter
+import com.viked.commonandroidmvvm.ui.adapters.list.SelectableDelegateRecyclerViewAdapter
 import com.viked.commonandroidmvvm.ui.binding.addOnPropertyChangeListener
 
 /**

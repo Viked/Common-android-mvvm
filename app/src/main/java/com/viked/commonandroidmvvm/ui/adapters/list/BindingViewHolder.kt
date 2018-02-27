@@ -1,4 +1,4 @@
-package com.viked.commonandroidmvvm.ui.list
+package com.viked.commonandroidmvvm.ui.adapters.list
 
 import android.databinding.ViewDataBinding
 import android.support.v7.widget.RecyclerView

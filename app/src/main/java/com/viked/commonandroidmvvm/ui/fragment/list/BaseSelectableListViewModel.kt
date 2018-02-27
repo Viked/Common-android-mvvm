@@ -1,4 +1,4 @@
-package com.viked.commonandroidmvvm.ui.list
+package com.viked.commonandroidmvvm.ui.fragment.list
 
 import android.databinding.ObservableBoolean
 import com.viked.commonandroidmvvm.rx.SubscriptionBuilder

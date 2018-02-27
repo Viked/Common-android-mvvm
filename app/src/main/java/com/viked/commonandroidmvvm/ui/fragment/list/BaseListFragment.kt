@@ -1,6 +1,7 @@
-package com.viked.commonandroidmvvm.ui.list
+package com.viked.commonandroidmvvm.ui.fragment.list
 
 import android.databinding.ViewDataBinding
+import com.viked.commonandroidmvvm.ui.adapters.list.DelegateRecyclerViewAdapter
 import com.viked.commonandroidmvvm.ui.common.AutoClearedValue
 import com.viked.commonandroidmvvm.ui.fragment.BaseFragment
 
@@ -19,6 +20,7 @@ abstract class BaseListFragment<T : BaseListViewModel<*>, B : ViewDataBinding> :
 
     private fun initRecyclerView(binding: B, viewModel: T) {
         val adapter = newAdapterInstance(viewModel)
+        addAdapterDelegate(adapter)
         this.adapter = AutoClearedValue(this, adapter)
         addDelegates(adapter, viewModel)
         setAdapter(adapter, binding)

@@ -15,6 +15,7 @@ import com.viked.commonandroidmvvm.log.Analytic
 import com.viked.commonandroidmvvm.log.log
 import com.viked.commonandroidmvvm.text.TextWrapper
 import com.viked.commonandroidmvvm.ui.activity.BaseActivity
+import com.viked.commonandroidmvvm.ui.adapters.AdapterDelegate
 import com.viked.commonandroidmvvm.ui.binding.addOnPropertyChangeListener
 import com.viked.commonandroidmvvm.ui.common.AutoClearedValue
 import com.viked.commonandroidmvvm.ui.common.Cancelable
@@ -43,6 +44,8 @@ abstract class BaseFragment<T : BaseViewModel, B : ViewDataBinding> : Fragment()
 
     lateinit var binding: AutoClearedValue<B>
 
+    lateinit var adapters: AutoClearedValue<MutableList<AdapterDelegate>>
+
     abstract val layoutId: Int
 
     abstract val viewModelClass: Class<T>
@@ -57,6 +60,7 @@ abstract class BaseFragment<T : BaseViewModel, B : ViewDataBinding> : Fragment()
         val activity = activity()
         if (binding != null && activity != null) {
             arguments?.run { initArguments(viewModel, this) }
+            adapters = AutoClearedValue(this, mutableListOf())
             viewModel.onInit()
             viewModel.loadData()
             setViewModelToBinding(binding, viewModel)
@@ -64,6 +68,7 @@ abstract class BaseFragment<T : BaseViewModel, B : ViewDataBinding> : Fragment()
             initView(binding, viewModel)
             progressDelegate = AutoClearedValue(this, initProgressDelegate(binding, viewModel, activity))
             errorDelegate = AutoClearedValue(this, initErrorDelegate(binding, viewModel, activity))
+            adapters.value?.forEach { it.subscribe() }
             logStartEvent()
         } else {
             RuntimeException("BaseFragment has empty params\nbinding: ${this.binding.value}\nviewModel: ${this.viewModel.value}").log()
@@ -79,6 +84,7 @@ abstract class BaseFragment<T : BaseViewModel, B : ViewDataBinding> : Fragment()
     }
 
     override fun onDestroyView() {
+        adapters.value?.forEach { it.unsubscribe() }
         viewModel.value?.onCleared()
         super.onDestroyView()
     }
@@ -137,6 +143,10 @@ abstract class BaseFragment<T : BaseViewModel, B : ViewDataBinding> : Fragment()
                 activity.title = newTitle
             }
         }
+    }
+
+    protected fun addAdapterDelegate(adapterDelegate: AdapterDelegate) {
+        adapters.value?.add(adapterDelegate)
     }
 
     private fun logStartEvent() {
