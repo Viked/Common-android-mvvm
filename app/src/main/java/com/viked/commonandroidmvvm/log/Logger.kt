@@ -1,18 +1,16 @@
 package com.viked.commonandroidmvvm.log
 
-import android.util.Log
+import com.crashlytics.android.Crashlytics
+import com.viked.commonandroidmvvm.BuildConfig
+import timber.log.Timber
 
 /**
  * Created by yevgeniishein on 10/9/17.
  */
 
 fun Throwable.log() {
-    Log.e("Error", message ?: "", this)
-    /*
-    if (BuildConfig.DEBUG) {
-        Log.e("Error", message ?: "", this)
-    } else {
+    Timber.e(this)
+    if (!BuildConfig.DEBUG) {
         Crashlytics.logException(this)
     }
-    */
 }

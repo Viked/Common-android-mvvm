@@ -3,7 +3,6 @@ package com.viked.commonandroidmvvm.ui.fragment
 import android.arch.lifecycle.ViewModel
 import android.databinding.ObservableField
 import android.util.SparseArray
-import com.viked.commonandroidmvvm.log.log
 import com.viked.commonandroidmvvm.rx.SubscriptionBuilder
 import com.viked.commonandroidmvvm.text.TextWrapper
 import com.viked.commonandroidmvvm.ui.binding.ProgressObservable
@@ -54,12 +53,11 @@ open class BaseViewModel(val titleId: Int = 0) : ViewModel() {
                 return
             }
         }
-        subscriptionsHolder.append(key, subscriptionBuilder.invoke().subscribeOnModel(silent))
+        subscriptionsHolder.append(key, subscriptionBuilder.invoke().subscribeOnModel(silent, key))
     }
 
-    private fun <T> SubscriptionBuilder<T>.subscribeOnModel(silent: Boolean): Disposable = this
-            .setProgress(silent)
-            .addOnError { it.log() }
+    private fun <T> SubscriptionBuilder<T>.subscribeOnModel(silent: Boolean, key: Int): Disposable = this
+            .setProgress(silent, key)
             .addOnError {
                 if (it is BaseError) error.set(it)
                 else if (it.cause != null && it.cause is BaseError) error.set(it.cause as BaseError)
@@ -67,11 +65,11 @@ open class BaseViewModel(val titleId: Int = 0) : ViewModel() {
             .subscribe()
             .also { subscription?.add(it) }
 
-    private fun <T> SubscriptionBuilder<T>.setProgress(silent: Boolean) = apply {
+    private fun <T> SubscriptionBuilder<T>.setProgress(silent: Boolean, id: Int) = apply {
         if (!silent) this
-                .addOnSubscribe { progress.set(true) }
-                .addOnComplete { progress.set(false) }
-                .addOnDispose { progress.set(false) }
-                .addOnError { progress.set(false) }
+                .addOnSubscribe { progress + id }
+                .addOnComplete { progress - id }
+                .addOnDispose { progress - id }
+                .addOnError { progress - id }
     }
 }

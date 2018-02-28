@@ -1,48 +1,62 @@
 package com.viked.commonandroidmvvm.ui.adapters.radio
 
-import android.databinding.ObservableList
+import android.databinding.Observable
+import android.databinding.ObservableField
 import android.widget.RadioButton
 import android.widget.RadioGroup
 import com.viked.commonandroidmvvm.ui.adapters.AdapterDelegate
-import com.viked.commonandroidmvvm.ui.adapters.ListChangeCallback
 import com.viked.commonandroidmvvm.ui.adapters.list.ItemWrapper
 
 /**
  * Created by yevgeniishein on 2/24/18.
  */
-class RadioGroupAdapter(private val radioGroup: RadioGroup, private val list: ObservableList<ItemWrapper>) : AdapterDelegate, RadioGroup.OnCheckedChangeListener {
+class RadioGroupAdapter(private val radioGroup: RadioGroup, private val list: ObservableField<List<ItemWrapper>>) : AdapterDelegate, RadioGroup.OnCheckedChangeListener {
 
-    private val onListChangeCallback = ListChangeCallback(Runnable { update() })
+    private val onListChangeCallback = object : Observable.OnPropertyChangedCallback() {
+        override fun onPropertyChanged(sender: Observable?, propertyId: Int) {
+            update()
+        }
+    }
 
-    override fun onCheckedChanged(p0: RadioGroup?, p1: Int) = list
-            .filter { it is RadioItemWrapper }
-            .map { it as RadioItemWrapper }
-            .forEach { it.selected.set(p1 == it.titleId) }
-
+    override fun onCheckedChanged(p0: RadioGroup?, p1: Int) {
+        list.get()
+                ?.filter { it is RadioItemWrapper }
+                ?.map { it as RadioItemWrapper }
+                ?.forEach { it.selected.set(p1 == it.titleId) }
+                ?.let {
+                    list.removeOnPropertyChangedCallback(onListChangeCallback)
+                    list.notifyChange()
+                    list.addOnPropertyChangedCallback(onListChangeCallback)
+                }
+    }
 
     override fun subscribe() {
         radioGroup.setOnCheckedChangeListener(this)
-        list.addOnListChangedCallback(onListChangeCallback)
+        list.addOnPropertyChangedCallback(onListChangeCallback)
         update()
     }
 
     override fun unsubscribe() {
         radioGroup.setOnCheckedChangeListener(null)
-        list.removeOnListChangedCallback(onListChangeCallback)
+        list.removeOnPropertyChangedCallback(onListChangeCallback)
     }
 
-    override fun update() = with(radioGroup) {
-        removeAllViews()
-        list.filter { it is RadioItemWrapper }
-                .map { it as RadioItemWrapper }
-                .forEach {
-                    addView(RadioButton(context).apply {
-                        text = it.name[context]
-                        id = it.titleId
-                        isSelected = it.selected.get()
-                    })
-                }
-    }
+    override fun update() {
+        radioGroup.setOnCheckedChangeListener(null)
+        with(radioGroup) {
+            removeAllViews()
+            list.get()?.filter { it is RadioItemWrapper }
+                    ?.map { it as RadioItemWrapper }
+                    ?.forEach {
+                        addView(RadioButton(context).apply {
+                            text = it.name[context]
+                            id = it.titleId
+                            isChecked = it.selected.get()
+                        })
+                    }
 
+        }
+        radioGroup.setOnCheckedChangeListener(this)
+    }
 
 }

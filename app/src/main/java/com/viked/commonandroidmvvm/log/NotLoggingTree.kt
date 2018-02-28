@@ -1,0 +1,14 @@
+
+package com.viked.commonandroidmvvm.log
+
+import timber.log.Timber
+
+/**
+ * Created by shein on 2/7/2018.
+ */
+class NotLoggingTree : Timber.Tree() {
+
+    override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
+        //Not implemented for release
+    }
+}

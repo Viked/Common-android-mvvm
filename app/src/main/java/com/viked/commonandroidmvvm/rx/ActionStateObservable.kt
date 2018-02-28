@@ -1,6 +1,8 @@
 package com.viked.commonandroidmvvm.rx
 
 import android.databinding.ObservableField
+import android.os.Handler
+import android.os.Looper
 
 /**
  * Created by yevgeniishein on 12/25/17.
@@ -8,11 +10,11 @@ import android.databinding.ObservableField
 class ActionStateObservable : ObservableField<State>(State.None) {
 
     fun onComplete() {
-        set(State.Complete)
+        Handler(Looper.getMainLooper()).post({ set(State.Complete) })
     }
 
     fun onError(t: Throwable) {
-        set(State.Error(t))
+        Handler(Looper.getMainLooper()).post({ set(State.Error(t)) })
     }
 }
 

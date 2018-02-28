@@ -3,8 +3,10 @@ package com.viked.commonandroidmvvm
 import android.app.Activity
 import android.app.Application
 import com.viked.commonandroidmvvm.log.Analytic
+import com.viked.commonandroidmvvm.log.NotLoggingTree
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.HasActivityInjector
+import timber.log.Timber
 import javax.inject.Inject
 
 /**
@@ -28,11 +30,20 @@ abstract class BaseApp : Application(), HasActivityInjector {
         super.onCreate()
         inject()
         initFabric()
+        initLogger()
     }
 
     private fun initFabric() {
         if (!BuildConfig.DEBUG) {
             analytic.init()
+        }
+    }
+
+    private fun initLogger() {
+        if (!BuildConfig.DEBUG) {
+            Timber.plant(NotLoggingTree())
+        } else {
+            Timber.plant(Timber.DebugTree())
         }
     }
 
