@@ -62,4 +62,6 @@ dependencies {
 
     compile 'com.jakewharton.timber:timber:4.6.0'
 
+    api 'com.android.billingclient:billing:1.0'
+
 }
