@@ -2,6 +2,8 @@ package com.viked.commonandroidmvvm
 
 import android.app.Activity
 import android.app.Application
+import com.evernote.android.job.JobCreator
+import com.evernote.android.job.JobManager
 import com.viked.commonandroidmvvm.log.Analytic
 import com.viked.commonandroidmvvm.log.NotLoggingTree
 import dagger.android.DispatchingAndroidInjector
@@ -20,6 +22,9 @@ abstract class BaseApp : Application(), HasActivityInjector {
     @Inject
     lateinit var analytic: Analytic
 
+    @Inject
+    lateinit var jobCreator: JobCreator
+
     abstract fun inject()
 
     override fun activityInjector(): DispatchingAndroidInjector<Activity> {
@@ -31,6 +36,8 @@ abstract class BaseApp : Application(), HasActivityInjector {
         inject()
         initFabric()
         initLogger()
+
+        JobManager.create(this).addJobCreator(jobCreator)
     }
 
     private fun initFabric() {
