@@ -1,5 +1,6 @@
 package com.viked.commonandroidmvvm.rx
 
+import com.viked.commonandroidmvvm.log.log
 import io.reactivex.Completable
 import io.reactivex.Flowable
 import io.reactivex.Maybe
@@ -16,7 +17,9 @@ import org.reactivestreams.Subscription
 abstract class SubscriptionBuilder<T> {
 
     protected val onNext: CompositeConsumer<T> = CompositeConsumer()
-    protected val onError: CompositeConsumer<Throwable> = CompositeConsumer<Throwable>()
+    protected val onError: CompositeConsumer<Throwable> = CompositeConsumer<Throwable>().apply {
+        add { it.log() }
+    }
     protected val onComplete: CompositeAction = CompositeAction()
     protected val onSubscribe: CompositeAction = CompositeAction()
     protected val onDispose: CompositeAction = CompositeAction()
