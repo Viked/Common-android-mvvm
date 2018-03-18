@@ -2,18 +2,23 @@ package com.viked.commonandroidmvvm.ui.binding
 
 import android.app.Activity
 import android.databinding.BindingAdapter
+import android.support.design.widget.AppBarLayout
 import android.support.design.widget.FloatingActionButton
 import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.widget.Toolbar
 import android.text.SpannableString
+import android.text.TextUtils
+import android.text.format.DateFormat
 import android.text.style.UnderlineSpan
 import android.util.DisplayMetrics
+import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import com.viked.commonandroidmvvm.text.TextWrapper
 import com.viked.commonandroidmvvm.ui.common.HideKeyoardClickListener
 import com.viked.commonandroidmvvm.ui.adapters.list.ItemWrapper
+import java.util.*
 import kotlin.math.roundToInt
 
 
@@ -112,4 +117,42 @@ fun setAdapter(spinner: Spinner, list: List<ItemWrapper>?) {
 fun setView(container: ViewGroup, view: View?) {
     container.removeAllViews()
     view?.run { container.addView(this) }
+}
+
+@BindingAdapter("android:text")
+fun setText(container: TextView, text: TextWrapper?) {
+    container.text = text?.get(container.context)
+}
+
+@BindingAdapter("collapsing")
+fun setCollapsingPeriod(appBarLayout: AppBarLayout, any: Any?) {
+    appBarLayout.setExpanded(any != null)
+}
+
+@BindingAdapter("collapsingValue")
+fun setCollapsingValue(appBarLayout: AppBarLayout, any: Boolean?) {
+    appBarLayout.setExpanded(any == true)
+}
+
+@BindingAdapter("date")
+fun setDate(textView: TextView, date: Date?) {
+    var text = ""
+    if (date != null) {
+        text = DateFormat.getDateFormat(textView.context).format(date)
+    }
+    textView.text = text
+}
+
+@BindingAdapter("fullDate")
+fun setFullDate(textView: TextView, date: Date?) {
+    var text = ""
+    if (date != null) {
+        text = DateFormat.getDateFormat(textView.context).format(date) + " - " + DateFormat.getTimeFormat(textView.context).format(date)
+    }
+    textView.text = text
+}
+
+@BindingAdapter("commentIcon")
+fun setCommentIcon(view: ImageView, comment: String) {
+    view.visibility = if (TextUtils.isEmpty(comment)) View.GONE else View.VISIBLE
 }

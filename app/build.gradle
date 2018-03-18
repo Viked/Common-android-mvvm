@@ -1,6 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
 
 android {
 
@@ -65,5 +66,7 @@ dependencies {
     compile 'com.evernote:android-job:1.2.4'
 
     api 'com.android.billingclient:billing:1.0'
+
+    kapt "com.android.databinding:compiler:3.0.1"
 
 }
