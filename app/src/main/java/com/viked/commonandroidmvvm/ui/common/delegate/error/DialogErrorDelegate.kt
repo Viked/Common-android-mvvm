@@ -12,10 +12,11 @@ import com.viked.commonandroidmvvm.ui.common.delegate.BaseViewDelegate
 class DialogErrorDelegate(private val context: BaseActivity) : BaseViewDelegate<ObservableField<BaseError>>(), ErrorDelegate {
 
     override fun updateWithValue(observables: Set<Observable>) {
-        val error = observables.map { it as ObservableField<BaseError> }.find { it.get() != null }
-        if (context.active && error != null && error.get() != null) {
-            showError(error.get())
-            error.set(null)
+        val errorObserver = observables.filter { it is ObservableField<*> }.map { it as ObservableField<*> }.find { it.get() is BaseError }
+        val error = errorObserver?.get() as? BaseError
+        if (context.active && errorObserver != null && error != null) {
+            showError(error)
+            errorObserver.set(null)
         }
     }
 

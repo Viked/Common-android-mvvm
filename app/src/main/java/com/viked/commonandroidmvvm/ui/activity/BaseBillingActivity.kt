@@ -2,6 +2,7 @@ package com.viked.commonandroidmvvm.ui.activity
 
 import android.os.Bundle
 import com.viked.commonandroidmvvm.billing.BillingDelegate
+import com.viked.commonandroidmvvm.billing.BillingHelper
 import com.viked.commonandroidmvvm.billing.BillingRepository
 import javax.inject.Inject
 
@@ -13,14 +14,14 @@ abstract class BaseBillingActivity : BaseActivity() {
     @Inject
     lateinit var billingRepository: BillingRepository
 
-    lateinit var billingDelegate: BillingDelegate
+    @Inject
+    lateinit var billingHelper: BillingHelper
 
-    abstract val purchaseSkuIds: List<String>
-    abstract val suscriptionsSkuIds: List<String>
+    lateinit var billingDelegate: BillingDelegate
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        billingDelegate = BillingDelegate(this, billingRepository)
+        billingDelegate = BillingDelegate(this,billingHelper, billingRepository)
     }
 
     override fun onResume() {

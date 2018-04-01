@@ -2,6 +2,7 @@ package com.viked.commonandroidmvvm.preference
 
 import android.app.Application
 import android.preference.PreferenceManager
+import com.google.gson.Gson
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -11,12 +12,22 @@ import javax.inject.Singleton
 @Singleton
 class PreferenceHelper @Inject constructor(val context: Application) {
 
-    private val preferences = PreferenceManager.getDefaultSharedPreferences(context)
+    val gson = Gson()
 
-    operator fun <T> get(id: Int): T? = getPreferenceValue(id) as T?
+    val preferences = PreferenceManager.getDefaultSharedPreferences(context)
+
+    inline operator fun <reified T : Any> get(id: Int): T? {
+        val clazz = T::class.java
+        val value = preferences.all[context.getString(id)] ?: return null
+
+        return when {
+            value::class.java == clazz -> value as T
+            value is String -> gson.fromJson(value, clazz)
+            else -> error("Unsupported value type")
+        }
+    }
+
     operator fun set(id: Int, value: Any) = setPreferenceValue(id, value)
-
-    private fun getPreferenceValue(id: Int): Any? = preferences.all[context.getString(id)]
 
     private fun setPreferenceValue(id: Int, value: Any) {
         val key = context.getString(id)
@@ -28,7 +39,7 @@ class PreferenceHelper @Inject constructor(val context: Application) {
                 is Float -> putFloat(key, value)
                 is Long -> putLong(key, value)
                 is Set<*> -> putStringSet(key, value as Set<String>)
-                else -> error("Unsupported value type")
+                else -> putString(key, gson.toJson(value))
             }
         }.apply()
     }

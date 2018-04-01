@@ -1,10 +1,10 @@
 package com.viked.commonandroidmvvm.billing
 
+import android.app.Activity
 import android.databinding.ObservableField
 import com.android.billingclient.api.*
 import com.viked.commonandroidmvvm.R
 import com.viked.commonandroidmvvm.log.log
-import com.viked.commonandroidmvvm.ui.activity.BaseBillingActivity
 import com.viked.commonandroidmvvm.ui.adapters.AdapterDelegate
 import timber.log.Timber
 import java.io.IOException
@@ -13,7 +13,9 @@ import java.util.*
 /**
  * Created by yevgeniishein on 3/14/18.
  */
-class BillingDelegate(private val activity: BaseBillingActivity, private val repository: BillingRepository) : AdapterDelegate, PurchasesUpdatedListener {
+class BillingDelegate(private val activity: Activity,
+                      private val billingHelper: BillingHelper,
+                      private val repository: BillingRepository) : AdapterDelegate, PurchasesUpdatedListener {
 
     /** A reference to BillingClient  */
     private val billingClient = ObservableField<BillingClient>()
@@ -104,9 +106,9 @@ class BillingDelegate(private val activity: BaseBillingActivity, private val rep
     private fun BillingClient.querySkuDetails() {
         val dataList = mutableListOf<SkuDetails>()
 
-        getSku(dataList, activity.suscriptionsSkuIds, BillingClient.SkuType.SUBS, Runnable {
+        getSku(dataList, billingHelper.suscriptionsSkuIds, BillingClient.SkuType.SUBS, Runnable {
             // Once we added all the subscription items, fill the in-app items rows below
-            getSku(dataList, activity.purchaseSkuIds, BillingClient.SkuType.INAPP, Runnable {
+            getSku(dataList, billingHelper.purchaseSkuIds, BillingClient.SkuType.INAPP, Runnable {
                 repository.updateSkuDetails(dataList)
                 queryPurchases()
             })
