@@ -49,8 +49,7 @@ abstract class BaseListViewModel<T>(titleId: Int = 0) : BaseViewModel(titleId), 
                         listProgress.set(false)
                     }
                     .addOnNext {
-                        list.clear()
-                        list.addAll(getList(it))
+                        list.updateList(getList(it))
                         empty.set(list.isEmpty())
                         listProgress.set(false)
                     }
@@ -63,5 +62,25 @@ abstract class BaseListViewModel<T>(titleId: Int = 0) : BaseViewModel(titleId), 
 
     override fun onRefresh() {
         loadData()
+    }
+
+    private fun ObservableList<ItemWrapper>.updateList(list: List<ItemWrapper>) {
+        when {
+            list.isEmpty() -> clear()
+            isEmpty() -> addAll(list)
+            size < list.size -> {
+                list.take(size).forEachIndexed { index, itemWrapper -> set(index, itemWrapper) }
+                addAll(list.takeLast(list.size - size))
+            }
+            size > list.size -> {
+                list.forEachIndexed { index, itemWrapper -> set(index, itemWrapper) }
+                removeAll(takeLast(size - list.size))
+            }
+            size == list.size -> list.forEachIndexed { index, itemWrapper -> set(index, itemWrapper) }
+            else -> {
+                clear()
+                addAll(list)
+            }
+        }
     }
 }
