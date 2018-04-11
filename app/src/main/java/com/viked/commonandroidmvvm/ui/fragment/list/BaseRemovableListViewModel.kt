@@ -13,7 +13,11 @@ abstract class BaseRemovableListViewModel<T>(titleId: Int = 0) : BaseSelectableL
     abstract fun getRemoveSubscriber(list: List<ItemWrapper>): SubscriptionBuilder<Any>
 
     fun removeItems() {
-        subscribe({ getRemoveSubscriber(getSelectedItems()).addOnComplete { loadData() } }, key = removeItemsId)
+        subscribe({
+            getRemoveSubscriber(getSelectedItems())
+                    .addOnSubscribe { list.clear() }
+                    .addOnComplete { loadData() }
+        }, key = removeItemsId)
     }
 
 }

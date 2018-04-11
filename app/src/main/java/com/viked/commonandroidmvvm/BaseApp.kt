@@ -6,6 +6,7 @@ import com.evernote.android.job.JobCreator
 import com.evernote.android.job.JobManager
 import com.viked.commonandroidmvvm.log.Analytic
 import com.viked.commonandroidmvvm.log.NotLoggingTree
+import com.viked.commonandroidmvvm.rx.RxHelper
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.HasActivityInjector
 import timber.log.Timber
@@ -25,6 +26,9 @@ abstract class BaseApp : Application(), HasActivityInjector {
     @Inject
     lateinit var jobCreator: JobCreator
 
+    @Inject
+    lateinit var rxHelper: RxHelper
+
     abstract fun inject()
 
     override fun activityInjector(): DispatchingAndroidInjector<Activity> {
@@ -36,6 +40,7 @@ abstract class BaseApp : Application(), HasActivityInjector {
         inject()
         initFabric()
         initLogger()
+        initRx()
 
         JobManager.create(this).addJobCreator(jobCreator)
     }
@@ -52,6 +57,10 @@ abstract class BaseApp : Application(), HasActivityInjector {
         } else {
             Timber.plant(Timber.DebugTree())
         }
+    }
+
+    private fun initRx() {
+        rxHelper.init()
     }
 
 }
