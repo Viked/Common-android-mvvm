@@ -2,6 +2,7 @@ package com.zfort.nexter.ui.list.click
 
 import android.view.View
 import com.viked.commonandroidmvvm.ui.adapters.list.ItemWrapper
+import com.viked.commonandroidmvvm.ui.common.click.ClickComponent
 
 /**
  * Created by yevgeniishein on 10/22/17.

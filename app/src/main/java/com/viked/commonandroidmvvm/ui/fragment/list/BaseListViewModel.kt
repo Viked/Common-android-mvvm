@@ -3,6 +3,8 @@ package com.viked.commonandroidmvvm.ui.fragment.list
 import android.databinding.ObservableArrayList
 import android.databinding.ObservableBoolean
 import android.databinding.ObservableList
+import android.os.Handler
+import android.os.Looper
 import android.support.v4.widget.SwipeRefreshLayout
 import com.viked.commonandroidmvvm.R
 import com.viked.commonandroidmvvm.rx.SubscriptionBuilder
@@ -49,7 +51,8 @@ abstract class BaseListViewModel<T>(titleId: Int = 0) : BaseViewModel(titleId), 
                         listProgress.set(false)
                     }
                     .addOnNext {
-                        list.updateList(getList(it))
+                        list.clear()
+                        list.addAll(getList(it))
                         empty.set(list.isEmpty())
                         listProgress.set(false)
                     }
@@ -64,23 +67,4 @@ abstract class BaseListViewModel<T>(titleId: Int = 0) : BaseViewModel(titleId), 
         loadData()
     }
 
-    private fun ObservableList<ItemWrapper>.updateList(list: List<ItemWrapper>) {
-        when {
-            list.isEmpty() -> clear()
-            isEmpty() -> addAll(list)
-            size < list.size -> {
-                list.take(size).forEachIndexed { index, itemWrapper -> set(index, itemWrapper) }
-                addAll(list.takeLast(list.size - size))
-            }
-            size > list.size -> {
-                list.forEachIndexed { index, itemWrapper -> set(index, itemWrapper) }
-                removeAll(takeLast(size - list.size))
-            }
-            size == list.size -> list.forEachIndexed { index, itemWrapper -> set(index, itemWrapper) }
-            else -> {
-                clear()
-                addAll(list)
-            }
-        }
-    }
 }

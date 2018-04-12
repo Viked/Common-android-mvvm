@@ -2,7 +2,7 @@ package com.viked.commonandroidmvvm.ui.adapters.list
 
 import android.databinding.ObservableBoolean
 import android.databinding.ObservableList
-import com.zfort.nexter.ui.list.click.BlockerClickDecorator
+import com.viked.commonandroidmvvm.ui.common.click.BlockerClickDecorator
 
 /**
  * Created by yevgeniishein on 7/24/17.

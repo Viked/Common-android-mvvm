@@ -6,8 +6,8 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.hannesdorfmann.adapterdelegates3.AdapterDelegate
-import com.zfort.nexter.ui.list.click.BaseClickComponent
-import com.zfort.nexter.ui.list.click.ClickComponent
+import com.viked.commonandroidmvvm.ui.common.click.BaseClickComponent
+import com.viked.commonandroidmvvm.ui.common.click.ClickComponent
 
 /**
  * Created by Viked on 12/31/2016.

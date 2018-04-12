@@ -11,13 +11,12 @@ import android.text.TextUtils
 import android.text.format.DateFormat
 import android.text.style.UnderlineSpan
 import android.util.DisplayMetrics
-import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import com.viked.commonandroidmvvm.text.TextWrapper
-import com.viked.commonandroidmvvm.ui.common.HideKeyoardClickListener
 import com.viked.commonandroidmvvm.ui.adapters.list.ItemWrapper
+import com.viked.commonandroidmvvm.ui.common.HideKeyoardClickListener
 import java.util.*
 import kotlin.math.roundToInt
 
@@ -143,11 +142,29 @@ fun setDate(textView: TextView, date: Date?) {
     textView.text = text
 }
 
+@BindingAdapter("date")
+fun setDate(textView: TextView, date: Long?) {
+    var text = ""
+    if (date != null) {
+        text = DateFormat.getDateFormat(textView.context).format(Date(date))
+    }
+    textView.text = text
+}
+
 @BindingAdapter("fullDate")
 fun setFullDate(textView: TextView, date: Date?) {
     var text = ""
     if (date != null) {
         text = DateFormat.getDateFormat(textView.context).format(date) + " - " + DateFormat.getTimeFormat(textView.context).format(date)
+    }
+    textView.text = text
+}
+
+@BindingAdapter("fullDate")
+fun setFullDate(textView: TextView, date: Long?) {
+    var text = ""
+    if (date != null) {
+        text = DateFormat.getDateFormat(textView.context).format(Date(date)) + " - " + DateFormat.getTimeFormat(textView.context).format(Date(date))
     }
     textView.text = text
 }
