@@ -1,6 +1,7 @@
 package com.viked.commonandroidmvvm.ui.fragment.list
 
 import android.databinding.ViewDataBinding
+import com.viked.commonandroidmvvm.ui.adapters.list.AdapterBehavior
 import com.viked.commonandroidmvvm.ui.adapters.list.DelegateRecyclerViewAdapter
 import com.viked.commonandroidmvvm.ui.common.AutoClearedValue
 import com.viked.commonandroidmvvm.ui.fragment.BaseFragment
@@ -12,6 +13,8 @@ abstract class BaseListFragment<T : BaseListViewModel<*>, B : ViewDataBinding> :
 
     lateinit var adapter: AutoClearedValue<DelegateRecyclerViewAdapter>
 
+    private lateinit var behavior: AutoClearedValue<AdapterBehavior>
+
     abstract fun addDelegates(adapter: DelegateRecyclerViewAdapter, viewModel: T)
 
     abstract fun setAdapter(adapter: DelegateRecyclerViewAdapter, binding: B)
@@ -20,7 +23,9 @@ abstract class BaseListFragment<T : BaseListViewModel<*>, B : ViewDataBinding> :
 
     private fun initRecyclerView(binding: B, viewModel: T) {
         val adapter = newAdapterInstance(viewModel)
-        addAdapterDelegate(adapter)
+        val behavior = AdapterBehavior(adapter, viewModel.list)
+        this.behavior = AutoClearedValue(this, behavior)
+        addAdapterDelegate(behavior)
         this.adapter = AutoClearedValue(this, adapter)
         addDelegates(adapter, viewModel)
         setAdapter(adapter, binding)
