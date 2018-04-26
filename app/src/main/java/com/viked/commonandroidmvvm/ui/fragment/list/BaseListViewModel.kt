@@ -3,8 +3,6 @@ package com.viked.commonandroidmvvm.ui.fragment.list
 import android.databinding.ObservableArrayList
 import android.databinding.ObservableBoolean
 import android.databinding.ObservableList
-import android.os.Handler
-import android.os.Looper
 import android.support.v4.widget.SwipeRefreshLayout
 import com.viked.commonandroidmvvm.R
 import com.viked.commonandroidmvvm.rx.SubscriptionBuilder
@@ -36,6 +34,7 @@ abstract class BaseListViewModel<T>(titleId: Int = 0) : BaseViewModel(titleId), 
     }
 
     override fun loadData() {
+        super.loadData()
         subscribe({ addListSubscription(getListSubscriptionBuilder()) }, listLoadKey, silent = true)
     }
 

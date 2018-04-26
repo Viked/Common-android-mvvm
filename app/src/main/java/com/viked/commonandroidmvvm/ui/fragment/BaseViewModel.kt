@@ -1,9 +1,12 @@
 package com.viked.commonandroidmvvm.ui.fragment
 
 import android.arch.lifecycle.ViewModel
+import android.databinding.ObservableBoolean
 import android.databinding.ObservableField
 import android.util.SparseArray
 import com.viked.commonandroidmvvm.rx.SubscriptionBuilder
+import com.viked.commonandroidmvvm.rx.buildSubscription
+import com.viked.commonandroidmvvm.rx.isInternetAvailable
 import com.viked.commonandroidmvvm.text.TextWrapper
 import com.viked.commonandroidmvvm.ui.binding.ProgressObservable
 import com.viked.commonandroidmvvm.ui.common.delegate.error.BaseError
@@ -23,9 +26,12 @@ open class BaseViewModel(val titleId: Int = 0) : ViewModel() {
 
     val error = ObservableField<BaseError>()
 
+    val connection = ObservableBoolean(false)
+
     val title: ObservableField<TextWrapper> = ObservableField(TextWrapper(titleId))
 
     open fun loadData() {
+        subscribe({ isInternetAvailable().buildSubscription().addOnNext { connection.set(it) } }, -10001, true, true)
         //request initial data
     }
 
