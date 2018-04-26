@@ -61,14 +61,11 @@ class ConfirmDialogFragment : DialogFragment() {
     }
 
     private fun getParentCallback(): Callback {
-        return if (activity is Callback) {
-            activity as Callback
-        } else if (parentFragment is Callback) {
-            parentFragment as Callback
-        } else if (targetFragment is Callback) {
-            targetFragment as Callback
-        } else {
-            error("ConfirmDialogFragment.Callback not implemented in parent elements")
+        return when {
+            targetFragment is Callback -> targetFragment as Callback
+            parentFragment is Callback -> parentFragment as Callback
+            activity is Callback -> activity as Callback
+            else -> error("ConfirmDialogFragment.Callback not implemented in parent elements")
         }
     }
 
