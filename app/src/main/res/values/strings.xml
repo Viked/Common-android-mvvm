@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">CommonAndroidMvvm</string>
-    <string name="decimal_format">%1$.2f</string>
+    <string name="decimal_format" translatable="false">%1$.2f</string>
     <string name="empty_list">List is empty</string>
 
     <string name="select_all">Select all</string>
