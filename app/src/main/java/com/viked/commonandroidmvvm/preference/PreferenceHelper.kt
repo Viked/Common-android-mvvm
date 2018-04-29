@@ -21,7 +21,7 @@ class PreferenceHelper @Inject constructor(val context: Application) {
         val value = preferences.all[context.getString(id)] ?: return null
 
         return when {
-            value::class.java == clazz -> value as T
+            value::class.java == clazz || clazz == Set::class.java -> value as T
             value is String -> gson.fromJson(value, clazz)
             else -> error("Unsupported value type")
         }
