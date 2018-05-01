@@ -2,6 +2,10 @@ package com.viked.commonandroidmvvm.ui.fragment
 
 import android.arch.lifecycle.ViewModelProvider
 import android.arch.lifecycle.ViewModelProviders
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.databinding.DataBindingUtil
 import android.databinding.ViewDataBinding
 import android.os.Bundle
@@ -19,6 +23,7 @@ import com.viked.commonandroidmvvm.ui.adapters.AdapterDelegate
 import com.viked.commonandroidmvvm.ui.binding.addOnPropertyChangeListener
 import com.viked.commonandroidmvvm.ui.common.AutoClearedValue
 import com.viked.commonandroidmvvm.ui.common.Cancelable
+import com.viked.commonandroidmvvm.ui.common.UPDATE_CONTENT
 import com.viked.commonandroidmvvm.ui.common.delegate.error.DialogErrorDelegate
 import com.viked.commonandroidmvvm.ui.common.delegate.error.ErrorDelegate
 import com.viked.commonandroidmvvm.ui.common.delegate.progress.DialogProgressDelegate
@@ -46,6 +51,8 @@ abstract class BaseFragment<T : BaseViewModel, B : ViewDataBinding> : Fragment()
 
     lateinit var adapters: AutoClearedValue<MutableList<AdapterDelegate>>
 
+    private lateinit var localBroadcastReceiver: AutoClearedValue<BroadcastReceiver>
+
     abstract val layoutId: Int
 
     abstract val viewModelClass: Class<T>
@@ -69,6 +76,13 @@ abstract class BaseFragment<T : BaseViewModel, B : ViewDataBinding> : Fragment()
             progressDelegate = AutoClearedValue(this, initProgressDelegate(binding, viewModel, activity))
             errorDelegate = AutoClearedValue(this, initErrorDelegate(binding, viewModel, activity))
             adapters.value?.forEach { it.subscribe() }
+            localBroadcastReceiver = AutoClearedValue(this, object : BroadcastReceiver() {
+                override fun onReceive(context: Context?, intent: Intent?) {
+                    if (intent != null) {
+                        onReceive(intent)
+                    }
+                }
+            })
             logStartEvent()
         } else {
             RuntimeException("BaseFragment has empty params\nbinding: ${this.binding.value}\nviewModel: ${this.viewModel.value}").log()
@@ -124,6 +138,10 @@ abstract class BaseFragment<T : BaseViewModel, B : ViewDataBinding> : Fragment()
             errorDelegate.value?.unsubscribe(viewModel.error)
         }
         super.onPause()
+        val localBroadcastReceiver = localBroadcastReceiver.value
+        if (localBroadcastReceiver != null) {
+            activity?.unregisterReceiver(localBroadcastReceiver)
+        }
     }
 
     override fun onResume() {
@@ -132,6 +150,11 @@ abstract class BaseFragment<T : BaseViewModel, B : ViewDataBinding> : Fragment()
         if (viewModel != null) {
             progressDelegate.value?.subscribe(viewModel.progress)
             errorDelegate.value?.subscribe(viewModel.error)
+        }
+
+        val localBroadcastReceiver = localBroadcastReceiver.value
+        if (localBroadcastReceiver != null) {
+            activity?.registerReceiver(localBroadcastReceiver, IntentFilter(UPDATE_CONTENT))
         }
     }
 
@@ -151,5 +174,11 @@ abstract class BaseFragment<T : BaseViewModel, B : ViewDataBinding> : Fragment()
 
     private fun logStartEvent() {
         analytic.log(CustomEvent("Screen viewed").putCustomAttribute("name", this::class.java.simpleName))
+    }
+
+    open fun onReceive(intent: Intent) {
+        if (intent.action == UPDATE_CONTENT) {
+            viewModel.value?.loadData()
+        }
     }
 }
