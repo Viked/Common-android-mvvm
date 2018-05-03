@@ -2,6 +2,7 @@ package com.viked.commonandroidmvvm
 
 import android.app.Activity
 import android.app.Application
+import android.content.Context
 import com.evernote.android.job.JobCreator
 import com.evernote.android.job.JobManager
 import com.viked.commonandroidmvvm.log.Analytic
@@ -11,6 +12,9 @@ import dagger.android.DispatchingAndroidInjector
 import dagger.android.HasActivityInjector
 import timber.log.Timber
 import javax.inject.Inject
+import android.support.multidex.MultiDex
+
+
 
 /**
  * Created by yevgeniishein on 1/20/18.
@@ -33,6 +37,11 @@ abstract class BaseApp : Application(), HasActivityInjector {
 
     override fun activityInjector(): DispatchingAndroidInjector<Activity> {
         return dispatchingAndroidInjector
+    }
+
+    override  fun attachBaseContext(context: Context) {
+        super.attachBaseContext(context)
+        MultiDex.install(this)
     }
 
     override fun onCreate() {
