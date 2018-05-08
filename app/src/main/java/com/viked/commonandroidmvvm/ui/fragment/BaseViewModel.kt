@@ -4,6 +4,7 @@ import android.arch.lifecycle.ViewModel
 import android.databinding.ObservableBoolean
 import android.databinding.ObservableField
 import android.util.SparseArray
+import com.viked.commonandroidmvvm.billing.BillingRepository
 import com.viked.commonandroidmvvm.rx.SubscriptionBuilder
 import com.viked.commonandroidmvvm.rx.buildSubscription
 import com.viked.commonandroidmvvm.rx.isInternetAvailable
@@ -16,7 +17,7 @@ import io.reactivex.disposables.Disposable
 /**
  * Created by yevgeniishein on 10/9/17.
  */
-open class BaseViewModel(val titleId: Int = 0) : ViewModel() {
+open class BaseViewModel(val billingRepository: BillingRepository, val titleId: Int = 0) : ViewModel() {
 
     private val subscriptionsHolder = SparseArray<Disposable>()
 
@@ -28,11 +29,13 @@ open class BaseViewModel(val titleId: Int = 0) : ViewModel() {
 
     val connection = ObservableBoolean(false)
 
+    val premium = ObservableBoolean(false)
+
     val title: ObservableField<TextWrapper> = ObservableField(TextWrapper(titleId))
 
     open fun loadData() {
         subscribe({ isInternetAvailable().buildSubscription().addOnNext { connection.set(it) } }, -10001, true, true)
-        //request initial data
+        subscribe({ billingRepository.hasValidSuscription().addOnNext { premium.set(it) } }, -10002, true, true)
     }
 
     open fun onInit() {

@@ -1,12 +1,13 @@
 package com.viked.commonandroidmvvm.ui.fragment.list
 
 import android.databinding.ObservableBoolean
+import com.viked.commonandroidmvvm.billing.BillingRepository
 import com.viked.commonandroidmvvm.rx.SubscriptionBuilder
 
 /**
  * Created by yevgeniishein on 10/15/17.
  */
-abstract class BaseSelectableListViewModel<T>(titleId: Int = 0) : BaseListViewModel<T>(titleId) {
+abstract class BaseSelectableListViewModel<T>(billingRepository: BillingRepository, titleId: Int = 0) : BaseListViewModel<T>(billingRepository, titleId) {
 
     val selectMode = ObservableBoolean(false)
 

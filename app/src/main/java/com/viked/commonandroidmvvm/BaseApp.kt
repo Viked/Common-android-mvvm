@@ -3,8 +3,10 @@ package com.viked.commonandroidmvvm
 import android.app.Activity
 import android.app.Application
 import android.content.Context
+import android.support.multidex.MultiDex
 import com.evernote.android.job.JobCreator
 import com.evernote.android.job.JobManager
+import com.viked.commonandroidmvvm.billing.BillingRepository
 import com.viked.commonandroidmvvm.log.Analytic
 import com.viked.commonandroidmvvm.log.NotLoggingTree
 import com.viked.commonandroidmvvm.rx.RxHelper
@@ -12,8 +14,6 @@ import dagger.android.DispatchingAndroidInjector
 import dagger.android.HasActivityInjector
 import timber.log.Timber
 import javax.inject.Inject
-import android.support.multidex.MultiDex
-
 
 
 /**
@@ -33,13 +33,16 @@ abstract class BaseApp : Application(), HasActivityInjector {
     @Inject
     lateinit var rxHelper: RxHelper
 
+    @Inject
+    lateinit var billingRepository: BillingRepository
+
     abstract fun inject()
 
     override fun activityInjector(): DispatchingAndroidInjector<Activity> {
         return dispatchingAndroidInjector
     }
 
-    override  fun attachBaseContext(context: Context) {
+    override fun attachBaseContext(context: Context) {
         super.attachBaseContext(context)
         MultiDex.install(this)
     }
@@ -52,6 +55,7 @@ abstract class BaseApp : Application(), HasActivityInjector {
         initRx()
 
         JobManager.create(this).addJobCreator(jobCreator)
+        billingRepository.subscribe()
     }
 
     private fun initFabric() {
@@ -70,6 +74,11 @@ abstract class BaseApp : Application(), HasActivityInjector {
 
     private fun initRx() {
         rxHelper.init()
+    }
+
+    override fun onLowMemory() {
+        billingRepository.unsubscribe()
+        super.onLowMemory()
     }
 
 }
