@@ -35,7 +35,7 @@ open class BaseViewModel(val billingRepository: BillingRepository, val titleId: 
 
     open fun loadData() {
         subscribe({ isInternetAvailable().buildSubscription().addOnNext { connection.set(it) } }, -10001, true, true)
-        subscribe({ billingRepository.hasValidSuscription().addOnNext { premium.set(it) } }, -10002, true, true)
+        subscribe({ billingRepository.hasValidSubscription().addOnNext { premium.set(it) } }, -10002, true, true)
     }
 
     open fun onInit() {

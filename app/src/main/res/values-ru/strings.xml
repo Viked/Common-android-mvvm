@@ -13,9 +13,7 @@
     <string name="loading">Загрузка</string>
     <string name="share_with">Поделиться</string>
 
-    <string name="button_purchase">Purchase</string>
-    <string name="button_buy">Buy</string>
-    <string name="button_own">Own</string>
-    <string name="button_update">Update</string>
-    <string name="button_change">Change</string>
+
+    <string name="button_own">Куплено</string>
+
 </resources>

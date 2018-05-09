@@ -13,7 +13,7 @@
     <dimen name="image_margin">32dp</dimen>
 
     <dimen name="sku_details_row_height">216dp</dimen>
-    <dimen name="sku_details_row_padding">24dp</dimen>
+    <dimen name="sku_details_row_padding">12dp</dimen>
     <dimen name="sku_details_row_text_size">16sp</dimen>
     <dimen name="sku_details_row_description_text_size">15sp</dimen>
 

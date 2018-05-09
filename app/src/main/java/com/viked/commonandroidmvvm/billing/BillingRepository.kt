@@ -5,7 +5,10 @@ import android.app.Application
 import android.os.Bundle
 import com.android.billingclient.api.*
 import com.viked.commonandroidmvvm.rx.buildSubscription
+import com.viked.commonandroidmvvm.ui.adapters.list.ItemWrapper
+import com.viked.commonandroidmvvm.ui.dialog.purchase.PurchaseItemWrapper
 import io.reactivex.Single
+import io.reactivex.functions.BiFunction
 import io.reactivex.processors.BehaviorProcessor
 import timber.log.Timber
 import java.util.*
@@ -30,6 +33,7 @@ class BillingRepository @Inject constructor(private val application: Application
 
     private val purchaseProcessor = BehaviorProcessor.createDefault(listOf<Purchase>()).toSerialized()
     private val skuDetailsProcessor = BehaviorProcessor.createDefault(listOf<SkuDetails>()).toSerialized()
+    private val subscriptionProcessor = BehaviorProcessor.createDefault(false).toSerialized()
 
     fun subscribe() {
         Timber.i("Creating Billing client.")
@@ -41,26 +45,33 @@ class BillingRepository @Inject constructor(private val application: Application
 
         billingClient.querySkuDetails()
 
+        purchaseProcessor.flatMapSingle { purchases ->
+            val subscriptionSku = subscriptionsSkuIds.find { sku -> purchases.find { it.sku == sku } != null }
+                    ?: return@flatMapSingle Single.just(false)
+
+            val p = purchases.find { it.sku == subscriptionSku }!!
+            billingSecurity.verifyPurchase(true, p.purchaseToken, p.sku)
+        }.subscribe(subscriptionProcessor)
+
         Timber.i("End setup.")
     }
 
     fun unsubscribe() {
+        purchaseProcessor.onComplete()
+        skuDetailsProcessor.onComplete()
         if (billingClient.isReady) {
             billingClient.endConnection()
         }
     }
 
-    fun getPurchaseSuscription() = purchaseProcessor.buildSubscription()
+    fun hasValidSubscription() = subscriptionProcessor.buildSubscription()
 
-    fun getSkuDetailsSuscription() = skuDetailsProcessor.buildSubscription()
-
-    fun hasValidSuscription() = purchaseProcessor.flatMapSingle { purchases ->
-        val subscriptionSku = subscriptionsSkuIds.find { sku -> purchases.find { it.sku == sku } != null }
-                ?: return@flatMapSingle Single.just(false)
-
-        val p = purchases.find { it.sku == subscriptionSku }!!
-        billingSecurity.verifyPurchase(true, p.purchaseToken, p.sku)
-    }.buildSubscription()
+    fun getPurchasesList() =
+            skuDetailsProcessor.zipWith(purchaseProcessor, BiFunction<List<SkuDetails>, List<Purchase>, List<ItemWrapper>> { skuDetails, purchase ->
+                skuDetails.map { item -> PurchaseItemWrapper(item, billingItems.find { it.sku == item.sku }!!, purchase.find { it.sku == item.sku }) }
+                        .sortedBy { it.billingItem.order }
+                        .map { it as ItemWrapper }
+            }).buildSubscription()
 
     fun hasValidPurchase(sku: String) = purchaseProcessor.flatMapSingle {
         val p = it.find { it.sku == sku } ?: return@flatMapSingle Single.just(false)

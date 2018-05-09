@@ -9,29 +9,20 @@
     </style>
 
     <!-- Button styles -->
-    <style name="BaseButtonStyle" parent="Widget.AppCompat.Button.Colored">
-        <item name="android:layout_width">@dimen/button_width</item>
-        <item name="android:layout_height">@dimen/button_height</item>
-    </style>
-
-    <style name="ButtonStyle" parent="BaseButtonStyle">
-        <item name="android:background">@color/colorAccent</item>
-        <item name="android:textColor">@android:color/white</item>
-        <item name="android:layout_gravity">bottom|end</item>
-    </style>
-
-    <style name="DriveButtonStyle" parent="ButtonStyle">
-        <item name="android:background">@android:color/white</item>
+    <style name="ButtonStyle">
+        <item name="android:background">?attr/selectableItemBackground</item>
         <item name="android:textColor">@color/colorAccent</item>
+        <item name="android:layout_gravity">bottom|end</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
     </style>
 
     <!-- CardView -->
     <style name="CardViewStyle" parent="CardView">
-        <item name="android:layout_marginTop">0dp</item>
-        <item name="android:layout_marginBottom">0dp</item>
+        <item name="android:layout_marginBottom">4dp</item>
+        <item name="android:layout_marginLeft">2dp</item>
+        <item name="android:layout_marginRight">2dp</item>
         <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_marginRight">@dimen/card_view_margin</item>
-        <item name="android:layout_marginLeft">@dimen/card_view_margin</item>
         <item name="cardCornerRadius">@dimen/card_view_card_corner_radius</item>
         <item name="cardElevation">@dimen/card_view_card_elevation</item>
         <item name="cardPreventCornerOverlap">false</item>

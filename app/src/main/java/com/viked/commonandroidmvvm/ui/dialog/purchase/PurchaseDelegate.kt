@@ -21,4 +21,8 @@ class PurchaseDelegate(inflater: LayoutInflater) : BaseAdapterDelegate<ItemPurch
     }
 
     override fun getItemFromBinding(binding: ItemPurchaseBinding): ItemWrapper? = binding.viewModel
+
+    override fun setOnClickListeners(binding: ItemPurchaseBinding) {
+        binding.stateButton.setOnClickListener { getItemFromBinding(binding)?.run { onItemClickListener.handleClick(it, this) } }
+    }
 }

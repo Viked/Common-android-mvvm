@@ -10,32 +10,10 @@
 
     </data>
 
-    <FrameLayout
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rvPurchases"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <TextView
-            style="@style/TextAppearance.AppCompat.Title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:text="@{viewModel.emptyListMessageId}"
-            android:visibility="gone" />
-
-        <android.support.v4.widget.SwipeRefreshLayout
-            android:id="@+id/rvPrepaidSwipeRefreshLayout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/rvPrepaid"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scrollbars="vertical"
-                app:layoutManager="LinearLayoutManager" />
-
-        </android.support.v4.widget.SwipeRefreshLayout>
-
-    </FrameLayout>
+        android:layout_height="wrap_content"
+        android:scrollbars="vertical"
+        app:layoutManager="LinearLayoutManager" />
 </layout>

@@ -69,7 +69,6 @@ abstract class BaseDialogFragment<T : BaseViewModel, B : ViewDataBinding> : Dial
         val dataBinding = DataBindingUtil
                 .inflate<B>(inflater, layoutId, container, false)
         binding = AutoClearedValue(this, dataBinding)
-        onCreateAdditionalViews(inflater, container)
         return dataBinding.root
     }
 
@@ -77,10 +76,6 @@ abstract class BaseDialogFragment<T : BaseViewModel, B : ViewDataBinding> : Dial
         adapters.value?.forEach { it.unsubscribe() }
         viewModel.value?.onCleared()
         super.onDestroyView()
-    }
-
-    open fun onCreateAdditionalViews(inflater: LayoutInflater?, container: ViewGroup?) {
-        //Init toolbar view if need
     }
 
     open fun initView(binding: B, viewModel: T) {
