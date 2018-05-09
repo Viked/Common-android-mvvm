@@ -173,3 +173,13 @@ fun setFullDate(textView: TextView, date: Long?) {
 fun setCommentIcon(view: ImageView, comment: String) {
     view.visibility = if (TextUtils.isEmpty(comment)) View.GONE else View.VISIBLE
 }
+
+@BindingAdapter("autoCompleteAdapter")
+fun setAdapter(textView: MultiAutoCompleteTextView, list: List<String>?) {
+    textView.setAdapter(ArrayAdapter(
+            textView.context,
+            android.R.layout.simple_spinner_item,
+            list ?: listOf()))
+    textView.setTokenizer(MultiAutoCompleteTextView.CommaTokenizer())
+    textView.clearFocus()
+}
