@@ -183,3 +183,12 @@ fun setAdapter(textView: MultiAutoCompleteTextView, list: List<String>?) {
     textView.setTokenizer(MultiAutoCompleteTextView.CommaTokenizer())
     textView.clearFocus()
 }
+
+@BindingAdapter("time")
+fun setTime(textView: TextView, date: Long?) {
+    var text = ""
+    if (date != null) {
+        text = DateFormat.getTimeFormat(textView.context).format(Date(date))
+    }
+    textView.text = text
+}
