@@ -29,7 +29,7 @@ open class BaseViewModel(val billingRepository: BillingRepository, val titleId: 
 
     val connection = ObservableBoolean(false)
 
-    val premium = ObservableBoolean(false)
+    val premium = ObservableBoolean(true)
 
     val title: ObservableField<TextWrapper> = ObservableField(TextWrapper(titleId))
 
