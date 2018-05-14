@@ -102,4 +102,9 @@ abstract class BaseDialogFragment<T : BaseViewModel, B : ViewDataBinding> : Dial
         return dialog
     }
 
+    override fun onStart() {
+        super.onStart()
+        dialog?.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+    }
+
 }

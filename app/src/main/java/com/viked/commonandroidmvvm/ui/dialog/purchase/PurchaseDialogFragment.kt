@@ -1,6 +1,5 @@
 package com.viked.commonandroidmvvm.ui.dialog.purchase
 
-import android.view.ViewGroup
 import com.viked.commonandroidmvvm.R
 import com.viked.commonandroidmvvm.databinding.DialogPurchaseBinding
 import com.viked.commonandroidmvvm.ui.adapters.list.AdapterBehavior
@@ -45,11 +44,6 @@ class PurchaseDialogFragment : BaseDialogFragment<PurchaseViewModel, DialogPurch
             }
         })
         binding.rvPurchases.adapter = adapter
-    }
-
-    override fun onStart() {
-        super.onStart()
-        dialog?.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
     }
 
     override fun onResume() {
