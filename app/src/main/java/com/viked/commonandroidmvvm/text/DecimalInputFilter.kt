@@ -9,10 +9,10 @@ class DecimalInputFilter(private val dot: String = ".", private val dicimals: In
         val separatorIndex = dest.toString().indexOf(dot)
         if (source != dot) {
             if (separatorIndex in 0..dstart) {
-                return if (dest?.length ?: 0 - separatorIndex > dicimals) "" else null
+                return if ((dest?.length ?: 0) - separatorIndex > dicimals) "" else null
             }
         } else {
-            return if (separatorIndex >= 0 || dest?.length ?: 0 - dend > dicimals) "" else null
+            return if (separatorIndex >= 0 || (dest?.length ?: 0) - dend > dicimals) "" else null
         }
         return null
     }
