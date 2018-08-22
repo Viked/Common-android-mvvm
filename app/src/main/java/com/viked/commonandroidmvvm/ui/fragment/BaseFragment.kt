@@ -69,7 +69,7 @@ abstract class BaseFragment<T : BaseViewModel, B : ViewDataBinding> : Fragment()
             arguments?.run { initArguments(viewModel, this) }
             adapters = AutoClearedValue(this, mutableListOf())
             viewModel.onInit()
-            viewModel.loadData()
+            loadData()
             setViewModelToBinding(binding, viewModel)
             initToolbar(activity, binding, viewModel)
             initView(binding, viewModel)
@@ -93,7 +93,6 @@ abstract class BaseFragment<T : BaseViewModel, B : ViewDataBinding> : Fragment()
         val dataBinding = DataBindingUtil
                 .inflate<B>(inflater, layoutId, container, false)
         binding = AutoClearedValue(this, dataBinding)
-        onCreateAdditionalViews(inflater, container)
         return dataBinding.root
     }
 
@@ -104,10 +103,6 @@ abstract class BaseFragment<T : BaseViewModel, B : ViewDataBinding> : Fragment()
     }
 
     override fun handleOnBackPressed() = viewModel.value?.progress?.get() ?: false
-
-    open fun onCreateAdditionalViews(inflater: LayoutInflater?, container: ViewGroup?) {
-        //Init toolbar view if need
-    }
 
     open fun initToolbar(activity: BaseActivity, binding: B, viewModel: T) {
         viewModel.title.addOnPropertyChangeListener { setTitle(it.get()) }
@@ -124,6 +119,10 @@ abstract class BaseFragment<T : BaseViewModel, B : ViewDataBinding> : Fragment()
 
     open fun initErrorDelegate(binding: B, viewModel: T, activity: BaseActivity) =
             activity()?.errorDelegate ?: DialogErrorDelegate(activity)
+
+    open fun loadData() {
+        viewModel.value?.loadData()
+    }
 
     open fun initArguments(viewModel: T, arguments: Bundle) {
         //Set initial data to view model
@@ -178,7 +177,7 @@ abstract class BaseFragment<T : BaseViewModel, B : ViewDataBinding> : Fragment()
 
     open fun onReceive(intent: Intent) {
         if (intent.action == UPDATE_CONTENT) {
-            viewModel.value?.loadData()
+            loadData()
         }
     }
 }

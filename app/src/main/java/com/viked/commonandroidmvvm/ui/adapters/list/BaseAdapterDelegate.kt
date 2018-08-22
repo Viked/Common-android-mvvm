@@ -6,6 +6,7 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import com.hannesdorfmann.adapterdelegates3.AdapterDelegate
+import com.viked.commonandroidmvvm.rx.CompositeConsumer
 import com.viked.commonandroidmvvm.ui.common.click.BaseClickComponent
 import com.viked.commonandroidmvvm.ui.common.click.ClickComponent
 
@@ -16,12 +17,17 @@ abstract class BaseAdapterDelegate<T : ViewDataBinding>(val inflater: LayoutInfl
 
     var onItemClickListener: ClickComponent = BaseClickComponent { v, i -> false }
     var onLongClickListener: ClickComponent = BaseClickComponent { v, i -> false }
+    private val onUpdate = CompositeConsumer<ItemWrapper>()
 
     abstract val layoutId: Int
 
     abstract fun bindViewHolder(holder: BindingViewHolder<T>, item: ItemWrapper)
 
     abstract fun getItemFromBinding(binding: T): ItemWrapper?
+
+    fun addOnUpdateCallback(consumer: (ItemWrapper) -> Unit) = onUpdate.add(consumer)
+
+    fun update(item: ItemWrapper) = onUpdate.accept(item)
 
     open fun setOnClickListeners(binding: T) {
         binding.root.setOnClickListener { getItemFromBinding(binding)?.run { onItemClickListener.handleClick(it, this) } }

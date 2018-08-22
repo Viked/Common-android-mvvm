@@ -9,6 +9,7 @@ import com.evernote.android.job.JobManager
 import com.viked.commonandroidmvvm.billing.BillingRepository
 import com.viked.commonandroidmvvm.log.Analytic
 import com.viked.commonandroidmvvm.log.NotLoggingTree
+import com.viked.commonandroidmvvm.preference.PreferenceHelper
 import com.viked.commonandroidmvvm.rx.RxHelper
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.HasActivityInjector
@@ -36,6 +37,9 @@ abstract class BaseApp : Application(), HasActivityInjector {
     @Inject
     lateinit var billingRepository: BillingRepository
 
+    @Inject
+    lateinit var preferenceHelper: PreferenceHelper
+
     abstract fun inject()
 
     override fun activityInjector(): DispatchingAndroidInjector<Activity> {
@@ -53,6 +57,8 @@ abstract class BaseApp : Application(), HasActivityInjector {
         initFabric()
         initLogger()
         initRx()
+
+        preferenceHelper.init()
 
         JobManager.create(this).addJobCreator(jobCreator)
         billingRepository.subscribe()

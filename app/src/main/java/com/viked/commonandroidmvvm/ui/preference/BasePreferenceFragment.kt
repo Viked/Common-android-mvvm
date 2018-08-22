@@ -4,13 +4,20 @@ import android.arch.lifecycle.ViewModelProvider
 import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.v14.preference.MultiSelectListPreference
+import android.support.v4.app.DialogFragment
+import android.support.v4.app.Fragment
 import android.support.v7.preference.*
 import com.crashlytics.android.answers.CustomEvent
 import com.viked.commonandroidmvvm.di.Injectable
 import com.viked.commonandroidmvvm.log.Analytic
 import com.viked.commonandroidmvvm.log.log
-import com.viked.commonandroidmvvm.preference.TimePreference
-import com.viked.commonandroidmvvm.preference.TimePreferenceDialogFragment
+import com.viked.commonandroidmvvm.preference.ARG_KEY
+import com.viked.commonandroidmvvm.preference.file.manager.FileManagerPreference
+import com.viked.commonandroidmvvm.preference.file.manager.FileManagerPreferenceDialogFragment
+import com.viked.commonandroidmvvm.preference.file.name.FileNamePreference
+import com.viked.commonandroidmvvm.preference.file.name.FileNamePreferenceDialogFragment
+import com.viked.commonandroidmvvm.preference.time.TimePreference
+import com.viked.commonandroidmvvm.preference.time.TimePreferenceDialogFragment
 import com.viked.commonandroidmvvm.text.TextWrapper
 import com.viked.commonandroidmvvm.ui.activity.BaseActivity
 import com.viked.commonandroidmvvm.ui.binding.addOnPropertyChangeListener
@@ -95,10 +102,12 @@ abstract class BasePreferenceFragment<T : BasePreferenceViewModel> : PreferenceF
     }
 
     open fun initDialogDelegates(dialogDelegates: MutableList<DialogPreferenceDelegate<*>>) {
-        dialogDelegates.add(DialogPreferenceDelegate(EditTextPreference::class.java, { EditTextPreferenceDialogFragmentCompat.newInstance(it) }))
-        dialogDelegates.add(DialogPreferenceDelegate(ListPreference::class.java, { ListPreferenceDialogFragmentCompat.newInstance(it) }))
-        dialogDelegates.add(DialogPreferenceDelegate(MultiSelectListPreference::class.java, { MultiSelectListPreferenceDialogFragmentCompat.newInstance(it) }))
-        dialogDelegates.add(DialogPreferenceDelegate(TimePreference::class.java, { TimePreferenceDialogFragment.newInstance(it) }))
+        dialogDelegates.add(DialogPreferenceDelegate(EditTextPreference::class.java, EditTextPreferenceDialogFragmentCompat::class.java.name))
+        dialogDelegates.add(DialogPreferenceDelegate(ListPreference::class.java, ListPreferenceDialogFragmentCompat::class.java.name))
+        dialogDelegates.add(DialogPreferenceDelegate(MultiSelectListPreference::class.java, MultiSelectListPreferenceDialogFragmentCompat::class.java.name))
+        dialogDelegates.add(DialogPreferenceDelegate(TimePreference::class.java, TimePreferenceDialogFragment::class.java.name))
+        dialogDelegates.add(DialogPreferenceDelegate(FileManagerPreference::class.java, FileManagerPreferenceDialogFragment::class.java.name))
+        dialogDelegates.add(DialogPreferenceDelegate(FileNamePreference::class.java, FileNamePreferenceDialogFragment::class.java.name))
     }
 
     fun activity() = activity as BaseActivity?
@@ -137,10 +146,11 @@ abstract class BasePreferenceFragment<T : BasePreferenceViewModel> : PreferenceF
             return
         }
 
-        dialogDelegates.find { preference::class.java == it.clazz }?.preference?.invoke(preference.key)?.let {
-            it.setTargetFragment(this, 0)
-            it.show(fragmentManager, PREFERENCE_DIALOG_FRAGMENT_TAG)
-        } ?: error("Tried to display dialog for unknown")
+        val dialogClassName = dialogDelegates.find { preference::class.java == it.clazz }?.preferenceDialogClassName
+                ?: error("Tried to display dialog for unknown")
+
+        (Fragment.instantiate(activity(), dialogClassName, Bundle(1).apply { putString(ARG_KEY, preference.key) }) as? DialogFragment)
+                ?.show(fragmentManager, PREFERENCE_DIALOG_FRAGMENT_TAG)
     }
 
     private fun logStartEvent() {

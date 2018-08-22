@@ -1,7 +1,5 @@
 package com.viked.commonandroidmvvm.log
 
-import com.crashlytics.android.Crashlytics
-import com.viked.commonandroidmvvm.BuildConfig
 import timber.log.Timber
 
 /**
@@ -10,7 +8,4 @@ import timber.log.Timber
 
 fun Throwable.log() {
     Timber.e(this)
-    if (!BuildConfig.DEBUG) {
-        Crashlytics.logException(this)
-    }
 }

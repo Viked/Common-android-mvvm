@@ -10,11 +10,20 @@ import javax.inject.Singleton
  * Created by yevgeniishein on 9/20/17.
  */
 @Singleton
-class PreferenceHelper @Inject constructor(val context: Application) {
+class PreferenceHelper @Inject constructor(val context: Application, private val initialValues: Set<@JvmSuppressWildcards PreferenceItem>) {
 
     val gson = Gson()
 
     val preferences = PreferenceManager.getDefaultSharedPreferences(context)
+
+    fun init() {
+        val preferences = preferences.all
+        initialValues.filter { preferences[context.getString(it.key)] == null }.forEach { setPreferenceValue(it.key, it.initialValue) }
+    }
+
+    fun reset() {
+        initialValues.forEach { setPreferenceValue(it.key, it.initialValue) }
+    }
 
     inline operator fun <reified T : Any> get(id: Int): T? {
         val clazz = T::class.java

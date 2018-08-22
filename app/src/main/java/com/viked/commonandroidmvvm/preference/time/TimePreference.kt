@@ -1,4 +1,4 @@
-package com.viked.commonandroidmvvm.preference
+package com.viked.commonandroidmvvm.preference.time
 
 import android.content.Context
 import android.support.v7.preference.DialogPreference

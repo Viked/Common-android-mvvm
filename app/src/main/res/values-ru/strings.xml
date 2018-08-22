@@ -16,4 +16,20 @@
 
     <string name="button_own">Куплено</string>
 
+    <string name="create_folder_error">Невозможно создать папку</string>
+    <string name="create_folder_icon">Создать папку</string>
+    <string name="create_folder_msg">Введите название папки</string>
+    <string name="create_folder_title">Создать папку</string>
+    <string name="default_file_name">File</string>
+    <string name="error_already_exists">Папка уже существует</string>
+    <string name="file_icon">Иконка файла</string>
+    <string name="file_name_dialog_massage">Введите название папки</string>
+    <string name="load_error">Ошибка загрузки</string>
+    <string name="no_dir_selected">Папка не выбрана</string>
+    <string name="no_write_access">Невозможно записать в эту папку</string>
+    <string name="preference_reset">Сбросить настройки</string>
+    <string name="selected_folder">Выбранная папка:</string>
+    <string name="pref_validation_massage">Необходимо изменить</string>
+    <string name="pref_validation_action">Это</string>
+
 </resources>

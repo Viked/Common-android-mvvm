@@ -11,5 +11,20 @@
     <string name="share_with">Поділитися</string>
     <string name="button_own">Придбано</string>
 
+    <string name="default_file_name">File</string>
+    <string name="create_folder_error">Неможливо створити папку</string>
+    <string name="create_folder_icon">Створити папку</string>
+    <string name="create_folder_msg">Введіть назву папки</string>
+    <string name="create_folder_title">Створити папку</string>
+    <string name="error_already_exists">Папка вже існує</string>
+    <string name="file_icon">Іконка файлу</string>
+    <string name="file_name_dialog_massage">Введіть назву папки</string>
+    <string name="load_error">Помилка завантаження</string>
+    <string name="no_dir_selected">Папка не вибрана</string>
+    <string name="no_write_access">Неможливо записати у цю папку</string>
+    <string name="preference_reset">Скинути налаштування</string>
+    <string name="selected_folder">Обрана папка:</string>
+    <string name="pref_validation_massage">Необхідно змінити</string>
+    <string name="pref_validation_action">Це</string>
 
 </resources>

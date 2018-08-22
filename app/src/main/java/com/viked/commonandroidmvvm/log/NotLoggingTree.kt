@@ -1,6 +1,6 @@
-
 package com.viked.commonandroidmvvm.log
 
+import com.crashlytics.android.Crashlytics
 import timber.log.Timber
 
 /**
@@ -9,6 +9,8 @@ import timber.log.Timber
 class NotLoggingTree : Timber.Tree() {
 
     override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
-        //Not implemented for release
+        if (t != null) {
+            Crashlytics.logException(t)
+        }
     }
 }

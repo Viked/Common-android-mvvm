@@ -12,6 +12,7 @@ import com.viked.commonandroidmvvm.ui.common.delegate.progress.ProgressDelegate
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector
 import javax.inject.Inject
+import pub.devrel.easypermissions.EasyPermissions
 
 /**
  * Created by yevgeniishein on 10/20/17.
@@ -59,6 +60,13 @@ abstract class BaseActivity : AppCompatActivity(), HasSupportFragmentInjector {
     override fun onResume() {
         super.onResume()
         active = true
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        // Forward results to EasyPermissions
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
     }
 
 }
