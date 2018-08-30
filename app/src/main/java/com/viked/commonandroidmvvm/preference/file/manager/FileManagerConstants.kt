@@ -3,6 +3,7 @@ package com.viked.commonandroidmvvm.preference.file.manager
 /**
  * Created by 1 on 21.03.2016.
  */
+const val TXT = "txt"
 const val ROOT_DIR = "/"
 const val DIR_UP_FILE_NAME = ".."
 

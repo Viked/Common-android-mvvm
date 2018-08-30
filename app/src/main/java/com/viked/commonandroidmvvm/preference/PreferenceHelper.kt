@@ -10,7 +10,7 @@ import javax.inject.Singleton
  * Created by yevgeniishein on 9/20/17.
  */
 @Singleton
-class PreferenceHelper @Inject constructor(val context: Application, private val initialValues: Set<@JvmSuppressWildcards PreferenceItem>) {
+class PreferenceHelper @Inject constructor(val context: Application, val initialValues: Set<@JvmSuppressWildcards PreferenceItem>) {
 
     val gson = Gson()
 
@@ -25,11 +25,16 @@ class PreferenceHelper @Inject constructor(val context: Application, private val
         initialValues.forEach { setPreferenceValue(it.key, it.initialValue) }
     }
 
+    fun reset(id: Int) {
+        initialValues.find { it.key == id }?.apply { setPreferenceValue(key, initialValue) }
+    }
+
     inline operator fun <reified T : Any> get(id: Int): T? {
         val clazz = T::class.java
-        val value = preferences.all[context.getString(id)] ?: return null
-
-        return when {
+        val value = preferences.all[context.getString(id)]
+        return if (value == null) {
+            initialValues.find { it.key == id }?.initialValue as? T
+        } else when {
             value::class.java == clazz || clazz == Set::class.java -> value as T
             value is String -> gson.fromJson(value, clazz)
             else -> error("Unsupported value type")

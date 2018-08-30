@@ -7,7 +7,7 @@ import java.io.File
 class FileItemWrapper(val file: File) : ItemWrapper(file) {
 
     val icon = when {
-        file.name.equals(DIR_UP_FILE_NAME) -> R.drawable.folder_outline
+        file.name == DIR_UP_FILE_NAME -> R.drawable.folder_outline
         file.isDirectory -> R.drawable.folder
         else -> R.drawable.file
     }
