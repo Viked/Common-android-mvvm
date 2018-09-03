@@ -37,9 +37,6 @@ abstract class BaseApp : Application(), HasActivityInjector {
     @Inject
     lateinit var billingRepository: BillingRepository
 
-    @Inject
-    lateinit var preferenceHelper: PreferenceHelper
-
     abstract fun inject()
 
     override fun activityInjector(): DispatchingAndroidInjector<Activity> {
@@ -57,8 +54,6 @@ abstract class BaseApp : Application(), HasActivityInjector {
         initFabric()
         initLogger()
         initRx()
-
-        preferenceHelper.init()
 
         JobManager.create(this).addJobCreator(jobCreator)
         billingRepository.subscribe()

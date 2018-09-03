@@ -16,11 +16,6 @@ class PreferenceHelper @Inject constructor(val context: Application, val initial
 
     val preferences = PreferenceManager.getDefaultSharedPreferences(context)
 
-    fun init() {
-        val preferences = preferences.all
-        initialValues.filter { preferences[context.getString(it.key)] == null }.forEach { setPreferenceValue(it.key, it.initialValue) }
-    }
-
     fun reset() {
         initialValues.forEach { setPreferenceValue(it.key, it.initialValue) }
     }
