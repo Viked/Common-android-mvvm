@@ -2,13 +2,13 @@ package com.viked.commonandroidmvvm.preference.file.manager
 
 import android.content.Context
 import android.support.v7.preference.DialogPreference
-import com.viked.commonandroidmvvm.R
+import android.util.AttributeSet
 import java.io.File
 
 /**
  * Created by 1 on 19.03.2016.(
  */
-class FileManagerPreference(context: Context) : DialogPreference(context) {
+class FileManagerPreference(context: Context, attrs: AttributeSet? = null) : DialogPreference(context, attrs) {
 
     private val SUMMARY_START = "/.."
 

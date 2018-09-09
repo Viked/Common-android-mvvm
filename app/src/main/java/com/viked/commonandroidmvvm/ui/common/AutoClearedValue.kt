@@ -12,7 +12,7 @@ class AutoClearedValue<T>(val fragment: Fragment, var value: T?) {
         val fragmentManager = fragment.fragmentManager
         fragmentManager?.registerFragmentLifecycleCallbacks(
                 object : FragmentManager.FragmentLifecycleCallbacks() {
-                    override fun onFragmentViewDestroyed(fm: FragmentManager?, f: Fragment?) {
+                    override fun onFragmentDestroyed(fm: FragmentManager, f: Fragment) {
                         if (this@AutoClearedValue.fragment == f) {
                             this@AutoClearedValue.value = null
                             fragmentManager.unregisterFragmentLifecycleCallbacks(this)

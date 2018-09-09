@@ -6,8 +6,6 @@ import com.viked.commonandroidmvvm.databinding.ItemFileBinding
 import com.viked.commonandroidmvvm.ui.adapters.list.BaseAdapterDelegate
 import com.viked.commonandroidmvvm.ui.adapters.list.BindingViewHolder
 import com.viked.commonandroidmvvm.ui.adapters.list.ItemWrapper
-import com.viked.commonandroidmvvm.ui.common.click.ClickDecorator
-import java.io.File
 
 
 /**

@@ -2,12 +2,13 @@ package com.viked.commonandroidmvvm.preference.file.name
 
 import android.content.Context
 import android.support.v7.preference.DialogPreference
+import android.util.AttributeSet
 import com.viked.commonandroidmvvm.R
 
 /**
  * Created by 1 on 25.03.2016.
  */
-class FileNamePreference(context: Context) : DialogPreference(context) {
+class FileNamePreference(context: Context, attrs: AttributeSet? = null) : DialogPreference(context, attrs) {
 
     var fileName: String = "/"
         set(value) {
