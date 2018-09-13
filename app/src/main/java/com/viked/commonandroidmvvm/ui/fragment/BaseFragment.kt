@@ -153,7 +153,7 @@ abstract class BaseFragment<T : BaseViewModel, B : ViewDataBinding> : Fragment()
 
         val localBroadcastReceiver = localBroadcastReceiver.value
         if (localBroadcastReceiver != null) {
-            activity?.registerReceiver(localBroadcastReceiver, IntentFilter(UPDATE_CONTENT))
+            activity?.registerReceiver(localBroadcastReceiver, createIntentFilter())
         }
     }
 
@@ -174,6 +174,8 @@ abstract class BaseFragment<T : BaseViewModel, B : ViewDataBinding> : Fragment()
     private fun logStartEvent() {
         analytic.log(CustomEvent("Screen viewed").putCustomAttribute("name", this::class.java.simpleName))
     }
+
+    open fun createIntentFilter() = IntentFilter(UPDATE_CONTENT)
 
     open fun onReceive(intent: Intent) {
         if (intent.action == UPDATE_CONTENT) {

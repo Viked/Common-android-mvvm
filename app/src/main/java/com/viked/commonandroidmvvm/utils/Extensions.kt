@@ -3,6 +3,7 @@ package com.viked.commonandroidmvvm.utils
 import android.content.Context
 import android.content.Intent
 import android.content.Intent.ACTION_VIEW
+import android.databinding.ObservableField
 import android.net.Uri
 import android.text.format.DateFormat
 import com.viked.commonandroidmvvm.R
@@ -54,3 +55,5 @@ fun Date.formatTime(context: Context): String {
 }
 
 private fun Context.getAppUrl() = "https://play.google.com/store/apps/details?id=$packageName"
+
+fun <T> T.toObservable() = ObservableField<T>(this)
