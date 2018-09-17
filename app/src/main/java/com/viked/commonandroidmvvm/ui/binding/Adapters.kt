@@ -4,6 +4,7 @@ import android.app.Activity
 import android.databinding.BindingAdapter
 import android.support.design.widget.AppBarLayout
 import android.support.design.widget.FloatingActionButton
+import android.support.v4.content.ContextCompat
 import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.widget.Toolbar
 import android.text.SpannableString
@@ -191,4 +192,15 @@ fun setTime(textView: TextView, date: Long?) {
         text = DateFormat.getTimeFormat(textView.context).format(Date(date))
     }
     textView.text = text
+}
+
+@BindingAdapter("android:drawableLeft")
+fun setDrawableLeft(view: TextView, resourceId: Int?) {
+    resourceId ?: return
+    val drawable = ContextCompat.getDrawable(view.context, resourceId) ?: return
+    drawable.setBounds(0, 0, drawable.intrinsicWidth, drawable.intrinsicHeight);
+    val drawables = view.compoundDrawables
+    val padding = view.compoundDrawablePadding
+    view.setCompoundDrawables(drawable, drawables[1], drawables[2], drawables[3])
+    view.compoundDrawablePadding = padding
 }

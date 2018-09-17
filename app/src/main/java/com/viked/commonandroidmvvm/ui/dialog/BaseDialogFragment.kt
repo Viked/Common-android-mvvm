@@ -55,7 +55,7 @@ abstract class BaseDialogFragment<T : BaseViewModel, B : ViewDataBinding> : Dial
             arguments?.run { initArguments(viewModel, this) }
             adapters = AutoClearedValue(this, mutableListOf())
             viewModel.onInit()
-            viewModel.loadData()
+            loadData()
             setViewModelToBinding(binding, viewModel)
             initView(binding, viewModel)
             adapters.value?.forEach { it.subscribe() }
@@ -105,6 +105,10 @@ abstract class BaseDialogFragment<T : BaseViewModel, B : ViewDataBinding> : Dial
     override fun onStart() {
         super.onStart()
         dialog?.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+    }
+
+    open fun loadData() {
+        viewModel.value?.loadData()
     }
 
 }

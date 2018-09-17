@@ -1,8 +1,10 @@
 package com.viked.commonandroidmvvm.ui.fragment
 
 import android.arch.lifecycle.ViewModel
+import android.databinding.Observable
 import android.databinding.ObservableBoolean
 import android.databinding.ObservableField
+import android.databinding.PropertyChangeRegistry
 import android.util.SparseArray
 import com.viked.commonandroidmvvm.billing.BillingRepository
 import com.viked.commonandroidmvvm.rx.SubscriptionBuilder
@@ -17,7 +19,9 @@ import io.reactivex.disposables.Disposable
 /**
  * Created by yevgeniishein on 10/9/17.
  */
-open class BaseViewModel(val billingRepository: BillingRepository, val titleId: Int = 0) : ViewModel() {
+open class BaseViewModel(val billingRepository: BillingRepository, val titleId: Int = 0) : ViewModel(), Observable {
+
+    private val callbacks: PropertyChangeRegistry = PropertyChangeRegistry()
 
     private val subscriptionsHolder = SparseArray<Disposable>()
 
@@ -81,4 +85,34 @@ open class BaseViewModel(val billingRepository: BillingRepository, val titleId: 
                 .addOnDispose { progress - id }
                 .addOnError { progress - id }
     }
+
+
+    override fun addOnPropertyChangedCallback(
+            callback: Observable.OnPropertyChangedCallback) {
+        callbacks.add(callback)
+    }
+
+    override fun removeOnPropertyChangedCallback(
+            callback: Observable.OnPropertyChangedCallback) {
+        callbacks.remove(callback)
+    }
+
+    /**
+     * Notifies observers that all properties of this instance have changed.
+     */
+    fun notifyChange() {
+        callbacks.notifyCallbacks(this, 0, null)
+    }
+
+    /**
+     * Notifies observers that a specific property has changed. The getter for the
+     * property that changes should be marked with the @Bindable annotation to
+     * generate a field in the BR class to be used as the fieldId parameter.
+     *
+     * @param fieldId The generated BR id for the Bindable field.
+     */
+    fun notifyPropertyChanged(fieldId: Int) {
+        callbacks.notifyCallbacks(this, fieldId, null)
+    }
+
 }

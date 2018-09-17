@@ -16,5 +16,4 @@ class OnPropertyChangeWrapper<T : Observable>(val observable: T, val callback: (
 
 fun <T : Observable> T.addOnPropertyChangeListener(callback: (T) -> Unit) {
     addOnPropertyChangedCallback(OnPropertyChangeWrapper(this, callback))
-    callback.invoke(this)
 }
