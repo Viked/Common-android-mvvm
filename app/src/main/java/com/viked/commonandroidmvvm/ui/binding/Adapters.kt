@@ -15,6 +15,7 @@ import android.util.DisplayMetrics
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import com.viked.commonandroidmvvm.drawable.AvatarDrawable
 import com.viked.commonandroidmvvm.text.TextWrapper
 import com.viked.commonandroidmvvm.ui.adapters.list.ItemWrapper
 import com.viked.commonandroidmvvm.ui.common.HideKeyoardClickListener
@@ -203,4 +204,9 @@ fun setDrawableLeft(view: TextView, resourceId: Int?) {
     val padding = view.compoundDrawablePadding
     view.setCompoundDrawables(drawable, drawables[1], drawables[2], drawables[3])
     view.compoundDrawablePadding = padding
+}
+
+@BindingAdapter("avatar")
+fun setAvatar(imageView: ImageView, text: String?) {
+    imageView.setImageDrawable(AvatarDrawable(text ?: ""))
 }
