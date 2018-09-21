@@ -12,6 +12,7 @@ import com.viked.commonandroidmvvm.di.Injectable
 import com.viked.commonandroidmvvm.log.Analytic
 import com.viked.commonandroidmvvm.log.log
 import com.viked.commonandroidmvvm.preference.ARG_KEY
+import com.viked.commonandroidmvvm.preference.PreferenceItem
 import com.viked.commonandroidmvvm.preference.file.manager.FileManagerPreference
 import com.viked.commonandroidmvvm.preference.file.manager.FileManagerPreferenceDialogFragment
 import com.viked.commonandroidmvvm.preference.file.name.FileNamePreference
@@ -40,6 +41,9 @@ abstract class BasePreferenceFragment<T : BasePreferenceViewModel> : PreferenceF
     @Inject
     lateinit var analytic: Analytic
 
+    @Inject
+    lateinit var initialValues: Set<@JvmSuppressWildcards PreferenceItem>
+
     lateinit var progressDelegate: AutoClearedValue<ProgressDelegate>
 
     lateinit var errorDelegate: AutoClearedValue<ErrorDelegate>
@@ -56,6 +60,9 @@ abstract class BasePreferenceFragment<T : BasePreferenceViewModel> : PreferenceF
 
     operator fun <R : Preference> get(id: Int): R? = findPreference(getString(id)) as R?
     operator fun set(id: Int, click: () -> Unit) = findPreference(getString(id)).setOnPreferenceClickListener { click.invoke(); true }
+
+    fun <T> default(id: Int): T = initialValues.find { it.key == id }?.initialValue as? T
+            ?: error("Not valid default preference id: $id")
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
@@ -149,7 +156,9 @@ abstract class BasePreferenceFragment<T : BasePreferenceViewModel> : PreferenceF
         val dialogClassName = dialogDelegates.find { preference::class.java == it.clazz }?.preferenceDialogClassName
                 ?: error("Tried to display dialog for unknown")
 
-        (Fragment.instantiate(activity(), dialogClassName, Bundle(1).apply { putString(ARG_KEY, preference.key) }) as? DialogFragment)
+        (Fragment.instantiate(activity(), dialogClassName, Bundle(1).apply { putString(ARG_KEY, preference.key) }) as? DialogFragment)?.also {
+            it.setTargetFragment(this, 0)
+        }
                 ?.show(fragmentManager, PREFERENCE_DIALOG_FRAGMENT_TAG)
     }
 

@@ -14,16 +14,16 @@
             android:background="@android:color/transparent"
             android:contentDescription="@string/create_folder_icon"
             android:src="@drawable/folder_plus"
+            app:layout_constraintBottom_toBottomOf="@+id/tvSelectedFolder"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/tvTitle"
-            app:layout_constraintBottom_toBottomOf="@+id/tvSelectedFolder"/>
+            app:layout_constraintTop_toTopOf="@+id/tvTitle" />
 
         <TextView
             android:id="@+id/tvTitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@string/selected_folder"
-            android:textColor="@color/colorPrimaryText"
+            android:textColor="?attr/titleTextColor"
             android:textStyle="bold"
             app:layout_constraintEnd_toStartOf="@+id/ibCreateFolder"
             app:layout_constraintStart_toStartOf="parent"
@@ -38,7 +38,7 @@
             android:scrollHorizontally="true"
             android:singleLine="true"
             android:text="test"
-            android:textColor="@color/colorSecondaryText"
+            android:textColor="?attr/subtitleTextColor"
             app:layout_constraintEnd_toStartOf="@+id/ibCreateFolder"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tvTitle" />

@@ -189,11 +189,11 @@ class BillingRepository @Inject constructor(private val application: Application
             if (areSubscriptionsSupported()) {
                 val subscriptionResult = it.queryPurchases(BillingClient.SkuType.SUBS)
                 Timber.i("Querying purchases and subscriptions elapsed time: ${System.currentTimeMillis() - time}ms")
-                Timber.i("Querying subscriptions result code: ${subscriptionResult.responseCode} res: ${subscriptionResult.purchasesList.size}")
+                Timber.i("Querying subscriptions result code: ${subscriptionResult.responseCode} res: ${subscriptionResult.purchasesList?.size
+                        ?: 0}")
 
-                if (subscriptionResult.responseCode == BillingClient.BillingResponse.OK) {
-                    purchasesResult.purchasesList.addAll(
-                            subscriptionResult.purchasesList)
+                if (subscriptionResult.responseCode == BillingClient.BillingResponse.OK && purchasesResult.purchasesList != null) {
+                    purchasesResult.purchasesList.addAll(subscriptionResult.purchasesList)
                 } else {
                     Timber.e("Got an error response trying to query subscription purchases")
                 }
