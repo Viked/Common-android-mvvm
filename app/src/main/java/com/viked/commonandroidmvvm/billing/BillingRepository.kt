@@ -160,7 +160,7 @@ class BillingRepository @Inject constructor(private val application: Application
                     .setSkusList(skuList)
                     .setType(billingType)
                     .build()
-            it.querySkuDetailsAsync(params, { responseCode, skuDetailsList ->
+            it.querySkuDetailsAsync(params) { responseCode, skuDetailsList ->
                 if (responseCode != BillingClient.BillingResponse.OK) {
                     Timber.i("Unsuccessful query for type: $billingType. Error code: $responseCode")
                 } else if (skuDetailsList != null && skuDetailsList.size > 0) {
@@ -171,7 +171,7 @@ class BillingRepository @Inject constructor(private val application: Application
                 }
 
                 executeWhenFinished?.run()
-            })
+            }
         }
     }
 
@@ -188,11 +188,11 @@ class BillingRepository @Inject constructor(private val application: Application
             // If there are subscriptions supported, we add subscription rows as well
             if (areSubscriptionsSupported()) {
                 val subscriptionResult = it.queryPurchases(BillingClient.SkuType.SUBS)
-                Timber.i("Querying purchases and subscriptions elapsed time: ${System.currentTimeMillis() - time}ms")
-                Timber.i("Querying subscriptions result code: ${subscriptionResult.responseCode} res: ${subscriptionResult.purchasesList?.size
-                        ?: 0}")
+//                Timber.i("Querying purchases and subscriptions elapsed time: ${System.currentTimeMillis() - time}ms")
+//                Timber.i("Querying subscriptions result code: ${subscriptionResult.responseCode} res: ${subscriptionResult.purchasesList?.size
+//                        ?: 0}")
 
-                if (subscriptionResult.responseCode == BillingClient.BillingResponse.OK && purchasesResult.purchasesList != null) {
+                if (subscriptionResult.responseCode == BillingClient.BillingResponse.OK && purchasesResult.purchasesList != null && subscriptionResult.purchasesList != null) {
                     purchasesResult.purchasesList.addAll(subscriptionResult.purchasesList)
                 } else {
                     Timber.e("Got an error response trying to query subscription purchases")
