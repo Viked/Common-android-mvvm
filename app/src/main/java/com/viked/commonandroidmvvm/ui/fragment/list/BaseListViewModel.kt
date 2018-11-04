@@ -67,4 +67,13 @@ abstract class BaseListViewModel<T>(billingRepository: BillingRepository, titleI
         loadData()
     }
 
+    open fun updateItem(itemWrapper: ItemWrapper){
+        val index = list.indexOfFirst { it.key == itemWrapper.key }
+        if(index >= 0){
+            list[index] = itemWrapper
+        } else {
+            onRefresh()
+        }
+    }
+
 }

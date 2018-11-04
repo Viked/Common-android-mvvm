@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.viked.commonandroidmvvm.ui.list.check.CheckItemWrapper" />
+
+        <variable
+            name="delegate"
+            type="com.viked.commonandroidmvvm.ui.list.check.CheckAdapterDelegate" />
+
+    </data>
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="4dp">
+
+        <TextView
+            android:id="@+id/tvTitle"
+            style="@style/TextAppearance.AppCompat.Title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@{viewModel.data.title}"
+            app:layout_constraintBottom_toTopOf="@+id/tvSubtitle"
+            app:layout_constraintEnd_toStartOf="@+id/cbChecked"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/tvSubtitle"
+            style="@style/TextAppearance.AppCompat.SearchResult.Subtitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@{viewModel.data.subtitle}"
+            app:layout_constraintEnd_toStartOf="@+id/cbChecked"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvTitle" />
+
+        <CheckBox
+            android:id="@+id/cbChecked"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="4dp"
+            android:checked="@{viewModel.data.checked}"
+            android:onCheckedChanged="@{(checkBox, checked) -> delegate.update(viewModel, checked)}"
+            app:layout_constraintBottom_toBottomOf="@+id/tvSubtitle"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </android.support.constraint.ConstraintLayout>
+
+</layout>

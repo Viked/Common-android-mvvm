@@ -20,18 +20,30 @@ class AdapterBehavior(private val adapter: RecyclerView.Adapter<RecyclerView.Vie
         adapter.notifyDataSetChanged()
     }
 
+    fun onItemRangeRemoved(positionStart: Int, itemCount: Int) {
+        adapter.notifyItemRangeRemoved(positionStart, itemCount)
+    }
+
+    fun onItemRangeChanged(positionStart: Int, itemCount: Int) {
+        adapter.notifyItemRangeChanged(positionStart, itemCount)
+    }
+
+    fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+        adapter.notifyItemRangeInserted(positionStart, itemCount)
+    }
+
     private val onListChangeCallback =
             object : ListChangeCallback(Runnable { update() }) {
                 override fun onItemRangeRemoved(sender: ObservableList<ItemWrapper>?, positionStart: Int, itemCount: Int) {
-                    adapter.notifyItemRangeRemoved(positionStart, itemCount)
+                    onItemRangeRemoved(positionStart, itemCount)
                 }
 
                 override fun onItemRangeChanged(sender: ObservableList<ItemWrapper>?, positionStart: Int, itemCount: Int) {
-                    adapter.notifyItemRangeChanged(positionStart, itemCount)
+                    onItemRangeChanged(positionStart, itemCount)
                 }
 
                 override fun onItemRangeInserted(sender: ObservableList<ItemWrapper>?, positionStart: Int, itemCount: Int) {
-                    adapter.notifyItemRangeInserted(positionStart, itemCount)
+                    onItemRangeInserted(positionStart, itemCount)
                 }
             }
 

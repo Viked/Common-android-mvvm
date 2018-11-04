@@ -3,6 +3,7 @@ package com.viked.commonandroidmvvm.ui.fragment.list
 import android.databinding.ViewDataBinding
 import com.viked.commonandroidmvvm.ui.adapters.list.AdapterBehavior
 import com.viked.commonandroidmvvm.ui.adapters.list.DelegateRecyclerViewAdapter
+import com.viked.commonandroidmvvm.ui.adapters.list.ItemWrapper
 import com.viked.commonandroidmvvm.ui.common.AutoClearedValue
 import com.viked.commonandroidmvvm.ui.fragment.BaseFragment
 
@@ -13,7 +14,7 @@ abstract class BaseListFragment<T : BaseListViewModel<*>, B : ViewDataBinding> :
 
     lateinit var adapter: AutoClearedValue<DelegateRecyclerViewAdapter>
 
-    private lateinit var behavior: AutoClearedValue<AdapterBehavior>
+    lateinit var behavior: AutoClearedValue<AdapterBehavior>
 
     abstract fun addDelegates(adapter: DelegateRecyclerViewAdapter, viewModel: T)
 
@@ -40,4 +41,6 @@ abstract class BaseListFragment<T : BaseListViewModel<*>, B : ViewDataBinding> :
         super.onResume()
         viewModel.value?.onRefresh()
     }
+
+    fun updateItem(data: ItemWrapper) = viewModel.value?.updateItem(data)
 }
