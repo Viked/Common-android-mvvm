@@ -41,17 +41,11 @@ abstract class BaseFragment<T : BaseViewModel, B : ViewDataBinding> : Fragment()
     @Inject
     lateinit var analytic: Analytic
 
-    lateinit var progressDelegate: AutoClearedValue<ProgressDelegate>
-
-    lateinit var errorDelegate: AutoClearedValue<ErrorDelegate>
-
     lateinit var viewModel: AutoClearedValue<T>
 
     lateinit var binding: AutoClearedValue<B>
 
     lateinit var adapters: AutoClearedValue<MutableList<AdapterDelegate>>
-
-    private lateinit var localBroadcastReceiver: AutoClearedValue<BroadcastReceiver>
 
     abstract val layoutId: Int
 
@@ -74,16 +68,7 @@ abstract class BaseFragment<T : BaseViewModel, B : ViewDataBinding> : Fragment()
             setViewModelToBinding(binding, viewModel)
             initToolbar(activity, binding, viewModel)
             initView(binding, viewModel)
-            progressDelegate = AutoClearedValue(this, initProgressDelegate(binding, viewModel, activity))
-            errorDelegate = AutoClearedValue(this, initErrorDelegate(binding, viewModel, activity))
             adapters.value?.forEach { it.subscribe() }
-            localBroadcastReceiver = AutoClearedValue(this, object : BroadcastReceiver() {
-                override fun onReceive(context: Context?, intent: Intent?) {
-                    if (intent != null) {
-                        onReceive(intent)
-                    }
-                }
-            })
             logStartEvent()
         } else {
             RuntimeException("BaseFragment has empty params\nbinding: ${this.binding.value}\nviewModel: ${this.viewModel.value}").log()
@@ -99,11 +84,10 @@ abstract class BaseFragment<T : BaseViewModel, B : ViewDataBinding> : Fragment()
 
     override fun onDestroyView() {
         adapters.value?.forEach { it.unsubscribe() }
-        viewModel.value?.onCleared()
         super.onDestroyView()
     }
 
-    override fun handleOnBackPressed() = viewModel.value?.progress?.get() ?: false
+    override fun handleOnBackPressed() = false
 
     open fun initToolbar(activity: BaseActivity, binding: B, viewModel: T) {
         viewModel.title.addOnPropertyChangeListener { setTitle(it.get()) }
@@ -131,33 +115,6 @@ abstract class BaseFragment<T : BaseViewModel, B : ViewDataBinding> : Fragment()
 
     fun activity() = activity as BaseActivity?
 
-    override fun onPause() {
-        val viewModel = viewModel.value
-        if (viewModel != null) {
-            progressDelegate.value?.unsubscribe(viewModel.progress)
-            errorDelegate.value?.unsubscribe(viewModel.error)
-        }
-        super.onPause()
-        val localBroadcastReceiver = localBroadcastReceiver.value
-        if (localBroadcastReceiver != null) {
-            activity?.unregisterReceiver(localBroadcastReceiver)
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        val viewModel = viewModel.value
-        if (viewModel != null) {
-            progressDelegate.value?.subscribe(viewModel.progress)
-            errorDelegate.value?.subscribe(viewModel.error)
-        }
-
-        val localBroadcastReceiver = localBroadcastReceiver.value
-        if (localBroadcastReceiver != null) {
-            activity?.registerReceiver(localBroadcastReceiver, createIntentFilter())
-        }
-    }
-
     protected fun setTitle(title: TextWrapper?) {
         val activity = activity()
         if (activity != null && title != null) {
@@ -176,11 +133,4 @@ abstract class BaseFragment<T : BaseViewModel, B : ViewDataBinding> : Fragment()
         analytic.log(CustomEvent("Screen viewed").putCustomAttribute("name", this::class.java.simpleName))
     }
 
-    open fun createIntentFilter() = IntentFilter(UPDATE_CONTENT)
-
-    open fun onReceive(intent: Intent) {
-        if (intent.action == UPDATE_CONTENT) {
-            loadData()
-        }
-    }
 }

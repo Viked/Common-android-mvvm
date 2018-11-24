@@ -199,7 +199,7 @@ fun setTime(textView: TextView, date: Long?) {
 fun setDrawableLeft(view: TextView, resourceId: Int?) {
     resourceId ?: return
     val drawable = ContextCompat.getDrawable(view.context, resourceId) ?: return
-    drawable.setBounds(0, 0, drawable.intrinsicWidth, drawable.intrinsicHeight);
+    drawable.setBounds(0, 0, drawable.intrinsicWidth, drawable.intrinsicHeight)
     val drawables = view.compoundDrawables
     val padding = view.compoundDrawablePadding
     view.setCompoundDrawables(drawable, drawables[1], drawables[2], drawables[3])

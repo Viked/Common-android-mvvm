@@ -8,6 +8,6 @@ import com.viked.commonandroidmvvm.ui.adapters.list.ItemWrapper
  */
 interface ClickComponent {
 
-    fun handleClick(view: View, itemWrapper: ItemWrapper): Boolean
+    fun handleClick(view: View, id: Int): Boolean
 
 }

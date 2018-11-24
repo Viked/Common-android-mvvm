@@ -1,12 +1,11 @@
 package com.viked.commonandroidmvvm.preference.file.manager
 
 import android.app.Activity
+import android.arch.lifecycle.MutableLiveData
 import android.content.Context
 import android.content.Intent
 import android.databinding.DataBindingUtil
-import android.databinding.ObservableArrayList
 import android.databinding.ObservableField
-import android.databinding.ObservableList
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v7.preference.PreferenceDialogFragmentCompat
@@ -16,12 +15,11 @@ import com.viked.commonandroidmvvm.R
 import com.viked.commonandroidmvvm.databinding.DialogFileManagerPreferenceBinding
 import com.viked.commonandroidmvvm.ui.adapters.list.DelegateRecyclerViewAdapter
 import com.viked.commonandroidmvvm.ui.adapters.list.ItemWrapper
+import com.viked.commonandroidmvvm.ui.adapters.list.ListDelegate
 import com.viked.commonandroidmvvm.ui.binding.addOnPropertyChangeListener
 import com.viked.commonandroidmvvm.ui.common.AutoClearedValue
 import com.viked.commonandroidmvvm.ui.common.click.ClickDecorator
-import io.reactivex.Single
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
+import com.viked.commonandroidmvvm.ui.data.Resource
 import java.io.File
 
 /**
@@ -29,9 +27,8 @@ import java.io.File
  */
 class FileManagerPreferenceDialogFragment : PreferenceDialogFragmentCompat() {
 
-    private lateinit var adapter: AutoClearedValue<DelegateRecyclerViewAdapter>
     private lateinit var binding: AutoClearedValue<DialogFileManagerPreferenceBinding>
-    private val files: ObservableList<ItemWrapper> = ObservableArrayList<ItemWrapper>()
+    private val files = MutableLiveData<Resource<List<ItemWrapper>>>()
 
     val path = ObservableField<File>(File(ROOT_DIR)).apply {
         addOnPropertyChangeListener {
@@ -65,24 +62,24 @@ class FileManagerPreferenceDialogFragment : PreferenceDialogFragmentCompat() {
         }
         dataBinding.fileListView.layoutManager = LinearLayoutManager(context)
 
-        val adapter = DelegateRecyclerViewAdapter(files)
+        val adapter = DelegateRecyclerViewAdapter()
         adapter.addDelegate(FileAdapterDelegate(layoutInflater).apply {
-            onItemClickListener = ClickDecorator(onItemClickListener, { v, i ->
-                if (i.value is File) {
-                    path.set(if (!i.value.name.equals(DIR_UP_FILE_NAME)) {
-                        i.value
+            onItemClickListener = ClickDecorator(onItemClickListener) { v, i ->
+                val item = adapter.items[i]
+                if (item.value is File) {
+                    path.set(if (item.value.name != DIR_UP_FILE_NAME) {
+                        item.value
                     } else {
-                        i.value.parentFile.parentFile
+                        item.value.parentFile.parentFile
                     })
                     true
                 } else {
                     false
                 }
-            })
+            }
         })
         dataBinding.fileListView.adapter = adapter
-        this.adapter = AutoClearedValue(this, adapter)
-
+        files.observe(this, ListDelegate(dataBinding.tvStatus, adapter))
         return dataBinding.root
     }
 
@@ -125,32 +122,21 @@ class FileManagerPreferenceDialogFragment : PreferenceDialogFragmentCompat() {
     }
 
     private fun loadFileList() {
-        Single.fromCallable {
-            val path = path.get()
-            val list = mutableListOf<File>()
-            list.addAll(path?.listFiles() ?: emptyArray())
-            if ((path?.absolutePath == ROOT_DIR).not()) {
-                list.add(File(path, DIR_UP_FILE_NAME))
+        val path = path.get()
+        val list = mutableListOf<File>()
+        list.addAll(path?.listFiles() ?: emptyArray())
+        if ((path?.absolutePath == ROOT_DIR).not()) {
+            list.add(File(path, DIR_UP_FILE_NAME))
+        }
+        list.sortWith(Comparator { file1, file2 ->
+            when {
+                file1.isDirectory && file2.isFile -> -1
+                file1.isFile && file2.isDirectory -> 1
+                else -> file1.path.compareTo(file2.path, ignoreCase = true)
             }
-            list.sortWith(Comparator { file1, file2 ->
-                when {
-                    file1.isDirectory && file2.isFile -> -1
-                    file1.isFile && file2.isDirectory -> 1
-                    else -> file1.path.compareTo(file2.path, ignoreCase = true)
-                }
-            })
-            list
-        }.map { it.map { FileItemWrapper(it) } }
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { list, error ->
-                    if (error != null) {
-                        showError(R.string.load_error)
-                    } else {
-                        files.clear()
-                        files.addAll(list)
-                    }
-                }
+        })
+
+        files.postValue(Resource.success(list.map { FileItemWrapper(it) }))
     }
 
 }

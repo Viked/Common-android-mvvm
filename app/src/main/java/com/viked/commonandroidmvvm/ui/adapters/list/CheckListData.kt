@@ -1,4 +1,4 @@
-package com.viked.commonandroidmvvm.ui.list.common
+package com.viked.commonandroidmvvm.ui.adapters.list
 
 interface CheckListData {
 

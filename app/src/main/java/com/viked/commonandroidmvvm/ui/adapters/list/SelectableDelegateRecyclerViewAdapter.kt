@@ -1,17 +1,15 @@
 package com.viked.commonandroidmvvm.ui.adapters.list
 
 import android.databinding.ObservableBoolean
-import android.databinding.ObservableList
 import com.viked.commonandroidmvvm.ui.common.click.BlockerClickDecorator
 
 /**
  * Created by yevgeniishein on 7/24/17.
  */
-class SelectableDelegateRecyclerViewAdapter(private val selectMode: ObservableBoolean,
-                                            items: ObservableList<ItemWrapper>) : DelegateRecyclerViewAdapter(items) {
+class SelectableDelegateRecyclerViewAdapter(private val selectMode: ObservableBoolean) : DelegateRecyclerViewAdapter() {
 
     private fun handleItemPressed(item: ItemWrapper): Boolean {
-        return if (selectMode.get() && item.selectable) {
+        return if (selectMode.get() && item is SelectableItemWrapper) {
             item.selected.set(!item.selected.get())
             selectMode.set(getSelectedItems().isNotEmpty())
             selectMode.notifyChange()
@@ -22,16 +20,16 @@ class SelectableDelegateRecyclerViewAdapter(private val selectMode: ObservableBo
         }
     }
 
-    private fun getSelectedItems(): List<ItemWrapper> = items.filter { it.selectable && it.selected.get() }
+    private fun getSelectedItems(): List<ItemWrapper> = items.filter { it is SelectableItemWrapper && it.selected.get() }
 
-    override fun addDelegate(delegate: BaseAdapterDelegate<*>) {
-        delegate.onItemClickListener = BlockerClickDecorator(delegate.onItemClickListener, { view, item -> handleItemPressed(item) })
-        delegate.onLongClickListener = BlockerClickDecorator(delegate.onLongClickListener, { view, item -> handleLongClick(item) })
+    override fun addDelegate(delegate: AdapterDelegate) {
+        delegate.onItemClickListener = BlockerClickDecorator(delegate.onItemClickListener) { view, item -> handleItemPressed(items[item]) }
+        delegate.onLongClickListener = BlockerClickDecorator(delegate.onLongClickListener) { view, item -> handleLongClick(items[item]) }
         super.addDelegate(delegate)
     }
 
     private fun handleLongClick(item: ItemWrapper): Boolean {
-        return if (item.selectable) {
+        return if (item is SelectableItemWrapper) {
             item.selected.set(true)
             selectMode.set(true)
             true

@@ -5,12 +5,12 @@
     <data>
 
         <variable
-            name="viewModel"
-            type="com.viked.commonandroidmvvm.ui.list.check.CheckItemWrapper" />
+            name="item"
+            type="com.viked.commonandroidmvvm.ui.adapters.list.check.CheckItemWrapper" />
 
         <variable
             name="delegate"
-            type="com.viked.commonandroidmvvm.ui.list.check.CheckAdapterDelegate" />
+            type="com.viked.commonandroidmvvm.ui.adapters.list.check.CheckAdapterDelegate" />
 
     </data>
 
@@ -26,7 +26,7 @@
             style="@style/TextAppearance.AppCompat.Title"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@{viewModel.data.title}"
+            android:text="@{item.data.title}"
             app:layout_constraintBottom_toTopOf="@+id/tvSubtitle"
             app:layout_constraintEnd_toStartOf="@+id/cbChecked"
             app:layout_constraintStart_toStartOf="parent"
@@ -37,7 +37,7 @@
             style="@style/TextAppearance.AppCompat.SearchResult.Subtitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@{viewModel.data.subtitle}"
+            android:text="@{item.data.subtitle}"
             app:layout_constraintEnd_toStartOf="@+id/cbChecked"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tvTitle" />
@@ -47,8 +47,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="4dp"
-            android:checked="@{viewModel.data.checked}"
-            android:onCheckedChanged="@{(checkBox, checked) -> delegate.update(viewModel, checked)}"
+            android:checked="@{item.data.checked}"
+            android:onCheckedChanged="@{(checkBox, checked) -> delegate.update(item, checked)}"
             app:layout_constraintBottom_toBottomOf="@+id/tvSubtitle"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

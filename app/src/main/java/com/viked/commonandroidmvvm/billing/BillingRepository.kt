@@ -2,14 +2,14 @@ package com.viked.commonandroidmvvm.billing
 
 import android.app.Activity
 import android.app.Application
+import android.arch.core.util.Function
+import android.arch.lifecycle.MutableLiveData
+import android.arch.lifecycle.Transformations
 import android.os.Bundle
 import com.android.billingclient.api.*
-import com.viked.commonandroidmvvm.rx.buildSubscription
-import com.viked.commonandroidmvvm.ui.adapters.list.ItemWrapper
+import com.viked.commonandroidmvvm.coroutines.Async
+import com.viked.commonandroidmvvm.ui.data.Resource
 import com.viked.commonandroidmvvm.ui.dialog.purchase.PurchaseItemWrapper
-import io.reactivex.Single
-import io.reactivex.functions.BiFunction
-import io.reactivex.processors.BehaviorProcessor
 import timber.log.Timber
 import java.util.*
 import javax.inject.Inject
@@ -31,9 +31,13 @@ class BillingRepository @Inject constructor(private val application: Application
 
     private var activity: Activity? = null
 
-    private val purchaseProcessor = BehaviorProcessor.createDefault(listOf<Purchase>()).toSerialized()
-    private val skuDetailsProcessor = BehaviorProcessor.createDefault(listOf<SkuDetails>()).toSerialized()
-    private val subscriptionProcessor = BehaviorProcessor.createDefault(false).toSerialized()
+    val list = MutableLiveData<Resource<List<PurchaseItemWrapper>>>()
+    val subscription = Transformations.switchMap(list, Async<Resource<List<PurchaseItemWrapper>>, Boolean>(Function { l ->
+        val subscriptionSkus = l.data?.filter { it.billingItem.isSubscription && it.purchase != null }
+                ?: emptyList()
+        if (subscriptionSkus.isEmpty()) return@Function false
+        subscriptionSkus.map { it.purchase!! }.find { billingSecurity.verifyPurchase(true, it.purchaseToken, it.sku) } != null
+    }))
 
     fun subscribe() {
         Timber.i("Creating Billing client.")
@@ -45,42 +49,28 @@ class BillingRepository @Inject constructor(private val application: Application
 
         billingClient.querySkuDetails()
 
-        purchaseProcessor.flatMapSingle { purchases ->
-            val subscriptionSku = subscriptionsSkuIds.find { sku -> purchases.find { it.sku == sku } != null }
-                    ?: return@flatMapSingle Single.just(false)
-
-            val p = purchases.find { it.sku == subscriptionSku }!!
-            billingSecurity.verifyPurchase(true, p.purchaseToken, p.sku)
-        }.subscribe(subscriptionProcessor)
-
         Timber.i("End setup.")
     }
 
     fun unsubscribe() {
-        purchaseProcessor.onComplete()
-        skuDetailsProcessor.onComplete()
         if (billingClient.isReady) {
             billingClient.endConnection()
         }
     }
 
-    fun hasValidSubscription() = subscriptionProcessor.buildSubscription()
-
-    fun getPurchasesList() =
-            skuDetailsProcessor.zipWith(purchaseProcessor, BiFunction<List<SkuDetails>, List<Purchase>, List<ItemWrapper>> { skuDetails, purchase ->
-                skuDetails.map { item -> PurchaseItemWrapper(item, billingItems.find { it.sku == item.sku }!!, purchase.find { it.sku == item.sku }) }
-                        .sortedBy { it.billingItem.order }
-                        .map { it as ItemWrapper }
-            }).buildSubscription()
-
-    fun hasValidPurchase(sku: String) = purchaseProcessor.flatMapSingle {
-        val p = it.find { it.sku == sku } ?: return@flatMapSingle Single.just(false)
-        billingSecurity.verifyPurchase(subscriptionsSkuIds.contains(p.sku), p.purchaseToken, p.sku)
-    }
+//    fun hasValidPurchase(sku: String) = purchaseProcessor.flatMapSingle {
+//        val p = it.find { it.sku == sku } ?: return@flatMapSingle Single.just(false)
+//        billingSecurity.verifyPurchase(subscriptionsSkuIds.contains(p.sku), p.purchaseToken, p.sku)
+//    }
 
     override fun onPurchasesUpdated(responseCode: Int, purchases: MutableList<Purchase>?) {
         when (responseCode) {
-            BillingClient.BillingResponse.OK -> purchaseProcessor.onNext(purchases ?: listOf())
+            BillingClient.BillingResponse.OK -> {
+                val l = list.value?.data
+                if (l == null || purchases == null) return
+                purchases.forEach { p -> l.find { i -> i.billingItem.sku == p.sku }?.purchase = p }
+                list.postValue(Resource.success(l))
+            }
             BillingClient.BillingResponse.USER_CANCELED -> Timber.i("onPurchasesUpdated() - user cancelled the purchase flow - skipping")
             else -> Timber.i("onPurchasesUpdated() got unknown resultCode: $responseCode")
         }
@@ -146,7 +136,10 @@ class BillingRepository @Inject constructor(private val application: Application
         getSku(dataList, subscriptionsSkuIds, BillingClient.SkuType.SUBS, Runnable {
             // Once we added all the subscription items, fill the in-app items rows below
             getSku(dataList, purchaseSkuIds, BillingClient.SkuType.INAPP, Runnable {
-                skuDetailsProcessor.onNext(dataList)
+                val our = dataList.map { item -> PurchaseItemWrapper(item, billingItems.find { it.sku == item.sku }!!) }
+                        .sortedBy { it.billingItem.order }
+
+                list.postValue(Resource.success(our))
                 queryPurchases()
             })
         })

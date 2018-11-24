@@ -24,7 +24,9 @@ fun Context.hideKeyboard() {
 
 fun FragmentManager.handleOnBackPressed(): Boolean {
     val fragment = fragments
-            ?.filter { it != null && it.isVisible && it is BaseFragment<*, *> }
-            ?.find { (it is Cancelable && it.handleOnBackPressed()) || it.childFragmentManager.handleOnBackPressed() }
+            .filter { it != null && it.isVisible && it is BaseFragment<*, *> }
+            .find { (it is Cancelable && it.handleOnBackPressed()) || it.childFragmentManager.handleOnBackPressed() }
     return fragment != null
 }
+
+inline fun <reified T> className() = T::class.java

@@ -6,11 +6,11 @@
 
         <variable
             name="viewModel"
-            type="com.viked.commonandroidmvvm.ui.list.radio.RadioItemWrapper" />
+            type="com.viked.commonandroidmvvm.ui.adapters.list.radio.RadioItemWrapper" />
 
         <variable
             name="delegate"
-            type="com.viked.commonandroidmvvm.ui.list.radio.RadioAdapterDelegate" />
+            type="com.viked.commonandroidmvvm.ui.adapters.list.radio.RadioAdapterDelegate" />
 
     </data>
 

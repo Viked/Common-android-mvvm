@@ -28,12 +28,13 @@ import com.viked.commonandroidmvvm.ui.common.delegate.error.DialogErrorDelegate
 import com.viked.commonandroidmvvm.ui.common.delegate.error.ErrorDelegate
 import com.viked.commonandroidmvvm.ui.common.delegate.progress.DialogProgressDelegate
 import com.viked.commonandroidmvvm.ui.common.delegate.progress.ProgressDelegate
+import com.viked.commonandroidmvvm.ui.fragment.BaseViewModel
 import javax.inject.Inject
 
 /**
  * Created by yevgeniishein on 10/9/17.
  */
-abstract class BasePreferenceFragment<T : BasePreferenceViewModel> : PreferenceFragmentCompat(), Injectable, Cancelable {
+abstract class BasePreferenceFragment<T : BaseViewModel> : PreferenceFragmentCompat(), Injectable, Cancelable {
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
@@ -83,16 +84,11 @@ abstract class BasePreferenceFragment<T : BasePreferenceViewModel> : PreferenceF
         }
     }
 
-    override fun onDestroyView() {
-        viewModel.value?.onCleared()
-        super.onDestroyView()
-    }
-
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         addPreferencesFromResource(preferencesResId)
     }
 
-    override fun handleOnBackPressed() = viewModel.value?.progress?.get() ?: false
+    override fun handleOnBackPressed() = false
 
     open fun initToolbar(activity: BaseActivity, viewModel: T) {
         viewModel.title.addOnPropertyChangeListener { setTitle(it.get()) }
@@ -118,24 +114,6 @@ abstract class BasePreferenceFragment<T : BasePreferenceViewModel> : PreferenceF
     }
 
     fun activity() = activity as BaseActivity?
-
-    override fun onPause() {
-        val viewModel = viewModel.value
-        if (viewModel != null) {
-            progressDelegate.value?.unsubscribe(viewModel.progress)
-            errorDelegate.value?.unsubscribe(viewModel.error)
-        }
-        super.onPause()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        val viewModel = viewModel.value
-        if (viewModel != null) {
-            progressDelegate.value?.subscribe(viewModel.progress)
-            errorDelegate.value?.subscribe(viewModel.error)
-        }
-    }
 
     protected fun setTitle(title: TextWrapper?) {
         val activity = activity()

@@ -1,6 +1,5 @@
 package com.viked.commonandroidmvvm.ui.adapters.list
 
-import android.databinding.ObservableList
 import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
 import com.hannesdorfmann.adapterdelegates3.AdapterDelegatesManager
@@ -9,7 +8,13 @@ import com.hannesdorfmann.adapterdelegates3.AdapterDelegatesManager
 /**
  * Created by Viked on 12/24/2016.
  */
-open class DelegateRecyclerViewAdapter(val items: ObservableList<ItemWrapper>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+open class DelegateRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+
+    var items = listOf<ItemWrapper>()
+        set(value) {
+            field = value
+            notifyDataSetChanged()
+        }
 
     private var delegateViewType = 0
 
@@ -23,7 +28,7 @@ open class DelegateRecyclerViewAdapter(val items: ObservableList<ItemWrapper>) :
         }
     }
 
-    open fun addDelegate(delegate: BaseAdapterDelegate<*>) {
+    open fun addDelegate(delegate: AdapterDelegate) {
         delegatesManager.addDelegate(++delegateViewType, delegate)
     }
 
@@ -42,4 +47,6 @@ open class DelegateRecyclerViewAdapter(val items: ObservableList<ItemWrapper>) :
     }
 
     override fun getItemCount(): Int = items.size
+
+    override fun getItemId(position: Int) = position.toLong()
 }

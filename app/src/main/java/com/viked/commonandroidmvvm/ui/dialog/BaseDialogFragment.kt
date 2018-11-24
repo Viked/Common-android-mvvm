@@ -75,7 +75,6 @@ abstract class BaseDialogFragment<T : BaseViewModel, B : ViewDataBinding> : Dial
 
     override fun onDestroyView() {
         adapters.value?.forEach { it.unsubscribe() }
-        viewModel.value?.onCleared()
         super.onDestroyView()
     }
 
