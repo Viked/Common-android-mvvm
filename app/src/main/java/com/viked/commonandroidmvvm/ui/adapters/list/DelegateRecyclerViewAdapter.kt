@@ -10,6 +10,10 @@ import com.hannesdorfmann.adapterdelegates3.AdapterDelegatesManager
  */
 open class DelegateRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
+    init {
+        setHasStableIds(true)
+    }
+
     var items = listOf<ItemWrapper>()
         set(value) {
             field = value

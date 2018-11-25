@@ -39,6 +39,7 @@ open class AdapterDelegate(private val itemWrapperClass: KClass<out ItemWrapper>
 
     override fun onBindViewHolder(items: List<ItemWrapper>, position: Int, holder: RecyclerView.ViewHolder, payloads: MutableList<Any>) {
         (holder as BindingViewHolder).binding.setVariable(itemId, items[position])
+        holder.itemId
     }
 
     public override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder {
