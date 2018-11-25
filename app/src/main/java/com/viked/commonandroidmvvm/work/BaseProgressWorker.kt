@@ -16,7 +16,7 @@ abstract class BaseProgressWorker(context: Context, workerParams: WorkerParamete
     protected fun updateProgress(progress: Int) {
         if (this.progress != progress) {
             this.progress = progress
-            progressDao.set(Progress(tags.first(), progress))
+            progressDao.set(Progress(this::class.java.simpleName, progress))
         }
     }
 
@@ -26,7 +26,7 @@ abstract class BaseProgressWorker(context: Context, workerParams: WorkerParamete
     }
 
     protected fun finish() {
-        progressDao.delete(Progress(tags.first(), progress))
+        progressDao.delete(Progress(this::class.java.simpleName, progress))
     }
 
 }

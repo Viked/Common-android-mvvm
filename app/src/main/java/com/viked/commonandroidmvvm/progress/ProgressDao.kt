@@ -9,8 +9,8 @@ interface ProgressDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun set(value: Progress)
 
-    @Query("SELECT * FROM Progress WHERE id = :id")
-    operator fun get(id: String): LiveData<Progress>
+    @Query("SELECT * FROM Progress WHERE id IN (:ids)")
+    operator fun get(ids: List<String>): LiveData<List<Progress>>
 
     @Delete
     fun delete(value: Progress)

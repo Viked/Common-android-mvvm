@@ -15,19 +15,19 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class MergeLiveData(private val sources: List<LiveData<*>>,
-                    private val progress: List<LiveData<Progress>>,
+                    private val progress: LiveData<List<Progress>>,
                     private val builder: (List<*>) -> List<ItemWrapper>,
                     private val progressBuilder: (Progress) -> TextWrapper) : MediatorLiveData<Resource<List<ItemWrapper>>>(), Observer<Any?> {
 
     init {
+        addSource(Transformations.map(progress) { p -> p as Any? }, this)
         listenSources()
-        progress.forEach { addSource(Transformations.map(it) { p -> p as Any? }, this) }
     }
 
     private fun listenSources() = sources.forEach { addSource(Transformations.map(it) { p -> p }, this) }
 
     override fun onChanged(t: Any?) {
-        val active = progress.mapNotNull { it.value }
+        val active = progress.value ?: listOf()
         if (active.isEmpty()) {
             val values = sources.mapNotNull { it.value }
             GlobalScope.launch {
