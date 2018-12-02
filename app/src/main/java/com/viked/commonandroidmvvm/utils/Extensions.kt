@@ -57,3 +57,5 @@ fun Date.formatTime(context: Context): String {
 private fun Context.getAppUrl() = "https://play.google.com/store/apps/details?id=$packageName"
 
 fun <T> T.toObservable() = ObservableField<T>(this)
+
+inline fun <T> T.doIf(value: Boolean, operation: (T) -> T) = let { if (value) operation.invoke(it) else it }

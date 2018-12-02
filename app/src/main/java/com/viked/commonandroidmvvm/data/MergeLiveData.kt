@@ -13,7 +13,7 @@ import kotlinx.coroutines.*
 
 class MergeLiveData(private val sources: List<LiveData<*>>,
                     private val progress: LiveData<List<Progress>>,
-                    private val builder: (List<*>) -> List<ItemWrapper>,
+                    private val builder: Strategy,
                     private val progressBuilder: (Progress) -> TextWrapper) : MediatorLiveData<Resource<List<ItemWrapper>>>(), Observer<Any?> {
 
     init {
@@ -40,7 +40,7 @@ class MergeLiveData(private val sources: List<LiveData<*>>,
         updateJob = GlobalScope.launch {
             try {
                 val values = sources.mapNotNull { it.value }
-                val r = builder.invoke(values)
+                val r = builder.convert(values)
                 withContext(Dispatchers.Main) { postValue(Resource.success(r)) }
             } catch (e: Exception) {
                 e.log()
@@ -51,4 +51,9 @@ class MergeLiveData(private val sources: List<LiveData<*>>,
             }
         }
     }
+
+    interface Strategy {
+        fun convert(list: List<*>): List<ItemWrapper>
+    }
+
 }
