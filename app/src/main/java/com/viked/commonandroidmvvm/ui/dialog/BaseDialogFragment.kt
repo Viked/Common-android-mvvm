@@ -53,6 +53,7 @@ abstract class BaseDialogFragment<T : BaseViewModel, B : ViewDataBinding> : Dial
         this.viewModel = AutoClearedValue(this, viewModel)
         val activity = activity()
         if (binding != null && activity != null) {
+            binding.setLifecycleOwner(this)
             arguments?.run { initArguments(viewModel, this) }
             adapters = AutoClearedValue(this, mutableListOf())
             viewModel.onInit()
