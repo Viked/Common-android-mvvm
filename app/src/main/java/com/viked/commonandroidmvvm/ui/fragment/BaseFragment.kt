@@ -2,13 +2,10 @@ package com.viked.commonandroidmvvm.ui.fragment
 
 import android.arch.lifecycle.ViewModelProvider
 import android.arch.lifecycle.ViewModelProviders
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
 import android.databinding.DataBindingUtil
 import android.databinding.ViewDataBinding
 import android.os.Bundle
+import android.os.Handler
 import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -23,11 +20,9 @@ import com.viked.commonandroidmvvm.ui.adapters.AdapterDelegate
 import com.viked.commonandroidmvvm.ui.binding.addOnPropertyChangeListener
 import com.viked.commonandroidmvvm.ui.common.AutoClearedValue
 import com.viked.commonandroidmvvm.ui.common.Cancelable
-import com.viked.commonandroidmvvm.ui.common.UPDATE_CONTENT
 import com.viked.commonandroidmvvm.ui.common.delegate.error.DialogErrorDelegate
-import com.viked.commonandroidmvvm.ui.common.delegate.error.ErrorDelegate
 import com.viked.commonandroidmvvm.ui.common.delegate.progress.DialogProgressDelegate
-import com.viked.commonandroidmvvm.ui.common.delegate.progress.ProgressDelegate
+import pub.devrel.easypermissions.EasyPermissions
 import javax.inject.Inject
 
 /**
@@ -131,6 +126,13 @@ abstract class BaseFragment<T : BaseViewModel, B : ViewDataBinding> : Fragment()
 
     private fun logStartEvent() {
         analytic.log(CustomEvent("Screen viewed").putCustomAttribute("name", this::class.java.simpleName))
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        // Forward results to EasyPermissions
+        Handler().post { EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this) }
     }
 
 }
