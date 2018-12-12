@@ -210,3 +210,12 @@ fun setDrawableLeft(view: TextView, resourceId: Int?) {
 fun setAvatar(imageView: ImageView, text: String?) {
     imageView.setImageDrawable(AvatarDrawable(text ?: ""))
 }
+
+@BindingAdapter("android:button")
+fun setAvatar(compoundButton: CompoundButton, resourceId: Int?) {
+    if (resourceId == null || resourceId == 0) return
+    val attrs = compoundButton.context.theme.obtainStyledAttributes(intArrayOf(resourceId))
+    val drawableResourceId = attrs.getResourceId(0, 0)
+    compoundButton.setButtonDrawable(drawableResourceId)
+    attrs.recycle()
+}

@@ -69,7 +69,7 @@ dependencies {
     api 'com.google.code.gson:gson:2.8.2'
     api 'com.android.support:multidex:1.0.3'
 
-    api 'pub.devrel:easypermissions:1.2.0'
+    api 'pub.devrel:easypermissions:2.0.0'
 
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
     kapt "com.google.dagger:dagger-android-processor:$dagger_version"
