@@ -94,12 +94,6 @@ abstract class BaseFragment<T : BaseViewModel, B : ViewDataBinding> : Fragment()
         //Set clicks, other view features
     }
 
-    open fun initProgressDelegate(binding: B, viewModel: T, activity: BaseActivity) =
-            activity()?.progressDelegate ?: DialogProgressDelegate(activity)
-
-    open fun initErrorDelegate(binding: B, viewModel: T, activity: BaseActivity) =
-            activity()?.errorDelegate ?: DialogErrorDelegate(activity)
-
     open fun loadData() {
         viewModel.value?.loadData()
     }
