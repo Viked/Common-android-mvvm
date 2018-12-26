@@ -20,8 +20,6 @@ import com.viked.commonandroidmvvm.ui.adapters.AdapterDelegate
 import com.viked.commonandroidmvvm.ui.binding.addOnPropertyChangeListener
 import com.viked.commonandroidmvvm.ui.common.AutoClearedValue
 import com.viked.commonandroidmvvm.ui.common.Cancelable
-import com.viked.commonandroidmvvm.ui.common.delegate.error.DialogErrorDelegate
-import com.viked.commonandroidmvvm.ui.common.delegate.progress.DialogProgressDelegate
 import pub.devrel.easypermissions.EasyPermissions
 import javax.inject.Inject
 
