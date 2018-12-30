@@ -17,10 +17,6 @@ class PurchaseDialogFragment : BaseDialogFragment<PurchaseViewModel, DialogPurch
 
     override val viewModelClass = PurchaseViewModel::class.java
 
-    override fun setViewModelToBinding(binding: DialogPurchaseBinding, viewModel: PurchaseViewModel) {
-        binding.viewModel = viewModel
-    }
-
     override fun initView(binding: DialogPurchaseBinding, viewModel: PurchaseViewModel) {
         super.initView(binding, viewModel)
         val adapter = DelegateRecyclerViewAdapter()

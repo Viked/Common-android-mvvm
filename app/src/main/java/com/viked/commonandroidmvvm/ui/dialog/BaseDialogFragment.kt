@@ -11,6 +11,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.Window
+import com.android.databinding.library.baseAdapters.BR
 import com.crashlytics.android.answers.CustomEvent
 import com.viked.commonandroidmvvm.di.Injectable
 import com.viked.commonandroidmvvm.log.Analytic
@@ -18,7 +19,6 @@ import com.viked.commonandroidmvvm.log.log
 import com.viked.commonandroidmvvm.ui.activity.BaseActivity
 import com.viked.commonandroidmvvm.ui.adapters.AdapterDelegate
 import com.viked.commonandroidmvvm.ui.common.AutoClearedValue
-import com.viked.commonandroidmvvm.ui.fragment.BaseFragment
 import com.viked.commonandroidmvvm.ui.fragment.BaseViewModel
 import javax.inject.Inject
 
@@ -44,8 +44,6 @@ abstract class BaseDialogFragment<T : BaseViewModel, B : ViewDataBinding> : Dial
 
     abstract val viewModelClass: Class<T>
 
-    abstract fun setViewModelToBinding(binding: B, viewModel: T)
-
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         val viewModel = ViewModelProviders.of(this, viewModelFactory).get(viewModelClass)
@@ -58,7 +56,7 @@ abstract class BaseDialogFragment<T : BaseViewModel, B : ViewDataBinding> : Dial
             adapters = AutoClearedValue(this, mutableListOf())
             viewModel.onInit()
             loadData()
-            setViewModelToBinding(binding, viewModel)
+            binding.setVariable(BR.viewModel, viewModel)
             initView(binding, viewModel)
             adapters.value?.forEach { it.subscribe() }
             logStartEvent()
@@ -111,10 +109,5 @@ abstract class BaseDialogFragment<T : BaseViewModel, B : ViewDataBinding> : Dial
     open fun loadData() {
         viewModel.value?.loadData()
     }
-// TODO update UI
-//    override fun onDetach() {
-//        (targetFragment as? BaseFragment<*, *>)?.loadData()
-//        super.onDetach()
-//    }
 
 }
