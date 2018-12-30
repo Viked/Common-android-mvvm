@@ -10,6 +10,7 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.android.databinding.library.baseAdapters.BR
 import com.crashlytics.android.answers.CustomEvent
 import com.viked.commonandroidmvvm.di.Injectable
 import com.viked.commonandroidmvvm.log.Analytic
@@ -44,7 +45,7 @@ abstract class BaseFragment<T : BaseViewModel, B : ViewDataBinding> : Fragment()
 
     abstract val viewModelClass: Class<T>
 
-    abstract fun setViewModelToBinding(binding: B, viewModel: T)
+    open val viewModelBindingId: Int = BR.viewModel
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
@@ -58,7 +59,7 @@ abstract class BaseFragment<T : BaseViewModel, B : ViewDataBinding> : Fragment()
             adapters = AutoClearedValue(this, mutableListOf())
             viewModel.onInit()
             loadData()
-            setViewModelToBinding(binding, viewModel)
+            binding.setVariable(viewModelBindingId, viewModel)
             initToolbar(activity, binding, viewModel)
             initView(binding, viewModel)
             adapters.value?.forEach { it.subscribe() }

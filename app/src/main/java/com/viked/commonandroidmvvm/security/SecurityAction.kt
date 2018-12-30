@@ -2,7 +2,20 @@ package com.viked.commonandroidmvvm.security
 
 import android.support.v4.app.Fragment
 
-class SecurityAction(val needPermissionRequest: (Fragment) -> Boolean, val requestPermission: (Fragment, Int) -> Unit)
+open class SecurityAction(private val needRequest: (Fragment) -> Boolean,
+                          private val request: (Fragment, Int) -> Unit) : Security {
+
+    override fun needPermissionRequest(fragment: Fragment) = needRequest(fragment)
+
+    override fun requestPermission(fragment: Fragment, id: Int) = request(fragment, id)
+
+}
+
+interface Security {
+    fun needPermissionRequest(fragment: Fragment): Boolean
+    fun requestPermission(fragment: Fragment, id: Int)
+    fun action() {}
+}
 
 /*
 *  if (EasyPermissions.hasPermissions(context, readPermission)) {
