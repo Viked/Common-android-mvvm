@@ -5,5 +5,6 @@ import com.viked.commonandroidmvvm.ui.adapters.list.CheckListData
 import com.viked.commonandroidmvvm.ui.adapters.list.ItemWrapper
 
 class CheckItemWrapper(val data: CheckListData,
+                       val enabled: Boolean = true,
                        val title: () -> TextWrapper = { TextWrapper(data.getTitle()) },
                        val subtitle: () -> TextWrapper = { TextWrapper(data.getSubtitle()) }) : ItemWrapper(data, name = TextWrapper(data.getTitle()))
