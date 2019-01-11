@@ -7,10 +7,7 @@ import android.databinding.DataBindingUtil
 import android.databinding.ViewDataBinding
 import android.os.Bundle
 import android.support.v4.app.DialogFragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.view.Window
+import android.view.*
 import com.android.databinding.library.baseAdapters.BR
 import com.crashlytics.android.answers.CustomEvent
 import com.viked.commonandroidmvvm.di.Injectable
@@ -19,6 +16,7 @@ import com.viked.commonandroidmvvm.log.log
 import com.viked.commonandroidmvvm.ui.activity.BaseActivity
 import com.viked.commonandroidmvvm.ui.adapters.AdapterDelegate
 import com.viked.commonandroidmvvm.ui.common.AutoClearedValue
+import com.viked.commonandroidmvvm.ui.common.Cancelable
 import com.viked.commonandroidmvvm.ui.fragment.BaseViewModel
 import javax.inject.Inject
 
@@ -26,7 +24,7 @@ import javax.inject.Inject
 /**
  * Created by yevgeniishein on 3/11/18.
  */
-abstract class BaseDialogFragment<T : BaseViewModel, B : ViewDataBinding> : DialogFragment(), Injectable {
+abstract class BaseDialogFragment<T : BaseViewModel, B : ViewDataBinding> : DialogFragment(), Injectable, Cancelable {
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
@@ -106,8 +104,20 @@ abstract class BaseDialogFragment<T : BaseViewModel, B : ViewDataBinding> : Dial
         dialog?.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
     }
 
+    override fun onResume() {
+        super.onResume()
+        dialog.setOnKeyListener { dialog, keyCode, event ->
+            if (keyCode == android.view.KeyEvent.KEYCODE_BACK) {
+                if (event.action != KeyEvent.ACTION_DOWN)
+                    handleOnBackPressed()
+                else false
+            } else false
+        }
+    }
+
     open fun loadData() {
         viewModel.value?.loadData()
     }
 
+    override fun handleOnBackPressed() = false
 }

@@ -8,6 +8,7 @@ import androidx.work.Worker
 import com.viked.commonandroidmvvm.billing.BillingRepository
 import com.viked.commonandroidmvvm.log.Analytic
 import com.viked.commonandroidmvvm.log.NotLoggingTree
+import com.viked.commonandroidmvvm.preference.PreferenceHelper
 import com.viked.commonandroidmvvm.work.HasWorkerInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.HasActivityInjector
@@ -31,6 +32,9 @@ abstract class BaseApp : Application(), HasActivityInjector, HasWorkerInjector {
 
     @Inject
     lateinit var billingRepository: BillingRepository
+
+    @Inject
+    lateinit var preferenceHelper: PreferenceHelper
 
     abstract fun inject()
 

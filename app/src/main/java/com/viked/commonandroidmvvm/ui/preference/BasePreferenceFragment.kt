@@ -13,10 +13,6 @@ import com.viked.commonandroidmvvm.log.Analytic
 import com.viked.commonandroidmvvm.log.log
 import com.viked.commonandroidmvvm.preference.ARG_KEY
 import com.viked.commonandroidmvvm.preference.PreferenceItem
-import com.viked.commonandroidmvvm.preference.file.manager.FileManagerPreference
-import com.viked.commonandroidmvvm.preference.file.manager.FileManagerPreferenceDialogFragment
-import com.viked.commonandroidmvvm.preference.file.name.FileNamePreference
-import com.viked.commonandroidmvvm.preference.file.name.FileNamePreferenceDialogFragment
 import com.viked.commonandroidmvvm.preference.time.TimePreference
 import com.viked.commonandroidmvvm.preference.time.TimePreferenceDialogFragment
 import com.viked.commonandroidmvvm.text.TextWrapper
@@ -24,10 +20,6 @@ import com.viked.commonandroidmvvm.ui.activity.BaseActivity
 import com.viked.commonandroidmvvm.ui.binding.addOnPropertyChangeListener
 import com.viked.commonandroidmvvm.ui.common.AutoClearedValue
 import com.viked.commonandroidmvvm.ui.common.Cancelable
-import com.viked.commonandroidmvvm.ui.common.delegate.error.DialogErrorDelegate
-import com.viked.commonandroidmvvm.ui.common.delegate.error.ErrorDelegate
-import com.viked.commonandroidmvvm.ui.common.delegate.progress.DialogProgressDelegate
-import com.viked.commonandroidmvvm.ui.common.delegate.progress.ProgressDelegate
 import com.viked.commonandroidmvvm.ui.fragment.BaseViewModel
 import javax.inject.Inject
 
@@ -44,10 +36,6 @@ abstract class BasePreferenceFragment<T : BaseViewModel> : PreferenceFragmentCom
 
     @Inject
     lateinit var initialValues: Set<@JvmSuppressWildcards PreferenceItem>
-
-    lateinit var progressDelegate: AutoClearedValue<ProgressDelegate>
-
-    lateinit var errorDelegate: AutoClearedValue<ErrorDelegate>
 
     lateinit var viewModel: AutoClearedValue<T>
 
@@ -74,13 +62,11 @@ abstract class BasePreferenceFragment<T : BaseViewModel> : PreferenceFragmentCom
             arguments?.run { initArguments(viewModel, this) }
             viewModel.loadData()
             initToolbar(activity, viewModel)
-            progressDelegate = AutoClearedValue(this, initProgressDelegate(viewModel, activity))
-            errorDelegate = AutoClearedValue(this, initErrorDelegate(viewModel, activity))
             initDialogDelegates(dialogDelegates)
             initPreferences(viewModel, activity)
             logStartEvent()
         } else {
-            RuntimeException("BaseFragment has empty params\nviewModel: ${this.viewModel.value}").log()
+            RuntimeException("BasePreferenceFragment has empty params\nviewModel: ${this.viewModel.value}").log()
         }
     }
 
@@ -96,10 +82,6 @@ abstract class BasePreferenceFragment<T : BaseViewModel> : PreferenceFragmentCom
         //Set title if need
     }
 
-    open fun initProgressDelegate(viewModel: T, activity: BaseActivity) = DialogProgressDelegate(activity)
-
-    open fun initErrorDelegate(viewModel: T, activity: BaseActivity) = DialogErrorDelegate(activity)
-
     open fun initArguments(viewModel: T, arguments: Bundle) {
         //Set initial data to view model
     }
@@ -109,8 +91,6 @@ abstract class BasePreferenceFragment<T : BaseViewModel> : PreferenceFragmentCom
         dialogDelegates.add(DialogPreferenceDelegate(ListPreference::class.java, ListPreferenceDialogFragmentCompat::class.java.name))
         dialogDelegates.add(DialogPreferenceDelegate(MultiSelectListPreference::class.java, MultiSelectListPreferenceDialogFragmentCompat::class.java.name))
         dialogDelegates.add(DialogPreferenceDelegate(TimePreference::class.java, TimePreferenceDialogFragment::class.java.name))
-        dialogDelegates.add(DialogPreferenceDelegate(FileManagerPreference::class.java, FileManagerPreferenceDialogFragment::class.java.name))
-        dialogDelegates.add(DialogPreferenceDelegate(FileNamePreference::class.java, FileNamePreferenceDialogFragment::class.java.name))
     }
 
     fun activity() = activity as BaseActivity?

@@ -7,6 +7,7 @@ import android.databinding.ObservableField
 import android.net.Uri
 import android.support.annotation.DrawableRes
 import android.text.format.DateFormat
+import com.viked.commonandroidmvvm.BaseApp
 import com.viked.commonandroidmvvm.R
 import java.util.*
 
@@ -62,9 +63,11 @@ fun <T> T.toObservable() = ObservableField<T>(this)
 inline fun <T> T.doIf(value: Boolean, operation: (T) -> T) = let { if (value) operation.invoke(it) else it }
 
 @DrawableRes
-fun Context.getAndroidDrawable(resourceId: Int): Int{
+fun Context.getAndroidDrawable(resourceId: Int): Int {
     val attrs = theme.obtainStyledAttributes(intArrayOf(resourceId))
     val drawableResourceId = attrs.getResourceId(0, 0)
     attrs.recycle()
     return drawableResourceId
 }
+
+fun Context.getPreferenceHelper() = (applicationContext as BaseApp).preferenceHelper

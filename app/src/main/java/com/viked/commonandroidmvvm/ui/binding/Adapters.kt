@@ -3,7 +3,7 @@ package com.viked.commonandroidmvvm.ui.binding
 import android.app.Activity
 import android.databinding.BindingAdapter
 import android.support.design.widget.AppBarLayout
-import android.support.design.widget.FloatingActionButton
+import android.support.design.widget.TextInputLayout
 import android.support.v4.content.ContextCompat
 import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.widget.Toolbar
@@ -18,7 +18,6 @@ import android.widget.*
 import com.viked.commonandroidmvvm.drawable.AvatarDrawable
 import com.viked.commonandroidmvvm.text.TextWrapper
 import com.viked.commonandroidmvvm.ui.adapters.list.ItemWrapper
-import com.viked.commonandroidmvvm.ui.common.HideKeyoardClickListener
 import com.viked.commonandroidmvvm.utils.getAndroidDrawable
 import java.util.*
 import kotlin.math.roundToInt
@@ -31,20 +30,6 @@ import kotlin.math.roundToInt
 @BindingAdapter("visibleGone")
 fun setVisible(view: View, show: Boolean?) {
     view.visibility = if (show != false) View.VISIBLE else View.GONE
-}
-
-@BindingAdapter("fabContext")
-fun setFabContext(fab: FloatingActionButton, fabBindingContext: FabBindingContext?) {
-    if (fabBindingContext != null && fabBindingContext.iconId > 0) {
-        fab.setImageResource(fabBindingContext.iconId)
-        fab.setOnClickListener(HideKeyoardClickListener { fabBindingContext.onClick() })
-        fab.visibility = View.VISIBLE
-        fab.show()
-    } else {
-        fab.setOnClickListener(null)
-        fab.visibility = View.GONE
-        fab.hide()
-    }
 }
 
 @BindingAdapter("ptrListener")
@@ -107,12 +92,15 @@ fun setImageViewResource(imageView: ImageView, resource: Int?) {
     imageView.setImageResource(resource ?: 0)
 }
 
-@BindingAdapter("adapter")
-fun setAdapter(spinner: Spinner, list: List<ItemWrapper>?) {
+@BindingAdapter("adapter", "android:selectedItemPosition", requireAll = false)
+fun setAdapter(spinner: Spinner, list: List<ItemWrapper>?, selectedItemPosition: Int?) {
     spinner.adapter = ArrayAdapter(
             spinner.context,
             android.R.layout.simple_spinner_item,
-            list?.map { it.name }?.toTypedArray() ?: arrayOf())
+            list?.map { it.name[spinner.context] }?.toTypedArray() ?: arrayOf())
+    if (selectedItemPosition != null && list != null && list.size > selectedItemPosition) {
+        spinner.setSelection(selectedItemPosition)
+    }
 }
 
 @BindingAdapter("view")
@@ -217,4 +205,11 @@ fun setAvatar(compoundButton: CompoundButton, resourceId: Int?) {
     if (resourceId == null || resourceId == 0) return
     val drawableResourceId = compoundButton.context.getAndroidDrawable(resourceId)
     compoundButton.setButtonDrawable(drawableResourceId)
+}
+
+@BindingAdapter("errorText")
+fun setErrorText(view: TextInputLayout, errorMessage: Int?) {
+    view.error = if (errorMessage != null && errorMessage != 0) {
+        view.context.getString(errorMessage)
+    } else null
 }
