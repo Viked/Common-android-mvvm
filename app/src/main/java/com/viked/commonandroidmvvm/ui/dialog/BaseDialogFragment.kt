@@ -6,6 +6,7 @@ import android.arch.lifecycle.ViewModelProviders
 import android.databinding.DataBindingUtil
 import android.databinding.ViewDataBinding
 import android.os.Bundle
+import android.os.Handler
 import android.support.v4.app.DialogFragment
 import android.view.*
 import com.android.databinding.library.baseAdapters.BR
@@ -18,6 +19,7 @@ import com.viked.commonandroidmvvm.ui.adapters.AdapterDelegate
 import com.viked.commonandroidmvvm.ui.common.AutoClearedValue
 import com.viked.commonandroidmvvm.ui.common.Cancelable
 import com.viked.commonandroidmvvm.ui.fragment.BaseViewModel
+import pub.devrel.easypermissions.EasyPermissions
 import javax.inject.Inject
 
 
@@ -120,4 +122,11 @@ abstract class BaseDialogFragment<T : BaseViewModel, B : ViewDataBinding> : Dial
     }
 
     override fun handleOnBackPressed() = false
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        // Forward results to EasyPermissions
+        Handler().post { EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this) }
+    }
 }
