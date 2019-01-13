@@ -32,7 +32,7 @@ open class DelegateRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewH
         }
     }
 
-    open fun addDelegate(delegate: AdapterDelegate) {
+    open fun addDelegate(delegate: com.hannesdorfmann.adapterdelegates3.AdapterDelegate<List<ItemWrapper>>) {
         delegatesManager.addDelegate(++delegateViewType, delegate)
     }
 

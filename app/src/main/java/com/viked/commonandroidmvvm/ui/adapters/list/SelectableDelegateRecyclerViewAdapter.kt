@@ -22,9 +22,11 @@ class SelectableDelegateRecyclerViewAdapter(private val selectMode: ObservableBo
 
     private fun getSelectedItems(): List<ItemWrapper> = items.filter { it is SelectableItemWrapper && it.selected.get() }
 
-    override fun addDelegate(delegate: AdapterDelegate) {
-        delegate.onItemClickListener = BlockerClickDecorator(delegate.onItemClickListener) { view, item -> handleItemPressed(items[item]) }
-        delegate.onLongClickListener = BlockerClickDecorator(delegate.onLongClickListener) { view, item -> handleLongClick(items[item]) }
+    override fun addDelegate(delegate: com.hannesdorfmann.adapterdelegates3.AdapterDelegate<List<ItemWrapper>>) {
+        if (delegate is AdapterDelegate) {
+            delegate.onItemClickListener = BlockerClickDecorator(delegate.onItemClickListener) { view, item -> handleItemPressed(items[item]) }
+            delegate.onLongClickListener = BlockerClickDecorator(delegate.onLongClickListener) { view, item -> handleLongClick(items[item]) }
+        }
         super.addDelegate(delegate)
     }
 
