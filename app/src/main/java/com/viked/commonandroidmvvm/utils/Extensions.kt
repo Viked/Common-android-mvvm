@@ -9,6 +9,7 @@ import android.support.annotation.DrawableRes
 import android.text.format.DateFormat
 import com.viked.commonandroidmvvm.BaseApp
 import com.viked.commonandroidmvvm.R
+import kotlinx.coroutines.*
 import java.util.*
 
 
@@ -71,3 +72,11 @@ fun Context.getAndroidDrawable(resourceId: Int): Int {
 }
 
 fun Context.getPreferenceHelper() = (applicationContext as BaseApp).preferenceHelper
+
+fun <T> lazyPromise(block: suspend CoroutineScope.() -> T): Lazy<Deferred<T>> {
+    return lazy {
+        GlobalScope.async(start = CoroutineStart.LAZY) {
+            block.invoke(this)
+        }
+    }
+}
