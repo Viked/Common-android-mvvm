@@ -1,7 +1,9 @@
 package com.viked.commonandroidmvvm.work
 
 import android.content.Context
+import android.support.annotation.StringRes
 import androidx.work.WorkerParameters
+import com.viked.commonandroidmvvm.R
 import com.viked.commonandroidmvvm.progress.Progress
 import com.viked.commonandroidmvvm.progress.ProgressDao
 import javax.inject.Inject
@@ -13,10 +15,13 @@ abstract class BaseProgressWorker(context: Context, workerParams: WorkerParamete
 
     private var progress = 0
 
+    @get:StringRes
+    open val messageId: Int = R.string.message_valued_loading
+
     protected fun updateProgress(progress: Int) {
         if (this.progress != progress) {
             this.progress = progress
-            progressDao.set(Progress(this::class.java.simpleName, progress))
+            progressDao.set(Progress(this::class.java.simpleName, progress, messageId))
         }
     }
 
@@ -26,7 +31,7 @@ abstract class BaseProgressWorker(context: Context, workerParams: WorkerParamete
     }
 
     protected fun finish() {
-        progressDao.delete(Progress(this::class.java.simpleName, progress))
+        progressDao.delete(Progress(this::class.java.simpleName, progress, messageId))
     }
 
 }

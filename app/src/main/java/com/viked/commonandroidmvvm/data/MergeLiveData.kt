@@ -15,7 +15,6 @@ import kotlinx.coroutines.*
 class MergeLiveData(private val sources: List<LiveData<*>>,
                     private val progress: LiveData<List<Progress>>,
                     private val builder: Strategy,
-                    private val progressBuilder: (Progress) -> TextWrapper,
                     private val comparator: (() -> Comparator<ItemWrapper>)? = null) : MediatorLiveData<Resource<List<ItemWrapper>>>(), Observer<Any?> {
 
     init {
@@ -33,7 +32,7 @@ class MergeLiveData(private val sources: List<LiveData<*>>,
             setNewValue()
         } else {
             updateJob?.cancel()
-            postValue(Resource.status(progressBuilder(active.minBy { it.value }!!)))
+            postValue(Resource.status((active.minBy { it.value }!!).getMessage()))
         }
     }
 

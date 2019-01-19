@@ -15,7 +15,6 @@
     <string name="create_folder_error">Неможливо створити папку</string>
     <string name="create_folder_icon">Створити папку</string>
     <string name="create_folder_msg">Введіть назву папки</string>
-    <string name="create_folder_title">Створити папку</string>
     <string name="error_already_exists">Папка вже існує</string>
     <string name="file_icon">Іконка файлу</string>
     <string name="file_name_dialog_massage">Введіть назву папки</string>
@@ -26,5 +25,6 @@
     <string name="selected_folder">Обрана папка:</string>
     <string name="pref_validation_massage">Необхідно змінити</string>
     <string name="pref_validation_action">Це</string>
+    <string name="message_valued_loading">Завантаження\n%1$d%%</string>
 
 </resources>
