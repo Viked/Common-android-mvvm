@@ -11,7 +11,7 @@
     <string name="share_with">Поділитися</string>
     <string name="button_own">Придбано</string>
 
-    <string name="default_file_name">File</string>
+    <string name="settings_default_file_name">File</string>
     <string name="create_folder_error">Неможливо створити папку</string>
     <string name="create_folder_icon">Створити папку</string>
     <string name="create_folder_msg">Введіть назву папки</string>

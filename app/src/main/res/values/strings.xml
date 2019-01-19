@@ -18,7 +18,8 @@
     <string name="create_folder_icon">Create folder</string>
     <string name="selected_folder">Selected folder:</string>
 
-    <string name="create_folder_title">Create folder</string>
+
+
     <string name="create_folder_msg">Enter folder name</string>
     <string name="no_write_access">Cannot write to this folder</string>
     <string name="error_already_exists">Folder already exists</string>
@@ -28,7 +29,7 @@
 
     <string name="no_dir_selected">No directory selected</string>
 
-    <string name="default_file_name">File</string>
+    <string name="settings_default_file_name">File</string>
 
     <string name="file_name_dialog_massage">Enter file name</string>
 

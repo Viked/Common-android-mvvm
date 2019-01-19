@@ -20,7 +20,7 @@
     <string name="create_folder_icon">Создать папку</string>
     <string name="create_folder_msg">Введите название папки</string>
     <string name="create_folder_title">Создать папку</string>
-    <string name="default_file_name">File</string>
+    <string name="settings_default_file_name">File</string>
     <string name="error_already_exists">Папка уже существует</string>
     <string name="file_icon">Иконка файла</string>
     <string name="file_name_dialog_massage">Введите название папки</string>
