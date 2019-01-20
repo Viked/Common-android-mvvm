@@ -29,7 +29,7 @@ class BillingRepository @Inject constructor(private val application: Application
         Application.ActivityLifecycleCallbacks, PurchasesUpdatedListener {
 
     /** A reference to BillingClient  */
-    private val billingClient = GlobalScope.lazySuspendFun<BillingClient> {
+    private val billingClient = GlobalScope.lazySuspendFun<BillingClient?> {
         val client = BillingClient.newBuilder(application).setListener(this).build()
         suspendCoroutine { continuation ->
             client.startConnection(object : BillingClientStateListener {
@@ -38,6 +38,8 @@ class BillingRepository @Inject constructor(private val application: Application
 
                     if (billingResponseCode == BillingClient.BillingResponse.OK) {
                         continuation.resume(client)
+                    } else {
+                        continuation.resume(null)
                     }
                 }
 
@@ -110,13 +112,13 @@ class BillingRepository @Inject constructor(private val application: Application
     }
 
     fun unsubscribe() = GlobalScope.launch {
-        val client = billingClient()
+        val client = billingClient() ?: return@launch
         if (client.isReady) {
             client.endConnection()
         }
     }
 
-    override fun onPurchasesUpdated(responseCode: Int, purchases: MutableList<Purchase>?) {
+    override fun onPurchasesUpdated(responseCode: Int, purchases: List<Purchase>?) {
         when (responseCode) {
             BillingClient.BillingResponse.OK -> this.purchases.postValue(purchases ?: emptyList())
             BillingClient.BillingResponse.USER_CANCELED -> Timber.i("onPurchasesUpdated() - user cancelled the purchase flow - skipping")
@@ -176,7 +178,7 @@ class BillingRepository @Inject constructor(private val application: Application
      * Start a purchase or subscription replace flow
      */
     private fun initiatePurchaseFlow(skuId: String, oldSkus: ArrayList<String>?, @BillingClient.SkuType billingType: String) = GlobalScope.launch {
-        val client = billingClient()
+        val client = billingClient() ?: return@launch
         if (activity == null) return@launch
         Timber.i("Launching in-app purchase flow. Replace old SKU? ${(oldSkus != null)}")
         val purchaseParams = BillingFlowParams
@@ -203,6 +205,10 @@ class BillingRepository @Inject constructor(private val application: Application
     private fun getSku(skuList: List<String>,
                        @BillingClient.SkuType billingType: String, executeWhenFinished: (List<SkuDetails>) -> Unit) = GlobalScope.launch {
         val client = billingClient()
+        if (client == null) {
+            executeWhenFinished(emptyList())
+            return@launch
+        }
         val params = SkuDetailsParams
                 .newBuilder()
                 .setSkusList(skuList)
@@ -226,6 +232,11 @@ class BillingRepository @Inject constructor(private val application: Application
      */
     private fun queryPurchases() = GlobalScope.launch {
         val client = billingClient()
+        if (client == null) {
+            onPurchasesUpdated(BillingClient.BillingResponse.OK, emptyList())
+            return@launch
+        }
+
         val time = System.currentTimeMillis()
         val purchasesResult = client.queryPurchases(BillingClient.SkuType.INAPP)
         Timber.i("Querying purchases elapsed time: ${System.currentTimeMillis() - time}ms")
@@ -261,7 +272,7 @@ class BillingRepository @Inject constructor(private val application: Application
      *
      */
     private fun areSubscriptionsSupported() = GlobalScope.async {
-        val client = billingClient()
+        val client = billingClient() ?: return@async false
         val responseCode = client.isFeatureSupported(BillingClient.FeatureType.SUBSCRIPTIONS)
         if (responseCode != BillingClient.BillingResponse.OK) {
             Timber.i("Error response: $responseCode")
