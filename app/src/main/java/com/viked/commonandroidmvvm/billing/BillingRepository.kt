@@ -7,6 +7,7 @@ import android.arch.lifecycle.MutableLiveData
 import android.os.Bundle
 import com.android.billingclient.api.*
 import com.viked.commonandroidmvvm.data.lazySuspendFun
+import com.viked.commonandroidmvvm.log.log
 import com.viked.commonandroidmvvm.ui.data.Resource
 import com.viked.commonandroidmvvm.ui.dialog.purchase.PurchaseItemWrapper
 import kotlinx.coroutines.GlobalScope
@@ -95,9 +96,16 @@ class BillingRepository @Inject constructor(private val application: Application
         if (subscriptionList.isEmpty() || purchaseList.isEmpty()) {
             hasValidSubscription.postValue(false)
         } else {
-            val hasValid = purchaseList.filter { subscriptionList.contains(it.sku) }
-                    .any { billingSecurity.verifyPurchase(true, it.purchaseToken, it.sku) }
-            hasValidSubscription.postValue(hasValid)
+            GlobalScope.launch {
+                val hasValid = try {
+                    purchaseList.filter { subscriptionList.contains(it.sku) }
+                            .any { billingSecurity.verifyPurchase(true, it.purchaseToken, it.sku) }
+                } catch (e: Exception) {
+                    e.log()
+                    false
+                }
+                hasValidSubscription.postValue(hasValid)
+            }
         }
     }
 
