@@ -11,6 +11,7 @@ import com.viked.commonandroidmvvm.ui.adapters.list.ItemWrapper
 import com.viked.commonandroidmvvm.ui.data.Resource
 import com.viked.commonandroidmvvm.utils.doIf
 import kotlinx.coroutines.*
+import timber.log.Timber
 
 class MergeLiveData(private val sources: List<LiveData<*>>,
                     private val progress: LiveData<List<Progress>>,
@@ -44,6 +45,8 @@ class MergeLiveData(private val sources: List<LiveData<*>>,
                 val comparator = comparator?.invoke()
                 val r = builder.convert(values).doIf(comparator != null) { it.sortedWith(comparator!!) }
                 withContext(Dispatchers.Main) { postValue(Resource.success(r)) }
+            } catch (e: CancellationException) {
+                Timber.i(e)
             } catch (e: Exception) {
                 e.log()
                 withContext(Dispatchers.Main) {
