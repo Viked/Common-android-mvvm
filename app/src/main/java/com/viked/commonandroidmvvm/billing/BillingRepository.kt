@@ -34,13 +34,14 @@ class BillingRepository @Inject constructor(private val application: Application
         val client = BillingClient.newBuilder(application).setListener(this).build()
         suspendCoroutine { continuation ->
             client.startConnection(object : BillingClientStateListener {
+
+                var done = false
+
                 override fun onBillingSetupFinished(@BillingClient.BillingResponse billingResponseCode: Int) {
                     Timber.i("Setup finished. Response code: $billingResponseCode")
-
-                    if (billingResponseCode == BillingClient.BillingResponse.OK) {
+                    if (!done && billingResponseCode == BillingClient.BillingResponse.OK) {
+                        done = true
                         continuation.resume(client)
-                    } else {
-                        continuation.resume(null)
                     }
                 }
 
