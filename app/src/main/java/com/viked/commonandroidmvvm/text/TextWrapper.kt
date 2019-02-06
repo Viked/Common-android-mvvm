@@ -1,7 +1,7 @@
 package com.viked.commonandroidmvvm.text
 
 import android.content.Context
-import android.support.annotation.StringRes
+import androidx.annotation.StringRes
 
 /**
  * Created by yevgeniishein on 10/7/17.

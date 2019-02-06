@@ -3,7 +3,7 @@ package com.viked.commonandroidmvvm.ui.dialog
 import android.app.DatePickerDialog
 import android.app.Dialog
 import android.os.Bundle
-import android.support.v4.app.DialogFragment
+import androidx.fragment.app.DialogFragment
 import android.widget.DatePicker
 import java.util.*
 
@@ -11,7 +11,7 @@ import java.util.*
 /**
  * Created by Marshall Banana on 02.07.2017.
  */
-class DatePickerDialogFragment : DialogFragment(), DatePickerDialog.OnDateSetListener {
+class DatePickerDialogFragment : androidx.fragment.app.DialogFragment(), DatePickerDialog.OnDateSetListener {
 
     private var dialogId: Int = -1
 
@@ -37,7 +37,7 @@ class DatePickerDialogFragment : DialogFragment(), DatePickerDialog.OnDateSetLis
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        outState.putAll(dialog.onSaveInstanceState())
+        outState.putAll(dialog?.onSaveInstanceState())
         outState.putInt(ID_KEY, dialogId)
         super.onSaveInstanceState(outState)
     }

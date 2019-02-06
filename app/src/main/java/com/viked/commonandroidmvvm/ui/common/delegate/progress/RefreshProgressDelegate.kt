@@ -1,11 +1,11 @@
 package com.viked.commonandroidmvvm.ui.common.delegate.progress
 
-import android.support.v4.widget.SwipeRefreshLayout
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 
 /**
  * Created by yevgeniishein on 3/11/18.
  */
-class RefreshProgressDelegate(private val swipeRefreshLayout: SwipeRefreshLayout) : BaseProgressDelegate() {
+class RefreshProgressDelegate(private val swipeRefreshLayout: androidx.swiperefreshlayout.widget.SwipeRefreshLayout) : BaseProgressDelegate() {
 
     override fun showProgress() {
         swipeRefreshLayout.isRefreshing = true

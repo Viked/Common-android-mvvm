@@ -1,6 +1,6 @@
 package com.viked.commonandroidmvvm.ui.fragment.list
 
-import android.databinding.ObservableBoolean
+import androidx.databinding.ObservableBoolean
 import com.viked.commonandroidmvvm.billing.BillingRepository
 
 /**

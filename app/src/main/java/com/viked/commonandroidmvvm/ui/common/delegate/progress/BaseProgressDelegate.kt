@@ -1,7 +1,7 @@
 package com.viked.commonandroidmvvm.ui.common.delegate.progress
 
-import android.databinding.Observable
-import android.databinding.ObservableBoolean
+import androidx.databinding.Observable
+import androidx.databinding.ObservableBoolean
 import com.viked.commonandroidmvvm.ui.common.delegate.BaseViewDelegate
 
 /**

@@ -1,7 +1,7 @@
 package com.viked.commonandroidmvvm.ui.adapters.sync
 
-import android.support.annotation.DrawableRes
-import android.support.annotation.StringRes
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 
 /**
  * Created by yevgeniishein on 3/8/18.

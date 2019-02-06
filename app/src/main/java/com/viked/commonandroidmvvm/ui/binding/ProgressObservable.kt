@@ -1,6 +1,6 @@
 package com.viked.commonandroidmvvm.ui.binding
 
-import android.databinding.ObservableBoolean
+import androidx.databinding.ObservableBoolean
 
 /**
  * Created by shein on 1/11/2018.

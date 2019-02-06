@@ -1,12 +1,12 @@
 package com.viked.commonandroidmvvm.ui.preference
 
-import android.arch.lifecycle.ViewModelProvider
-import android.arch.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
 import android.os.Bundle
-import android.support.v14.preference.MultiSelectListPreference
-import android.support.v4.app.DialogFragment
-import android.support.v4.app.Fragment
-import android.support.v7.preference.*
+import androidx.preference.MultiSelectListPreference
+import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.Fragment
+import androidx.preference.*
 import com.crashlytics.android.answers.CustomEvent
 import com.viked.commonandroidmvvm.di.Injectable
 import com.viked.commonandroidmvvm.log.Analytic
@@ -114,10 +114,10 @@ abstract class BasePreferenceFragment<T : BaseViewModel> : PreferenceFragmentCom
         val dialogClassName = dialogDelegates.find { preference::class.java == it.clazz }?.preferenceDialogClassName
                 ?: error("Tried to display dialog for unknown")
 
-        (Fragment.instantiate(activity(), dialogClassName, Bundle(1).apply { putString(ARG_KEY, preference.key) }) as? DialogFragment)?.also {
+        (androidx.fragment.app.Fragment.instantiate(context!!, dialogClassName, Bundle(1).apply { putString(ARG_KEY, preference.key) }) as? androidx.fragment.app.DialogFragment)?.also {
             it.setTargetFragment(this, 0)
         }
-                ?.show(fragmentManager, PREFERENCE_DIALOG_FRAGMENT_TAG)
+                ?.show(fragmentManager!!, PREFERENCE_DIALOG_FRAGMENT_TAG)
     }
 
     private fun logStartEvent() {

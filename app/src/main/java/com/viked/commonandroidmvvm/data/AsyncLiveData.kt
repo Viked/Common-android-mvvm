@@ -1,6 +1,6 @@
 package com.viked.commonandroidmvvm.data
 
-import android.arch.lifecycle.MutableLiveData
+import androidx.lifecycle.MutableLiveData
 import com.viked.commonandroidmvvm.log.log
 import com.viked.commonandroidmvvm.text.TextWrapper
 import com.viked.commonandroidmvvm.ui.data.Resource

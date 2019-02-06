@@ -3,8 +3,8 @@ package com.viked.commonandroidmvvm.ui.adapters.search
 import android.content.Context
 import android.database.Cursor
 import android.database.MatrixCursor
-import android.databinding.ObservableList
-import android.support.v4.widget.ResourceCursorAdapter
+import androidx.databinding.ObservableList
+import androidx.cursoradapter.widget.ResourceCursorAdapter
 import android.view.View
 import android.widget.TextView
 import com.viked.commonandroidmvvm.ui.adapters.AdapterDelegate
@@ -15,7 +15,7 @@ import com.viked.commonandroidmvvm.ui.adapters.list.ItemWrapper
  * Created by yevgeniishein on 2/24/18.
  */
 class SearchAdapter(private val context: Context, private var objectList: ObservableList<ItemWrapper>) :
-        ResourceCursorAdapter(context, android.R.layout.simple_spinner_item, objectList.createCursor(context), 0), AdapterDelegate {
+        androidx.cursoradapter.widget.ResourceCursorAdapter(context, android.R.layout.simple_spinner_item, objectList.createCursor(context), 0), AdapterDelegate {
 
     private val onListChangeCallback = ListChangeCallback(Runnable { update() })
 

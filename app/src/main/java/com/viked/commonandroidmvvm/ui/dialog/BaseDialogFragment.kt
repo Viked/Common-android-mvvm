@@ -1,15 +1,15 @@
 package com.viked.commonandroidmvvm.ui.dialog
 
 import android.app.Dialog
-import android.arch.lifecycle.ViewModelProvider
-import android.arch.lifecycle.ViewModelProviders
-import android.databinding.DataBindingUtil
-import android.databinding.ViewDataBinding
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
+import androidx.databinding.DataBindingUtil
+import androidx.databinding.ViewDataBinding
 import android.os.Bundle
 import android.os.Handler
-import android.support.v4.app.DialogFragment
+import androidx.fragment.app.DialogFragment
 import android.view.*
-import com.android.databinding.library.baseAdapters.BR
+import androidx.databinding.library.baseAdapters.BR
 import com.crashlytics.android.answers.CustomEvent
 import com.viked.commonandroidmvvm.di.Injectable
 import com.viked.commonandroidmvvm.log.Analytic
@@ -108,7 +108,7 @@ abstract class BaseDialogFragment<T : BaseViewModel, B : ViewDataBinding> : Dial
 
     override fun onResume() {
         super.onResume()
-        dialog.setOnKeyListener { dialog, keyCode, event ->
+        dialog?.setOnKeyListener { dialog, keyCode, event ->
             if (keyCode == android.view.KeyEvent.KEYCODE_BACK) {
                 if (event.action != KeyEvent.ACTION_DOWN)
                     handleOnBackPressed()

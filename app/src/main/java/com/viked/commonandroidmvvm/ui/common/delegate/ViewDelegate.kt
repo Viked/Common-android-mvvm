@@ -1,6 +1,6 @@
 package com.viked.commonandroidmvvm.ui.common.delegate
 
-import android.databinding.Observable
+import androidx.databinding.Observable
 
 /**
  * Created by shein on 1/9/2018.

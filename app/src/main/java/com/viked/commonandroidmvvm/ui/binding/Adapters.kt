@@ -1,12 +1,12 @@
 package com.viked.commonandroidmvvm.ui.binding
 
 import android.app.Activity
-import android.databinding.BindingAdapter
-import android.support.design.widget.AppBarLayout
-import android.support.design.widget.TextInputLayout
-import android.support.v4.content.ContextCompat
-import android.support.v4.widget.SwipeRefreshLayout
-import android.support.v7.widget.Toolbar
+import androidx.databinding.BindingAdapter
+import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.textfield.TextInputLayout
+import androidx.core.content.ContextCompat
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+import androidx.appcompat.widget.Toolbar
 import android.text.SpannableString
 import android.text.TextUtils
 import android.text.format.DateFormat
@@ -33,12 +33,12 @@ fun setVisible(view: View, show: Boolean?) {
 }
 
 @BindingAdapter("ptrListener")
-fun setPtrListener(layout: SwipeRefreshLayout, listener: SwipeRefreshLayout.OnRefreshListener?) {
+fun setPtrListener(layout: androidx.swiperefreshlayout.widget.SwipeRefreshLayout, listener: androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener?) {
     layout.setOnRefreshListener(listener)
 }
 
 @BindingAdapter("ptrLoading")
-fun setPtrLoading(layout: SwipeRefreshLayout, loading: Boolean?) {
+fun setPtrLoading(layout: androidx.swiperefreshlayout.widget.SwipeRefreshLayout, loading: Boolean?) {
     layout.isRefreshing = loading != null && loading
 }
 

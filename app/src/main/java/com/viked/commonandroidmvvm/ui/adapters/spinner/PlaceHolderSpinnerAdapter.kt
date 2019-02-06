@@ -1,8 +1,8 @@
 package com.viked.commonandroidmvvm.ui.adapters.spinner
 
 import android.database.DataSetObserver
-import android.databinding.Observable
-import android.databinding.ObservableField
+import androidx.databinding.Observable
+import androidx.databinding.ObservableField
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup

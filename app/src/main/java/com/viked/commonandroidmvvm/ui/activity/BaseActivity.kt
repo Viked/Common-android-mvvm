@@ -2,8 +2,8 @@ package com.viked.commonandroidmvvm.ui.activity
 
 import android.os.Bundle
 import android.os.Handler
-import android.support.v4.app.Fragment
-import android.support.v7.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import androidx.appcompat.app.AppCompatActivity
 import android.view.MenuItem
 import com.viked.commonandroidmvvm.extentions.handleOnBackPressed
 import com.viked.commonandroidmvvm.ui.common.delegate.error.DialogErrorDelegate
@@ -21,7 +21,7 @@ import javax.inject.Inject
 abstract class BaseActivity : AppCompatActivity(), HasSupportFragmentInjector {
 
     @Inject
-    lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
+    lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<androidx.fragment.app.Fragment>
 
     lateinit var progressDelegate: ProgressDelegate
 
@@ -33,7 +33,7 @@ abstract class BaseActivity : AppCompatActivity(), HasSupportFragmentInjector {
         errorDelegate = DialogErrorDelegate(this)
     }
 
-    override fun supportFragmentInjector(): DispatchingAndroidInjector<Fragment> =
+    override fun supportFragmentInjector(): DispatchingAndroidInjector<androidx.fragment.app.Fragment> =
             dispatchingAndroidInjector
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {

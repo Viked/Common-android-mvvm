@@ -1,8 +1,8 @@
 package com.viked.commonandroidmvvm.progress
 
-import android.arch.persistence.room.Entity
-import android.arch.persistence.room.PrimaryKey
-import android.support.annotation.StringRes
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+import androidx.annotation.StringRes
 import com.viked.commonandroidmvvm.text.TextWrapper
 
 @Entity

@@ -1,6 +1,6 @@
 package com.viked.commonandroidmvvm.ui.data
 
-import android.support.annotation.StringRes
+import androidx.annotation.StringRes
 import com.viked.commonandroidmvvm.text.TextWrapper
 
 class Resource<T>(val data: T? = null, val status: TextWrapper? = null) {

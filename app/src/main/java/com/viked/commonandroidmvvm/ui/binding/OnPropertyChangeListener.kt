@@ -1,6 +1,6 @@
 package com.viked.commonandroidmvvm.ui.binding
 
-import android.databinding.Observable
+import androidx.databinding.Observable
 
 /**
  * Created by yevgeniishein on 12/24/17.

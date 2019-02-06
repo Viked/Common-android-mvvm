@@ -1,6 +1,6 @@
 package com.viked.commonandroidmvvm.ui.adapters
 
-import android.databinding.ObservableList
+import androidx.databinding.ObservableList
 import com.viked.commonandroidmvvm.ui.adapters.list.ItemWrapper
 
 /**

@@ -1,6 +1,6 @@
 package com.viked.commonandroidmvvm.di
 
-import android.arch.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProvider
 import androidx.work.Worker
 import dagger.Binds
 import dagger.Module

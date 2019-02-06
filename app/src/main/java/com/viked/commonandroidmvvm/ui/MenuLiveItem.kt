@@ -1,6 +1,6 @@
 package com.viked.commonandroidmvvm.ui
 
-import android.arch.lifecycle.Observer
+import androidx.lifecycle.Observer
 import android.view.MenuItem
 
 class MenuLiveItem(private val menuItem: MenuItem) : Observer<Boolean> {

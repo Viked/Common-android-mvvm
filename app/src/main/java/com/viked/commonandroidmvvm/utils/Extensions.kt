@@ -3,9 +3,9 @@ package com.viked.commonandroidmvvm.utils
 import android.content.Context
 import android.content.Intent
 import android.content.Intent.ACTION_VIEW
-import android.databinding.ObservableField
+import androidx.databinding.ObservableField
 import android.net.Uri
-import android.support.annotation.DrawableRes
+import androidx.annotation.DrawableRes
 import android.text.format.DateFormat
 import com.viked.commonandroidmvvm.BaseApp
 import com.viked.commonandroidmvvm.R

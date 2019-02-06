@@ -1,9 +1,9 @@
 package com.viked.commonandroidmvvm.ui.fragment
 
-import android.arch.lifecycle.ViewModel
-import android.databinding.Observable
-import android.databinding.ObservableField
-import android.databinding.PropertyChangeRegistry
+import androidx.lifecycle.ViewModel
+import androidx.databinding.Observable
+import androidx.databinding.ObservableField
+import androidx.databinding.PropertyChangeRegistry
 import com.viked.commonandroidmvvm.text.TextWrapper
 
 /**

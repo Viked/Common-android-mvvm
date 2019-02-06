@@ -1,7 +1,7 @@
 package com.viked.commonandroidmvvm.work
 
 import android.content.Context
-import android.support.annotation.StringRes
+import androidx.annotation.StringRes
 import androidx.work.WorkerParameters
 import com.viked.commonandroidmvvm.R
 import com.viked.commonandroidmvvm.progress.Progress

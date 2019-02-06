@@ -1,19 +1,19 @@
 package com.viked.commonandroidmvvm.security
 
-import android.support.v4.app.Fragment
+import androidx.fragment.app.Fragment
 
-open class SecurityAction(private val needRequest: (Fragment) -> Boolean,
-                          private val request: (Fragment, Int) -> Unit) : Security {
+open class SecurityAction(private val needRequest: (androidx.fragment.app.Fragment) -> Boolean,
+                          private val request: (androidx.fragment.app.Fragment, Int) -> Unit) : Security {
 
-    override fun needPermissionRequest(fragment: Fragment) = needRequest(fragment)
+    override fun needPermissionRequest(fragment: androidx.fragment.app.Fragment) = needRequest(fragment)
 
-    override fun requestPermission(fragment: Fragment, id: Int) = request(fragment, id)
+    override fun requestPermission(fragment: androidx.fragment.app.Fragment, id: Int) = request(fragment, id)
 
 }
 
 interface Security {
-    fun needPermissionRequest(fragment: Fragment): Boolean
-    fun requestPermission(fragment: Fragment, id: Int)
+    fun needPermissionRequest(fragment: androidx.fragment.app.Fragment): Boolean
+    fun requestPermission(fragment: androidx.fragment.app.Fragment, id: Int)
     fun action() {}
 }
 

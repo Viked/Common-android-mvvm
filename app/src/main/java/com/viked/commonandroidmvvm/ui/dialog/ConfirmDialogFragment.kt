@@ -3,14 +3,14 @@ package com.viked.commonandroidmvvm.ui.dialog
 import android.app.AlertDialog
 import android.app.Dialog
 import android.os.Bundle
-import android.support.annotation.StringRes
-import android.support.v4.app.DialogFragment
+import androidx.annotation.StringRes
+import androidx.fragment.app.DialogFragment
 import com.viked.commonandroidmvvm.R
 
 /**
  * Created by yevgeniishein on 7/25/17.
  */
-class ConfirmDialogFragment : DialogFragment() {
+class ConfirmDialogFragment : androidx.fragment.app.DialogFragment() {
 
     companion object {
         private const val TITLE_KEY = "title_key"

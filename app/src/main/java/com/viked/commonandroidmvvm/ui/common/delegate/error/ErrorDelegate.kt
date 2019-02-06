@@ -1,6 +1,6 @@
 package com.viked.commonandroidmvvm.ui.common.delegate.error
 
-import android.databinding.ObservableField
+import androidx.databinding.ObservableField
 import com.viked.commonandroidmvvm.ui.common.delegate.ViewDelegate
 
 /**

@@ -1,10 +1,10 @@
 package com.viked.commonandroidmvvm.ui.adapters.list
 
-import android.databinding.DataBindingUtil
-import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import com.hannesdorfmann.adapterdelegates3.AdapterDelegate
+import androidx.databinding.DataBindingUtil
+import androidx.recyclerview.widget.RecyclerView
+import com.hannesdorfmann.adapterdelegates4.AdapterDelegate
 import com.viked.commonandroidmvvm.ui.common.click.BaseClickComponent
 import com.viked.commonandroidmvvm.ui.common.click.ClickComponent
 import kotlin.reflect.KClass
@@ -30,16 +30,15 @@ open class AdapterDelegate(private val itemWrapperClass: KClass<out ItemWrapper>
     override fun isForViewType(items: List<ItemWrapper>, position: Int) = items[position]::class == itemWrapperClass
 
     open fun setOnClickListeners(holder: BindingViewHolder) {
-        holder.binding.root.setOnClickListener { onItemClickListener.handleClick(it, holder.itemId.toInt()) }
+        holder.binding.root.setOnClickListener { onItemClickListener.handleClick(it, holder.adapterPosition) }
         holder.binding.root.setOnLongClickListener {
-            onLongClickListener.handleClick(it, holder.itemId.toInt())
+            onLongClickListener.handleClick(it, holder.adapterPosition)
             return@setOnLongClickListener true
         }
     }
 
     override fun onBindViewHolder(items: List<ItemWrapper>, position: Int, holder: RecyclerView.ViewHolder, payloads: MutableList<Any>) {
         (holder as BindingViewHolder).binding.setVariable(itemId, items[position])
-        holder.itemId
     }
 
     public override fun onCreateViewHolder(parent: ViewGroup): RecyclerView.ViewHolder {

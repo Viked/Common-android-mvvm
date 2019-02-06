@@ -2,8 +2,8 @@ package com.viked.commonandroidmvvm.billing
 
 import android.app.Activity
 import android.app.Application
-import android.arch.lifecycle.MediatorLiveData
-import android.arch.lifecycle.MutableLiveData
+import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.MutableLiveData
 import android.os.Bundle
 import com.android.billingclient.api.*
 import com.viked.commonandroidmvvm.data.lazySuspendFun

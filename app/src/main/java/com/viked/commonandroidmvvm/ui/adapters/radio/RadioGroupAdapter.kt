@@ -1,7 +1,7 @@
 package com.viked.commonandroidmvvm.ui.adapters.radio
 
-import android.databinding.Observable
-import android.databinding.ObservableField
+import androidx.databinding.Observable
+import androidx.databinding.ObservableField
 import android.widget.RadioButton
 import android.widget.RadioGroup
 import com.viked.commonandroidmvvm.ui.adapters.AdapterDelegate

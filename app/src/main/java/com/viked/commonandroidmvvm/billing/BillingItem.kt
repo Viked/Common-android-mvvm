@@ -1,6 +1,6 @@
 package com.viked.commonandroidmvvm.billing
 
-import android.support.annotation.DrawableRes
+import androidx.annotation.DrawableRes
 
 /**
  * Created by yevgeniishein on 5/7/18.

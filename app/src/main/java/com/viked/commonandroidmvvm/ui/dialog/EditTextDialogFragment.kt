@@ -3,7 +3,7 @@ package com.viked.commonandroidmvvm.ui.dialog
 import android.app.AlertDialog
 import android.app.Dialog
 import android.os.Bundle
-import android.support.v4.app.DialogFragment
+import androidx.fragment.app.DialogFragment
 import android.view.LayoutInflater
 import android.widget.EditText
 import com.viked.commonandroidmvvm.R
@@ -11,7 +11,7 @@ import com.viked.commonandroidmvvm.R
 /**
  * Created by yevgeniishein on 2/28/18.
  */
-class EditTextDialogFragment : DialogFragment() {
+class EditTextDialogFragment : androidx.fragment.app.DialogFragment() {
 
     private var text = ""
     private var titleId = 0

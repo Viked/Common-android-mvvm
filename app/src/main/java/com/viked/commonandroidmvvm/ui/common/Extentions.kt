@@ -1,7 +1,7 @@
 package com.viked.commonandroidmvvm.ui.common
 
-import android.databinding.Observable
-import android.databinding.ObservableBoolean
+import androidx.databinding.Observable
+import androidx.databinding.ObservableBoolean
 import android.text.InputFilter
 import android.view.MenuItem
 import android.widget.EditText

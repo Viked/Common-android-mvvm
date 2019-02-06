@@ -1,6 +1,6 @@
 package com.viked.commonandroidmvvm.ui.binding
 
-import android.support.annotation.DrawableRes
+import androidx.annotation.DrawableRes
 
 /**
  * Created by Marshall Banana on 08.07.2017.

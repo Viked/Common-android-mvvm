@@ -3,14 +3,14 @@ package com.viked.commonandroidmvvm.ui.dialog
 import android.app.Dialog
 import android.app.TimePickerDialog
 import android.os.Bundle
-import android.support.v4.app.DialogFragment
+import androidx.fragment.app.DialogFragment
 import android.widget.TimePicker
 
 
 /**
  * Created by Marshall Banana on 02.07.2017.
  */
-class TimePickerDialogFragment : DialogFragment(), TimePickerDialog.OnTimeSetListener {
+class TimePickerDialogFragment : androidx.fragment.app.DialogFragment(), TimePickerDialog.OnTimeSetListener {
 
     private var dialogId: Int = -1
 
@@ -30,7 +30,7 @@ class TimePickerDialogFragment : DialogFragment(), TimePickerDialog.OnTimeSetLis
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        outState.putAll(dialog.onSaveInstanceState())
+        outState.putAll(dialog?.onSaveInstanceState())
         outState.putInt(ID_KEY, dialogId)
         super.onSaveInstanceState(outState)
     }

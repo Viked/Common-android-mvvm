@@ -1,6 +1,6 @@
 package com.viked.commonandroidmvvm.ui.fragment.list
 
-import android.databinding.ViewDataBinding
+import androidx.databinding.ViewDataBinding
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuInflater

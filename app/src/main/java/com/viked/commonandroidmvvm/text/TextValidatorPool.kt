@@ -1,6 +1,6 @@
 package com.viked.commonandroidmvvm.text
 
-import android.databinding.ObservableBoolean
+import androidx.databinding.ObservableBoolean
 
 class TextValidatorPool(private val textError: ObservableBoolean) {
 
