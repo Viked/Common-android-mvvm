@@ -15,4 +15,9 @@ class TextWrapper(@StringRes private val stringId: Int, private val text: String
     operator fun get(context: Context) = consumer?.invoke(context)
             ?: if (stringId > 0) context.getString(stringId) else text
 
+    override fun equals(other: Any?): Boolean {
+        if (other == null || other !is TextWrapper || other.consumer != null || consumer != null) return false
+        return (stringId != 0 && stringId == other.stringId) || (text == other.text)
+    }
+
 }
