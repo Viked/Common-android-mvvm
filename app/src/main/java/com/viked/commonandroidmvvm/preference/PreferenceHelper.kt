@@ -27,7 +27,7 @@ class PreferenceHelper @Inject constructor(private val context: Application,
         initialValues.find { it.key == id }?.apply { set(key, initialValue) }
     }
 
-    fun <T> getValue(id: Int, clazz: Class<T>) = getValue(id, context.getString(id), clazz)
+    fun <T> getValue(id: Int, clazz: Class<T>) = getValue(id, getKeyForId(id), clazz)
 
     fun <T> getValue(key: String, clazz: Class<T>) = getValue(getIdForKey(key), key, clazz)
 
@@ -61,7 +61,9 @@ class PreferenceHelper @Inject constructor(private val context: Application,
         }.apply()
     }
 
-    private fun getIdForKey(key: String) = keyMap[key] ?: 0
+    fun getIdForKey(key: String) = keyMap[key] ?: 0
+
+    fun getKeyForId(id: Int) = context.getString(id)
 
 }
 
