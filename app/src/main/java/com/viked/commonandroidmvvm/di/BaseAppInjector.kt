@@ -57,9 +57,9 @@ abstract class BaseAppInjector<T : Application> : Application.ActivityLifecycleC
         if (activity is HasSupportFragmentInjector) {
             AndroidInjection.inject(activity)
         }
-        (activity as? androidx.fragment.app.FragmentActivity)?.supportFragmentManager?.registerFragmentLifecycleCallbacks(
-                object : androidx.fragment.app.FragmentManager.FragmentLifecycleCallbacks() {
-                    override fun onFragmentCreated(fm: androidx.fragment.app.FragmentManager, f: androidx.fragment.app.Fragment, savedInstanceState: Bundle?) {
+        (activity as? FragmentActivity)?.supportFragmentManager?.registerFragmentLifecycleCallbacks(
+                object : FragmentManager.FragmentLifecycleCallbacks() {
+                    override fun onFragmentCreated(fm: FragmentManager, f: Fragment, savedInstanceState: Bundle?) {
                         if (f is Injectable) {
                             AndroidSupportInjection.inject(f)
                         }

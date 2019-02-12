@@ -1,12 +1,11 @@
 package com.viked.commonandroidmvvm.ui.preference
 
+import android.os.Bundle
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
-import android.os.Bundle
-import androidx.preference.MultiSelectListPreference
-import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.Fragment
 import androidx.preference.*
+import androidx.preference.MultiSelectListPreference
 import com.crashlytics.android.answers.CustomEvent
 import com.viked.commonandroidmvvm.di.Injectable
 import com.viked.commonandroidmvvm.log.Analytic
@@ -17,7 +16,6 @@ import com.viked.commonandroidmvvm.preference.time.TimePreference
 import com.viked.commonandroidmvvm.preference.time.TimePreferenceDialogFragment
 import com.viked.commonandroidmvvm.text.TextWrapper
 import com.viked.commonandroidmvvm.ui.activity.BaseActivity
-import com.viked.commonandroidmvvm.ui.binding.addOnPropertyChangeListener
 import com.viked.commonandroidmvvm.ui.common.AutoClearedValue
 import com.viked.commonandroidmvvm.ui.common.Cancelable
 import com.viked.commonandroidmvvm.ui.fragment.BaseViewModel
@@ -65,6 +63,7 @@ abstract class BasePreferenceFragment<T : BaseViewModel> : PreferenceFragmentCom
             initDialogDelegates(dialogDelegates)
             initPreferences(viewModel, activity)
             logStartEvent()
+            viewModel.title.observe(this, Observer { setTitle(it) })
         } else {
             RuntimeException("BasePreferenceFragment has empty params\nviewModel: ${this.viewModel.value}").log()
         }
@@ -77,8 +76,6 @@ abstract class BasePreferenceFragment<T : BaseViewModel> : PreferenceFragmentCom
     override fun handleOnBackPressed() = false
 
     open fun initToolbar(activity: BaseActivity, viewModel: T) {
-        viewModel.title.addOnPropertyChangeListener { setTitle(it.get()) }
-
         //Set title if need
     }
 

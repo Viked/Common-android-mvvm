@@ -21,7 +21,7 @@ import javax.inject.Inject
 abstract class BaseActivity : AppCompatActivity(), HasSupportFragmentInjector {
 
     @Inject
-    lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<androidx.fragment.app.Fragment>
+    lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
 
     lateinit var progressDelegate: ProgressDelegate
 
@@ -33,7 +33,7 @@ abstract class BaseActivity : AppCompatActivity(), HasSupportFragmentInjector {
         errorDelegate = DialogErrorDelegate(this)
     }
 
-    override fun supportFragmentInjector(): DispatchingAndroidInjector<androidx.fragment.app.Fragment> =
+    override fun supportFragmentInjector(): DispatchingAndroidInjector<Fragment> =
             dispatchingAndroidInjector
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {

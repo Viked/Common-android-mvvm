@@ -1,24 +1,23 @@
 package com.viked.commonandroidmvvm.ui.fragment
 
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
-import androidx.databinding.DataBindingUtil
-import androidx.databinding.ViewDataBinding
 import android.os.Bundle
 import android.os.Handler
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.databinding.DataBindingUtil
+import androidx.databinding.ViewDataBinding
 import androidx.databinding.library.baseAdapters.BR
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
 import com.crashlytics.android.answers.CustomEvent
 import com.viked.commonandroidmvvm.di.Injectable
 import com.viked.commonandroidmvvm.log.Analytic
 import com.viked.commonandroidmvvm.log.log
 import com.viked.commonandroidmvvm.text.TextWrapper
 import com.viked.commonandroidmvvm.ui.activity.BaseActivity
-import com.viked.commonandroidmvvm.ui.adapters.AdapterDelegate
-import com.viked.commonandroidmvvm.ui.binding.addOnPropertyChangeListener
 import com.viked.commonandroidmvvm.ui.common.AutoClearedValue
 import com.viked.commonandroidmvvm.ui.common.Cancelable
 import pub.devrel.easypermissions.EasyPermissions
@@ -39,8 +38,6 @@ abstract class BaseFragment<T : BaseViewModel, B : ViewDataBinding> : Fragment()
 
     lateinit var binding: AutoClearedValue<B>
 
-    lateinit var adapters: AutoClearedValue<MutableList<AdapterDelegate>>
-
     abstract val layoutId: Int
 
     abstract val viewModelClass: Class<T>
@@ -54,16 +51,14 @@ abstract class BaseFragment<T : BaseViewModel, B : ViewDataBinding> : Fragment()
         this.viewModel = AutoClearedValue(this, viewModel)
         val activity = activity()
         if (binding != null && activity != null) {
-            binding.setLifecycleOwner(this)
+            binding.lifecycleOwner = this
             arguments?.run { initArguments(viewModel, this) }
-            adapters = AutoClearedValue(this, mutableListOf())
             viewModel.onInit()
             loadData()
             binding.setVariable(viewModelBindingId, viewModel)
-            initToolbar(activity, binding, viewModel)
             initView(binding, viewModel)
-            adapters.value?.forEach { it.subscribe() }
             logStartEvent()
+            viewModel.title.observe(this, Observer { setTitle(it) })
         } else {
             RuntimeException("BaseFragment has empty params\nbinding: ${this.binding.value}\nviewModel: ${this.viewModel.value}").log()
         }
@@ -76,16 +71,14 @@ abstract class BaseFragment<T : BaseViewModel, B : ViewDataBinding> : Fragment()
         return dataBinding.root
     }
 
-    override fun onDestroyView() {
-        adapters.value?.forEach { it.unsubscribe() }
-        super.onDestroyView()
+    override fun onResume() {
+        super.onResume()
+        viewModel.value?.title?.value?.let { setTitle(it) }
     }
 
     override fun handleOnBackPressed() = false
 
     open fun initToolbar(activity: BaseActivity, binding: B, viewModel: T) {
-        viewModel.title.addOnPropertyChangeListener { setTitle(it.get()) }
-
         //Set title if need
     }
 
@@ -111,10 +104,6 @@ abstract class BaseFragment<T : BaseViewModel, B : ViewDataBinding> : Fragment()
                 activity.title = newTitle
             }
         }
-    }
-
-    protected fun addAdapterDelegate(adapterDelegate: AdapterDelegate) {
-        adapters.value?.add(adapterDelegate)
     }
 
     private fun logStartEvent() {

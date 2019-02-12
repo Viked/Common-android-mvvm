@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.databinding.Observable
 import androidx.databinding.ObservableField
 import androidx.databinding.PropertyChangeRegistry
+import androidx.lifecycle.MutableLiveData
 import com.viked.commonandroidmvvm.text.TextWrapper
 
 /**
@@ -13,7 +14,7 @@ open class BaseViewModel(val titleId: Int = 0) : ViewModel(), Observable {
 
     private val callbacks: PropertyChangeRegistry = PropertyChangeRegistry()
 
-    val title: ObservableField<TextWrapper> = ObservableField(TextWrapper(titleId))
+    val title: MutableLiveData<TextWrapper> = MutableLiveData(TextWrapper(titleId))
 
     open fun loadData() {
 
