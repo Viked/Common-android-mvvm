@@ -2,6 +2,8 @@ package com.viked.commonandroidmvvm.preference
 
 import android.app.Application
 import android.preference.PreferenceManager
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Transformations
 import com.google.gson.Gson
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -27,16 +29,18 @@ class PreferenceHelper @Inject constructor(private val context: Application,
         initialValues.find { it.key == id }?.apply { set(key, initialValue) }
     }
 
+    fun getValue(id: Int): Any = getValue(id, getKeyForId(id))
+
     fun <T> getValue(id: Int, clazz: Class<T>) = getValue(id, getKeyForId(id), clazz)
 
     fun <T> getValue(key: String, clazz: Class<T>) = getValue(getIdForKey(key), key, clazz)
 
+    private fun getValue(id: Int, key: String) = preferences.all[key]
+            ?: initialValues.find { it.key == id }?.initialValue ?: error("No initial value")
+
     private fun <T> getValue(id: Int, key: String, clazz: Class<T>): T {
-        val value = preferences.all[key]
-        return if (value == null) {
-            initialValues.find { it.key == id }?.initialValue as? T
-                    ?: error("No initial value")
-        } else when {
+        val value = getValue(id, key)
+        return when {
             value::class.java == clazz || clazz == Set::class.java -> value as T
             value is String -> gson.fromJson(value, clazz)
             else -> error("Unsupported value type")
@@ -65,6 +69,10 @@ class PreferenceHelper @Inject constructor(private val context: Application,
 
     fun getKeyForId(id: Int) = context.getString(id)
 
+    fun getLivePreferences(vararg id: Int): LiveData<Map<Int, Any>> {
+        return PreferenceLiveData(this, id.toList())
+    }
+
 }
 
 inline operator fun <reified T : Any> PreferenceHelper.get(id: Int): T {
@@ -73,4 +81,8 @@ inline operator fun <reified T : Any> PreferenceHelper.get(id: Int): T {
 
 inline operator fun <reified T : Any> PreferenceHelper.get(key: String): T {
     return getValue(key, T::class.java)
+}
+
+inline fun <reified T : Any> PreferenceHelper.getLivePreference(id: Int): LiveData<T> {
+    return Transformations.map(getLivePreferences(id)) { it[id] as T }
 }
