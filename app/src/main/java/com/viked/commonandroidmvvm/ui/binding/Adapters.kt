@@ -1,12 +1,6 @@
 package com.viked.commonandroidmvvm.ui.binding
 
 import android.app.Activity
-import androidx.databinding.BindingAdapter
-import com.google.android.material.appbar.AppBarLayout
-import com.google.android.material.textfield.TextInputLayout
-import androidx.core.content.ContextCompat
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import androidx.appcompat.widget.Toolbar
 import android.text.SpannableString
 import android.text.TextUtils
 import android.text.format.DateFormat
@@ -15,6 +9,11 @@ import android.util.DisplayMetrics
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.appcompat.widget.Toolbar
+import androidx.core.content.ContextCompat
+import androidx.databinding.BindingAdapter
+import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.textfield.TextInputLayout
 import com.viked.commonandroidmvvm.drawable.AvatarDrawable
 import com.viked.commonandroidmvvm.text.TextWrapper
 import com.viked.commonandroidmvvm.ui.adapters.list.ItemWrapper

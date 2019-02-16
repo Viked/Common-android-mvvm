@@ -15,24 +15,16 @@ class PreferenceLiveData(private val preferenceHelper: PreferenceHelper, private
 
     override fun onActive() {
         super.onActive()
-        setInitialValue()
+        setValue()
         preferenceHelper.preferences.registerOnSharedPreferenceChangeListener(this)
     }
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
-        val id = keyMap[key]
-        val value = value?.toMutableMap()
-
-        if (id == null || value == null) {
-            setInitialValue()
-            return
-        }
-
-        value[id] = preferenceHelper.getValue(id)
-        postValue(value.toMap())
+        keyMap[key] ?: return
+        setValue()
     }
 
-    private fun setInitialValue() {
+    private fun setValue() {
         val values = keys.map {
             Pair(it, preferenceHelper.getValue(it))
         }.toMap()
