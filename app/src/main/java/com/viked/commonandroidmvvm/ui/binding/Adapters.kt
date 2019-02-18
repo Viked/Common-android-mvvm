@@ -212,3 +212,10 @@ fun setErrorText(view: TextInputLayout, errorMessage: Int?) {
         view.context.getString(errorMessage)
     } else null
 }
+
+@BindingAdapter("android:hint")
+fun setHint(view: TextInputLayout, hint: Int?) {
+    view.hint = if (hint != null) {
+        view.context.getString(hint)
+    } else ""
+}
