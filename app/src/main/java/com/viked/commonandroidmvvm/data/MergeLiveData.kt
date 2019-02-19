@@ -15,10 +15,12 @@ import timber.log.Timber
 
 class MergeLiveData(private val sources: List<LiveData<*>>,
                     private val progress: LiveData<List<Progress>>,
+                    private val preferences: LiveData<Map<Int, Any>>,
                     private val builder: Strategy,
                     private val comparator: (() -> Comparator<ItemWrapper>)? = null) : MediatorLiveData<Resource<List<ItemWrapper>>>(), Observer<Any?> {
 
     init {
+        addSource(preferences, this)
         addSource(Transformations.map(progress) { p -> p as Any? }, this)
         listenSources()
     }
@@ -43,7 +45,8 @@ class MergeLiveData(private val sources: List<LiveData<*>>,
             try {
                 val values = sources.mapNotNull { it.value }
                 val comparator = comparator?.invoke()
-                val r = builder.convert(values).doIf(comparator != null) { it.sortedWith(comparator!!) }
+                val r = builder.convert(values, preferences.value
+                        ?: mapOf()).doIf(comparator != null) { it.sortedWith(comparator!!) }
                 withContext(Dispatchers.Main) { postValue(Resource.success(r)) }
             } catch (e: CancellationException) {
                 Timber.i(e)
@@ -58,7 +61,7 @@ class MergeLiveData(private val sources: List<LiveData<*>>,
     }
 
     interface Strategy {
-        fun convert(list: List<*>): List<ItemWrapper>
+        fun convert(list: List<*>, preferences: Map<Int, Any>): List<ItemWrapper>
     }
 
 }
