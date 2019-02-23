@@ -1,15 +1,15 @@
 package com.viked.commonandroidmvvm.ui.dialog
 
 import android.app.Dialog
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
-import androidx.databinding.DataBindingUtil
-import androidx.databinding.ViewDataBinding
 import android.os.Bundle
 import android.os.Handler
-import androidx.fragment.app.DialogFragment
 import android.view.*
+import androidx.databinding.DataBindingUtil
+import androidx.databinding.ViewDataBinding
 import androidx.databinding.library.baseAdapters.BR
+import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
 import com.crashlytics.android.answers.CustomEvent
 import com.viked.commonandroidmvvm.di.Injectable
 import com.viked.commonandroidmvvm.log.Analytic
@@ -103,7 +103,7 @@ abstract class BaseDialogFragment<T : BaseViewModel, B : ViewDataBinding> : Dial
 
     override fun onStart() {
         super.onStart()
-        dialog?.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        setWindowParams(dialog?.window ?: return)
     }
 
     override fun onResume() {
@@ -119,6 +119,10 @@ abstract class BaseDialogFragment<T : BaseViewModel, B : ViewDataBinding> : Dial
 
     open fun loadData() {
         viewModel.value?.loadData()
+    }
+
+    open fun setWindowParams(window: Window) {
+        window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
     }
 
     override fun handleOnBackPressed() = false

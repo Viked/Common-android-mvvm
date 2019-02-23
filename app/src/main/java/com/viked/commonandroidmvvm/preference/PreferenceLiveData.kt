@@ -3,10 +3,10 @@ package com.viked.commonandroidmvvm.preference
 import android.content.SharedPreferences
 import androidx.lifecycle.MediatorLiveData
 
-class PreferenceLiveData(private val preferenceHelper: PreferenceHelper, private val keys: List<Int>) : MediatorLiveData<Map<Int, Any>>(),
+class PreferenceLiveData(private val preferenceHelper: PreferenceHelper, private val keys: Set<Int>) : MediatorLiveData<Map<Int, Any>>(),
         SharedPreferences.OnSharedPreferenceChangeListener {
 
-    private val keyMap = keys.map { Pair(preferenceHelper.getKeyForId(it), it) }.toMap()
+    private val keyMap = keys.associateBy { preferenceHelper.getKeyForId(it) }
 
     override fun onInactive() {
         preferenceHelper.preferences.unregisterOnSharedPreferenceChangeListener(this)

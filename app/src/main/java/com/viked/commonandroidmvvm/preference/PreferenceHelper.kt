@@ -70,7 +70,7 @@ class PreferenceHelper @Inject constructor(private val context: Application,
     fun getKeyForId(id: Int) = context.getString(id)
 
     fun getLivePreferences(vararg id: Int): LiveData<Map<Int, Any>> {
-        return PreferenceLiveData(this, id.toList())
+        return PreferenceLiveData(this, id.toSet())
     }
 
 }
