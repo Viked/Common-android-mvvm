@@ -15,4 +15,7 @@ interface ProgressDao {
     @Delete
     fun delete(value: Progress)
 
+    @Query("DELETE FROM Progress")
+    fun clean()
+
 }
