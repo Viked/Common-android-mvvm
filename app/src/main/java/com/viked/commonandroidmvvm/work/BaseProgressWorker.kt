@@ -19,7 +19,7 @@ abstract class BaseProgressWorker(context: Context, workerParams: WorkerParamete
     open val messageId: Int = R.string.message_valued_loading
 
     protected fun updateProgress(progress: Int) {
-        if (this.progress != progress) {
+        if (this.progress < progress) {
             this.progress = progress
             progressDao.set(Progress(this::class.java.simpleName, progress, messageId))
         }
