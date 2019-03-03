@@ -27,7 +27,7 @@ class PurchaseDialogFragment : BaseDialogFragment<PurchaseViewModel, DialogPurch
                 val item = adapter.items[i] as? PurchaseItemWrapper
 
                 if (model != null && item != null && item.purchase == null) {
-                    model.startFlow(item.billingItem.sku)
+                    model.startFlow(item)
                 }
                 true
             }

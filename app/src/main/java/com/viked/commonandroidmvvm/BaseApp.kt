@@ -50,16 +50,9 @@ abstract class BaseApp : Application(), HasActivityInjector, HasWorkerInjector {
     override fun onCreate() {
         super.onCreate()
         inject()
-        initFabric()
         initLogger()
 
         billingRepository.subscribe()
-    }
-
-    private fun initFabric() {
-        if (!BuildConfig.DEBUG) {
-            analytic.init()
-        }
     }
 
     private fun initLogger() {

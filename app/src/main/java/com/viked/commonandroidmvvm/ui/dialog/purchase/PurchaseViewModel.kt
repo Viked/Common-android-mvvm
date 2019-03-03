@@ -1,7 +1,6 @@
 package com.viked.commonandroidmvvm.ui.dialog.purchase
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Transformations
 import com.viked.commonandroidmvvm.billing.BillingRepository
 import com.viked.commonandroidmvvm.ui.adapters.list.ItemWrapper
 import com.viked.commonandroidmvvm.ui.data.Resource
@@ -13,11 +12,7 @@ import javax.inject.Inject
  */
 class PurchaseViewModel @Inject constructor(private val billingRepository: BillingRepository) : BaseViewModel() {
 
+    val list: LiveData<Resource<List<ItemWrapper>>> = billingRepository.list
 
-    val list: LiveData<Resource<List<ItemWrapper>>> = Transformations.map(billingRepository.list)
-    { it -> Resource.map(it) { l -> l.filterIsInstance(ItemWrapper::class.java) } }
-
-    fun startFlow(sku: String) {
-        billingRepository.initiatePurchaseFlow(sku)
-    }
+    fun startFlow(itemWrapper: PurchaseItemWrapper) = billingRepository.initiatePurchaseFlow(itemWrapper.details)
 }

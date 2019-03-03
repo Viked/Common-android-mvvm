@@ -6,14 +6,18 @@ import android.os.Bundle
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import com.android.billingclient.api.*
+import com.crashlytics.android.answers.PurchaseEvent
 import com.viked.commonandroidmvvm.data.lazySuspendFun
+import com.viked.commonandroidmvvm.log.Analytic
 import com.viked.commonandroidmvvm.log.log
+import com.viked.commonandroidmvvm.ui.adapters.list.ItemWrapper
 import com.viked.commonandroidmvvm.ui.data.Resource
 import com.viked.commonandroidmvvm.ui.dialog.purchase.PurchaseItemWrapper
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.math.BigDecimal
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -25,6 +29,7 @@ import kotlin.coroutines.suspendCoroutine
  */
 @Singleton
 class BillingRepository @Inject constructor(private val application: Application,
+                                            private val analytic: Analytic,
                                             private val billingSecurity: BillingSecurity,
                                             private val billingItems: Set<@JvmSuppressWildcards BillingItem>) :
         Application.ActivityLifecycleCallbacks, PurchasesUpdatedListener {
@@ -61,7 +66,7 @@ class BillingRepository @Inject constructor(private val application: Application
     private val subscriptions = MutableLiveData<List<SkuDetails>>()
     private val purchases = MutableLiveData<List<Purchase>>()
 
-    val list = MediatorLiveData<Resource<List<PurchaseItemWrapper>>>().apply {
+    val list = MediatorLiveData<Resource<List<ItemWrapper>>>().apply {
         addSource(products) { updateList() }
         addSource(subscriptions) { updateList() }
         addSource(purchases) { updateList() }
@@ -176,26 +181,33 @@ class BillingRepository @Inject constructor(private val application: Application
     }
 
     /**
-     * Start a purchase flow
-     */
-    fun initiatePurchaseFlow(skuId: String) {
-        initiatePurchaseFlow(skuId, null, if (subscriptionsSkuIds.contains(skuId)) BillingClient.SkuType.SUBS else BillingClient.SkuType.INAPP)
-    }
-
-    /**
      * Start a purchase or subscription replace flow
      */
-    private fun initiatePurchaseFlow(skuId: String, oldSkus: ArrayList<String>?, @BillingClient.SkuType billingType: String) = GlobalScope.launch {
+    fun initiatePurchaseFlow(details: SkuDetails) = GlobalScope.launch {
         val client = billingClient() ?: return@launch
         if (activity == null) return@launch
-        Timber.i("Launching in-app purchase flow. Replace old SKU? ${(oldSkus != null)}")
+
+//        TODO add replace old SKU
+//        Timber.i("Launching in-app purchase flow. Replace old SKU? ${(oldSkus != null)}")
+//        .setOldSkus(oldSkus)
         val purchaseParams = BillingFlowParams
                 .newBuilder()
-                .setSku(skuId).setType(billingType)
-                .setOldSkus(oldSkus)
+                .setSku(details.sku)
+                .setType(details.type)
                 .build()
-        client.launchBillingFlow(activity, purchaseParams)
+        val result = client.launchBillingFlow(activity, purchaseParams) == BillingClient.BillingResponse.OK
+
+        val event = PurchaseEvent().apply {
+            putCurrency(Currency.getInstance(details.priceCurrencyCode))
+            putItemPrice(BigDecimal.valueOf(details.price.toDoubleOrNull() ?: 0.0))
+            putItemId(details.sku)
+            putItemName(details.title)
+            putItemType(details.type)
+            putSuccess(result)
+        }
+        analytic.logPurchase(event)
     }
+
 
     /**
      * Queries for in-app and subscriptions SKU details
