@@ -9,7 +9,6 @@ import androidx.fragment.app.FragmentTransaction
 
 abstract class BaseNavigationController(val context: Context, val fragmentManager: FragmentManager) {
     abstract val containerId: Int
-    //    protected val fragmentManager: FragmentManager = activity.supportFragmentManager
     protected val fragmentFactory: FragmentFactory = fragmentManager.fragmentFactory
 
     fun getActiveFragment() = fragmentManager.findFragmentById(containerId)
@@ -23,8 +22,10 @@ abstract class BaseNavigationController(val context: Context, val fragmentManage
     }
 
     fun showDialog(dialogClass: String, arguments: Bundle = Bundle()) {
-        val dialog = fragmentFactory.instantiate(context.classLoader, dialogClass, arguments) as? DialogFragment
-                ?: return
-        dialog.show(fragmentManager, dialogClass)
+        if (!fragmentManager.isDestroyed && !fragmentManager.isStateSaved) {
+            val dialog = fragmentFactory.instantiate(context.classLoader, dialogClass, arguments) as? DialogFragment
+                    ?: return
+            dialog.show(fragmentManager, dialogClass)
+        }
     }
 }

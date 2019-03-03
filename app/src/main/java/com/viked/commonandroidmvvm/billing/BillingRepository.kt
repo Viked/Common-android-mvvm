@@ -2,9 +2,9 @@ package com.viked.commonandroidmvvm.billing
 
 import android.app.Activity
 import android.app.Application
+import android.os.Bundle
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
-import android.os.Bundle
 import com.android.billingclient.api.*
 import com.viked.commonandroidmvvm.data.lazySuspendFun
 import com.viked.commonandroidmvvm.log.log
@@ -61,7 +61,6 @@ class BillingRepository @Inject constructor(private val application: Application
     private val subscriptions = MutableLiveData<List<SkuDetails>>()
     private val purchases = MutableLiveData<List<Purchase>>()
 
-
     val list = MediatorLiveData<Resource<List<PurchaseItemWrapper>>>().apply {
         addSource(products) { updateList() }
         addSource(subscriptions) { updateList() }
@@ -75,9 +74,9 @@ class BillingRepository @Inject constructor(private val application: Application
     }
 
     private fun updateList() {
-        val productsValue = products.value ?: emptyList()
-        val subscriptionsValue = subscriptions.value ?: emptyList()
-        val purchasesValue = purchases.value ?: emptyList()
+        val productsValue = products.value ?: listOf()
+        val subscriptionsValue = subscriptions.value ?: listOf()
+        val purchasesValue = purchases.value ?: listOf()
 
         val skuMap = (productsValue + subscriptionsValue).map { Pair(it.sku, it) }.toMap()
         val purchasesMap = purchasesValue.map { Pair(it.sku, it) }.toMap()
@@ -129,7 +128,7 @@ class BillingRepository @Inject constructor(private val application: Application
 
     override fun onPurchasesUpdated(responseCode: Int, purchases: List<Purchase>?) {
         when (responseCode) {
-            BillingClient.BillingResponse.OK -> this.purchases.postValue(purchases ?: emptyList())
+            BillingClient.BillingResponse.OK -> this.purchases.postValue(purchases ?: listOf())
             BillingClient.BillingResponse.USER_CANCELED -> Timber.i("onPurchasesUpdated() - user cancelled the purchase flow - skipping")
             BillingClient.BillingResponse.DEVELOPER_ERROR,
             BillingClient.BillingResponse.ERROR,
@@ -137,7 +136,7 @@ class BillingRepository @Inject constructor(private val application: Application
             BillingClient.BillingResponse.SERVICE_DISCONNECTED,
             BillingClient.BillingResponse.SERVICE_UNAVAILABLE -> {
                 if (this.purchases.value == null) {
-                    this.purchases.postValue(emptyList())
+                    this.purchases.postValue(listOf())
                 }
             }
             BillingClient.BillingResponse.FEATURE_NOT_SUPPORTED,
@@ -215,7 +214,7 @@ class BillingRepository @Inject constructor(private val application: Application
                        @BillingClient.SkuType billingType: String, executeWhenFinished: (List<SkuDetails>) -> Unit) = GlobalScope.launch {
         val client = billingClient()
         if (client == null) {
-            executeWhenFinished(emptyList())
+            executeWhenFinished(listOf())
             return@launch
         }
         val params = SkuDetailsParams
@@ -224,12 +223,13 @@ class BillingRepository @Inject constructor(private val application: Application
                 .setType(billingType)
                 .build()
         client.querySkuDetailsAsync(params) { responseCode, skuDetailsList ->
+            val list = skuDetailsList ?: listOf()
             if (responseCode != BillingClient.BillingResponse.OK) {
                 Timber.i("Unsuccessful query for type: $billingType. Error code: $responseCode")
-                executeWhenFinished(skuDetailsList)
-            } else if (skuDetailsList != null) {
+                executeWhenFinished(list)
+            } else {
                 Timber.i("Successful query for type: $billingType. Response code: $responseCode")
-                executeWhenFinished(skuDetailsList)
+                executeWhenFinished(list)
             }
         }
     }
@@ -242,7 +242,7 @@ class BillingRepository @Inject constructor(private val application: Application
     private fun queryPurchases() = GlobalScope.launch {
         val client = billingClient()
         if (client == null) {
-            onPurchasesUpdated(BillingClient.BillingResponse.OK, emptyList())
+            onPurchasesUpdated(BillingClient.BillingResponse.OK, listOf())
             return@launch
         }
 
