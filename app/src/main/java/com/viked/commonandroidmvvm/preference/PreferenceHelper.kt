@@ -22,7 +22,7 @@ class PreferenceHelper @Inject constructor(private val context: Application,
     val preferences = PreferenceManager.getDefaultSharedPreferences(context)
 
     fun reset() {
-        initialValues.forEach { set(it.key, it.initialValue) }
+        initialValues.filter { it.canAutoReset }.forEach { set(it.key, it.initialValue) }
     }
 
     fun reset(id: Int) {
