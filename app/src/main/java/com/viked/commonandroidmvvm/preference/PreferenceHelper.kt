@@ -29,21 +29,22 @@ class PreferenceHelper @Inject constructor(private val context: Application,
         initialValues.find { it.key == id }?.apply { set(key, initialValue) }
     }
 
-    fun getValue(id: Int): Any = getValue(id, getKeyForId(id))
+    fun getValue(id: Int): Any = getValue(id, getKeyForId(id), getInitialValue(id)::class.java)
 
     fun <T> getValue(id: Int, clazz: Class<T>) = getValue(id, getKeyForId(id), clazz)
 
     fun <T> getValue(key: String, clazz: Class<T>) = getValue(getIdForKey(key), key, clazz)
 
-    private fun getValue(id: Int, key: String) = preferences.all[key]
-            ?: initialValues.find { it.key == id }?.initialValue ?: error("No initial value")
+    private fun getInitialValue(id: Int): Any = initialValues.find { it.key == id }?.initialValue
+            ?: error("No initial value")
 
     private fun <T> getValue(id: Int, key: String, clazz: Class<T>): T {
-        val value = getValue(id, key)
+        val value = preferences.all[key] ?: return getInitialValue(id) as T
         return when {
-            value::class.java == clazz || clazz == Set::class.java -> value as T
+            value::class.java == clazz -> value as T
+            value is Set<*> && Set::class.java.isAssignableFrom(clazz) -> value as T
             value is String -> gson.fromJson(value, clazz)
-            else -> error("Unsupported value type")
+            else -> error("Unsupported value type. Value type ${value::class.java}, required class $clazz, key $key")
         }
     }
 
