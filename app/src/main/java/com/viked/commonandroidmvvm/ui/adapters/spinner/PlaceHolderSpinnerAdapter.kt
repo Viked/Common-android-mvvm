@@ -40,7 +40,7 @@ class PlaceHolderSpinnerAdapter(private val spinner: Spinner,
 
     override fun isEmpty() = false
 
-    override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
+    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         // This provides the View for the Selected Item in the Spinner, not
         // the dropdown (unless dropdownView is not set).
         if (position == 0) {

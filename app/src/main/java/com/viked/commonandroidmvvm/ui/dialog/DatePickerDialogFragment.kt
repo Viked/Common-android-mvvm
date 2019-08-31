@@ -29,7 +29,7 @@ class DatePickerDialogFragment : androidx.fragment.app.DialogFragment(), DatePic
         dialogId = savedInstanceState?.getInt(ID_KEY, -1) ?: (arguments?.getInt(ID_KEY, -1)
                 ?: -1) ?: -1
 
-        return DatePickerDialog(activity, this, year, month, day).apply {
+        return DatePickerDialog(requireActivity(), this, year, month, day).apply {
             if (savedInstanceState != null) {
                 onRestoreInstanceState(savedInstanceState)
             }

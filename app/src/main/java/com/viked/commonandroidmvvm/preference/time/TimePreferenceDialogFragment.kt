@@ -3,8 +3,8 @@ package com.viked.commonandroidmvvm.preference.time
 import android.app.Dialog
 import android.app.TimePickerDialog
 import android.os.Bundle
-import androidx.preference.PreferenceDialogFragmentCompat
 import android.widget.TimePicker
+import androidx.preference.PreferenceDialogFragmentCompat
 import java.util.*
 
 /**
@@ -22,7 +22,8 @@ class TimePreferenceDialogFragment : PreferenceDialogFragmentCompat(), TimePicke
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return if (savedInstanceState == null) {
+        val bundle = savedInstanceState?.getBundle(Calendar.DAY_OF_MONTH.toString())
+        return if (bundle == null) {
             val c = Calendar.getInstance()
             c.timeInMillis = getTimePreference().time
             val hour = c.get(Calendar.HOUR_OF_DAY)
@@ -30,7 +31,7 @@ class TimePreferenceDialogFragment : PreferenceDialogFragmentCompat(), TimePicke
             return TimePickerDialog(activity, this, hour, minute, false)
         } else {
             TimePickerDialog(activity, this, 0, 0, true).apply {
-                onRestoreInstanceState(savedInstanceState.getBundle(Calendar.DAY_OF_MONTH.toString()))
+                onRestoreInstanceState(bundle)
             }
         }
     }

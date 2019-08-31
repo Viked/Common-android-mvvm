@@ -21,10 +21,11 @@ abstract class BaseNavigationController(val context: Context, val fragmentManage
         }
     }
 
-    fun showDialog(dialogClass: String, arguments: Bundle = Bundle()) {
+    fun showDialog(dialogClass: String, arguments: Bundle? = null) {
         if (!fragmentManager.isDestroyed && !fragmentManager.isStateSaved) {
-            val dialog = fragmentFactory.instantiate(context.classLoader, dialogClass, arguments) as? DialogFragment
+            val dialog = fragmentFactory.instantiate(context.classLoader, dialogClass) as? DialogFragment
                     ?: return
+            dialog.arguments = arguments
             dialog.show(fragmentManager, dialogClass)
         }
     }
