@@ -15,7 +15,7 @@ class PurchaseDelegate(inflater: LayoutInflater) : AdapterDelegate(PurchaseItemW
     override fun setOnClickListeners(holder: BindingViewHolder) {
         val binding = holder.binding
         if (binding is ItemPurchaseBinding) {
-            binding.stateButton.setOnClickListener { onItemClickListener.handleClick(it, holder.adapterPosition) }
+            binding.stateButton.setOnClickListener { holder.onSureClick(onItemClickListener) }
         }
     }
 }

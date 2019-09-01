@@ -3,6 +3,7 @@ package com.viked.commonandroidmvvm.ui.adapters.list
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
+import androidx.recyclerview.widget.DiffUtil.DiffResult.NO_POSITION
 import androidx.recyclerview.widget.RecyclerView
 import com.hannesdorfmann.adapterdelegates4.AdapterDelegate
 import com.viked.commonandroidmvvm.ui.common.click.BaseClickComponent
@@ -18,8 +19,8 @@ open class AdapterDelegate(private val itemWrapperClass: KClass<out ItemWrapper>
                            private val itemId: Int,
                            private val delegateId: Int = -1) : AdapterDelegate<List<ItemWrapper>>() {
 
-    var onItemClickListener: ClickComponent = BaseClickComponent { v, i -> false }
-    var onLongClickListener: ClickComponent = BaseClickComponent { v, i -> false }
+    var onItemClickListener: ClickComponent = BaseClickComponent { false }
+    var onLongClickListener: ClickComponent = BaseClickComponent { false }
 
     private val onUpdateCallback = mutableListOf<(ItemWrapper) -> Unit>()
 
@@ -30,10 +31,11 @@ open class AdapterDelegate(private val itemWrapperClass: KClass<out ItemWrapper>
     override fun isForViewType(items: List<ItemWrapper>, position: Int) = items[position]::class == itemWrapperClass
 
     open fun setOnClickListeners(holder: BindingViewHolder) {
-        holder.binding.root.setOnClickListener { onItemClickListener.handleClick(it, holder.adapterPosition) }
+        holder.binding.root.setOnClickListener {
+            holder.onSureClick(onItemClickListener)
+        }
         holder.binding.root.setOnLongClickListener {
-            onLongClickListener.handleClick(it, holder.adapterPosition)
-            return@setOnLongClickListener true
+            holder.onSureClick(onLongClickListener)
         }
     }
 
@@ -48,4 +50,9 @@ open class AdapterDelegate(private val itemWrapperClass: KClass<out ItemWrapper>
         return viewHolder
     }
 
+    protected fun RecyclerView.ViewHolder.onSureClick(onClick: ClickComponent): Boolean {
+        val position = adapterPosition
+        if (position == NO_POSITION) return false
+        return onClick.handleClick(position)
+    }
 }

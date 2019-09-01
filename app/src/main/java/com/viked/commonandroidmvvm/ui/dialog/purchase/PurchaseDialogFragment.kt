@@ -22,9 +22,9 @@ class PurchaseDialogFragment : BaseDialogFragment<PurchaseViewModel, DialogPurch
         val adapter = DelegateRecyclerViewAdapter()
 
         adapter.addDelegate(PurchaseDelegate(layoutInflater).apply {
-            this.onItemClickListener = BaseClickComponent { i, v ->
+            this.onItemClickListener = BaseClickComponent { i ->
                 val model = this@PurchaseDialogFragment.viewModel.value
-                val item = adapter.items[i] as? PurchaseItemWrapper
+                val item = adapter.items.getOrNull(i) as? PurchaseItemWrapper
 
                 if (model != null && item != null && item.purchase == null) {
                     model.startFlow(item)
