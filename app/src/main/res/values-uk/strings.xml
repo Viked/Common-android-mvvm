@@ -9,6 +9,7 @@
     <string name="confirm_delete">Видалити обрані елементи?</string>
     <string name="loading">Завантаження</string>
     <string name="share_with">Поділитися</string>
+    <string name="send_email">Відправити email…</string>
     <string name="button_own">Придбано</string>
 
     <string name="settings_default_file_name">File</string>
@@ -19,6 +20,8 @@
     <string name="file_icon">Іконка файлу</string>
     <string name="file_name_dialog_massage">Введіть назву папки</string>
     <string name="load_error">Помилка завантаження</string>
+    <string name="error">Помилка</string>
+
     <string name="no_dir_selected">Папка не вибрана</string>
     <string name="no_write_access">Неможливо записати у цю папку</string>
     <string name="preference_reset">Скинути налаштування</string>
@@ -26,5 +29,7 @@
     <string name="pref_validation_massage">Необхідно змінити</string>
     <string name="pref_validation_action">Це</string>
     <string name="message_valued_loading">Завантаження\n%1$d%%</string>
+
+    <string name="intent_open_link_error">Посилання скопійовано у буфер обміну</string>
 
 </resources>

@@ -1,14 +1,20 @@
 package com.viked.commonandroidmvvm.utils
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.content.Intent.ACTION_VIEW
-import androidx.databinding.ObservableField
 import android.net.Uri
-import androidx.annotation.DrawableRes
 import android.text.format.DateFormat
+import android.widget.Toast
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
+import androidx.databinding.ObservableField
 import com.viked.commonandroidmvvm.BaseApp
 import com.viked.commonandroidmvvm.R
+import com.viked.commonandroidmvvm.log.log
+import com.viked.commonandroidmvvm.text.TextWrapper
 import kotlinx.coroutines.*
 import java.util.*
 
@@ -21,36 +27,51 @@ fun Double.cutDecimal(count: Int) = String.format(Locale.ROOT, "%.${count}f", th
 fun Context.openLink(link: String) {
     val i = Intent(ACTION_VIEW)
     i.data = Uri.parse(link)
-    startActivity(i)
+    when {
+        checkIntent(i) -> startActivity(i)
+        addTextToClipboard(TextWrapper(R.string.app_name), TextWrapper(link)) -> showToast(R.string.intent_open_link_error)
+        else -> showToast(R.string.error)
+    }
 }
 
 fun Context.sendEmail(email: String) {
     val emailIntent = Intent(Intent.ACTION_SENDTO, Uri.fromParts(
             "mailto", email, null))
     emailIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.app_name))
-    startActivity(Intent.createChooser(emailIntent, "Send email..."))
+    val intent = Intent.createChooser(emailIntent, getString(R.string.send_email))
+    when {
+        checkIntent(intent) -> startActivity(intent)
+        else -> showToast(R.string.error)
+    }
 }
 
 fun Context.shareApp() {
     val shareBody = "${getString(R.string.app_name)} ${getAppUrl()}"
-    val sharingIntent = Intent(android.content.Intent.ACTION_SEND)
+    val sharingIntent = Intent(Intent.ACTION_SEND)
     sharingIntent.type = "text/plain"
-    sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, getString(R.string.app_name))
-    sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody)
-    startActivity(Intent.createChooser(sharingIntent, getString(R.string.share_with)))
+    sharingIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.app_name))
+    sharingIntent.putExtra(Intent.EXTRA_TEXT, shareBody)
+    val intent = Intent.createChooser(sharingIntent, getString(R.string.share_with))
+    when {
+        checkIntent(intent) -> startActivity(intent)
+        addTextToClipboard(TextWrapper(R.string.app_name), TextWrapper(getAppUrl())) -> showToast(R.string.intent_open_link_error)
+        else -> showToast(R.string.error)
+    }
 }
 
 fun Context.rateApp() {
-    try {
-        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=$packageName")))
-    } catch (e: android.content.ActivityNotFoundException) {
-        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(getAppUrl())))
+    val playIntent = Intent(ACTION_VIEW, Uri.parse("market://details?id=$packageName"))
+    val urlIntent = Intent(ACTION_VIEW, Uri.parse(getAppUrl()))
+    when {
+        checkIntent(playIntent) -> startActivity(playIntent)
+        checkIntent(urlIntent) -> startActivity(urlIntent)
+        addTextToClipboard(TextWrapper(R.string.app_name), TextWrapper(getAppUrl())) -> showToast(R.string.intent_open_link_error)
+        else -> showToast(R.string.error)
     }
 }
 
 fun Date.formatDate(context: Context): String {
     return DateFormat.getDateFormat(context).format(this)
-
 }
 
 fun Date.formatTime(context: Context): String {
@@ -78,5 +99,33 @@ fun <T> lazyPromise(block: suspend CoroutineScope.() -> T): Lazy<Deferred<T>> {
         GlobalScope.async(start = CoroutineStart.LAZY) {
             block.invoke(this)
         }
+    }
+}
+
+fun Context.checkIntent(intent: Intent): Boolean = intent.resolveActivity(packageManager) != null
+fun Context.showToast(@StringRes stringId: Int) {
+    Toast.makeText(this,
+            getString(stringId),
+            Toast.LENGTH_LONG)
+            .show()
+}
+
+fun Context.runIntent(intent: Intent, @StringRes errorStringId: Int) {
+    if (checkIntent(intent)) {
+        startActivity(intent)
+    } else {
+        showToast(errorStringId)
+    }
+}
+
+fun Context.addTextToClipboard(label: TextWrapper, text: TextWrapper): Boolean {
+    return try {
+        val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clip = ClipData.newPlainText(label[this], text[this])
+        clipboard.setPrimaryClip(clip)
+        true
+    } catch (e: Exception) {
+        e.log()
+        false
     }
 }
