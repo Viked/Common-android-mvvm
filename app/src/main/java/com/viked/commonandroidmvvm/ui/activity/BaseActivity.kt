@@ -36,8 +36,8 @@ abstract class BaseActivity : AppCompatActivity(), HasSupportFragmentInjector {
     override fun supportFragmentInjector(): DispatchingAndroidInjector<Fragment> =
             dispatchingAndroidInjector
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        return if (item?.itemId == android.R.id.home) {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return if (item.itemId == android.R.id.home) {
             onBackPressed()
             true
         } else {
@@ -46,7 +46,8 @@ abstract class BaseActivity : AppCompatActivity(), HasSupportFragmentInjector {
     }
 
     override fun onBackPressed() {
-        if (!supportFragmentManager.handleOnBackPressed()) {
+        if (supportFragmentManager.isStateSaved
+                || !supportFragmentManager.handleOnBackPressed()) {
             super.onBackPressed()
         }
     }

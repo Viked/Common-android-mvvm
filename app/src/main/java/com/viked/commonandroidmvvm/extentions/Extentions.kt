@@ -22,7 +22,7 @@ fun Context.hideKeyboard() {
 }
 
 
-fun androidx.fragment.app.FragmentManager.handleOnBackPressed(): Boolean {
+fun FragmentManager.handleOnBackPressed(): Boolean {
     val fragment = fragments
             .filter { it != null && it.isVisible && it is BaseFragment<*, *> }
             .find { (it is Cancelable && it.handleOnBackPressed()) || it.childFragmentManager.handleOnBackPressed() }
