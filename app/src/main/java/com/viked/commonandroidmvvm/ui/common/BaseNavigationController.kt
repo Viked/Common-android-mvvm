@@ -11,7 +11,9 @@ abstract class BaseNavigationController(val context: Context, val fragmentManage
     abstract val containerId: Int
     protected val fragmentFactory: FragmentFactory = fragmentManager.fragmentFactory
 
-    fun getActiveFragment() = fragmentManager.findFragmentById(containerId)
+    private fun checkState(): Boolean = !fragmentManager.isDestroyed && !fragmentManager.isStateSaved
+
+    private fun getActiveFragment() = fragmentManager.findFragmentById(containerId)
 
     fun hasActiveFragment() = getActiveFragment() != null
 
@@ -22,11 +24,10 @@ abstract class BaseNavigationController(val context: Context, val fragmentManage
     }
 
     fun showDialog(dialogClass: String, arguments: Bundle? = null) {
-        if (!fragmentManager.isDestroyed && !fragmentManager.isStateSaved) {
-            val dialog = fragmentFactory.instantiate(context.classLoader, dialogClass) as? DialogFragment
-                    ?: return
-            dialog.arguments = arguments
-            dialog.show(fragmentManager, dialogClass)
-        }
+        if (!checkState()) return
+        val dialog = fragmentFactory.instantiate(context.classLoader, dialogClass) as? DialogFragment
+                ?: return
+        dialog.arguments = arguments
+        dialog.show(fragmentManager, dialogClass)
     }
 }
