@@ -1,39 +1,54 @@
 package com.viked.commonandroidmvvm.security
 
+import android.app.Activity
+import android.content.Intent
 import androidx.fragment.app.Fragment
+import pub.devrel.easypermissions.EasyPermissions
 
-open class SecurityAction(private val needRequest: (androidx.fragment.app.Fragment) -> Boolean,
-                          private val request: (androidx.fragment.app.Fragment, Int) -> Unit) : Security {
-
-    override fun needPermissionRequest(fragment: androidx.fragment.app.Fragment) = needRequest(fragment)
-
-    override fun requestPermission(fragment: androidx.fragment.app.Fragment, id: Int) = request(fragment, id)
-
+interface ContextHolder {
+    fun startActivityForResult(intent: Intent, requestCode: Int)
+    val activity: Activity
 }
 
-interface Security {
-    fun needPermissionRequest(fragment: androidx.fragment.app.Fragment): Boolean
-    fun requestPermission(fragment: androidx.fragment.app.Fragment, id: Int)
-    fun action() {}
+class ActivityContextHolder(override val activity: Activity) : ContextHolder {
+    override fun startActivityForResult(intent: Intent, requestCode: Int) {
+        activity.startActivityForResult(intent, requestCode)
+    }
 }
 
-/*
-*  if (EasyPermissions.hasPermissions(context, readPermission)) {
-            super.loadData()
-        } else {
-            EasyPermissions.requestPermissions(this, "",
-                    PERMISSION_READ, readPermission)
+class FragmentContextHolder(val fragment: Fragment) : ContextHolder {
+    override val activity: Activity
+        get() = fragment.requireActivity()
+
+    override fun startActivityForResult(intent: Intent, requestCode: Int) {
+        fragment.startActivityForResult(intent, requestCode)
+    }
+}
+
+private fun Activity.toHolder(): ContextHolder = ActivityContextHolder(this)
+private fun Fragment.toHolder(): ContextHolder = FragmentContextHolder(this)
+
+abstract class Security {
+    abstract fun needPermissionRequest(holder: ContextHolder): Boolean
+    abstract fun requestPermission(holder: ContextHolder, id: Int)
+
+    fun needPermissionRequest(activity: Activity): Boolean = needPermissionRequest(activity.toHolder())
+    fun requestPermission(activity: Activity, id: Int) {
+        requestPermission(activity.toHolder(), id)
+    }
+
+    fun needPermissionRequest(fragment: Fragment): Boolean = needPermissionRequest(fragment.toHolder())
+    fun requestPermission(fragment: Fragment, id: Int) {
+        requestPermission(fragment.toHolder(), id)
+    }
+
+    fun checkAndroidPermission(holder: ContextHolder, vararg permissions: String): Boolean =
+            !EasyPermissions.hasPermissions(holder.activity, *permissions)
+
+    fun requestAndroidPermission(holder: ContextHolder, id: Int, vararg permissions: String) {
+        when (holder) {
+            is ActivityContextHolder -> EasyPermissions.requestPermissions(holder.activity, "", id, *permissions)
+            is FragmentContextHolder -> EasyPermissions.requestPermissions(holder.fragment, "", id, *permissions)
         }
-
-
-
-        if (!GoogleSignIn.hasPermissions(
-//                    GoogleSignIn.getLastSignedInAccount(getActivity()),
-//                    Scope(SCOPE_TEST))) {
-//        GoogleSignIn.requestPermissions(this,
-//                0,
-//                GoogleSignIn.getLastSignedInAccount(getActivity()),
-//                Scope(SCOPE_TEST))
-*
-*
-* */
+    }
+}

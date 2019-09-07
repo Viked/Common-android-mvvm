@@ -1,6 +1,7 @@
 package com.viked.commonandroidmvvm.ui.preference
 
 import android.os.Bundle
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
@@ -39,8 +40,6 @@ abstract class BasePreferenceFragment<T : BaseViewModel> : PreferenceFragmentCom
 
     abstract val viewModelClass: Class<T>
 
-    abstract val preferencesResId: Int
-
     abstract fun initPreferences(viewModel: T, activity: BaseActivity)
 
     private val dialogDelegates = mutableListOf<DialogPreferenceDelegate<*>>()
@@ -67,10 +66,6 @@ abstract class BasePreferenceFragment<T : BaseViewModel> : PreferenceFragmentCom
         } else {
             RuntimeException("BasePreferenceFragment has empty params\nviewModel: ${this.viewModel.value}").log()
         }
-    }
-
-    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
-        addPreferencesFromResource(preferencesResId)
     }
 
     override fun handleOnBackPressed() = false
@@ -111,7 +106,7 @@ abstract class BasePreferenceFragment<T : BaseViewModel> : PreferenceFragmentCom
         val dialogClassName = dialogDelegates.find { preference::class.java == it.clazz }?.preferenceDialogClassName
                 ?: error("Tried to display dialog for unknown")
 
-        (androidx.fragment.app.Fragment.instantiate(context!!, dialogClassName, Bundle(1).apply { putString(ARG_KEY, preference.key) }) as? androidx.fragment.app.DialogFragment)?.also {
+        (Fragment.instantiate(context!!, dialogClassName, Bundle(1).apply { putString(ARG_KEY, preference.key) }) as? androidx.fragment.app.DialogFragment)?.also {
             it.setTargetFragment(this, 0)
         }
                 ?.show(fragmentManager!!, PREFERENCE_DIALOG_FRAGMENT_TAG)
