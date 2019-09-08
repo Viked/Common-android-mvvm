@@ -1,15 +1,10 @@
 package com.viked.commonandroidmvvm.ui.activity
 
-import android.os.Bundle
 import android.os.Handler
-import androidx.fragment.app.Fragment
-import androidx.appcompat.app.AppCompatActivity
 import android.view.MenuItem
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import com.viked.commonandroidmvvm.extentions.handleOnBackPressed
-import com.viked.commonandroidmvvm.ui.common.delegate.error.DialogErrorDelegate
-import com.viked.commonandroidmvvm.ui.common.delegate.error.ErrorDelegate
-import com.viked.commonandroidmvvm.ui.common.delegate.progress.DialogProgressDelegate
-import com.viked.commonandroidmvvm.ui.common.delegate.progress.ProgressDelegate
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector
 import pub.devrel.easypermissions.EasyPermissions
@@ -22,16 +17,6 @@ abstract class BaseActivity : AppCompatActivity(), HasSupportFragmentInjector {
 
     @Inject
     lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
-
-    lateinit var progressDelegate: ProgressDelegate
-
-    lateinit var errorDelegate: ErrorDelegate
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        progressDelegate = DialogProgressDelegate(this)
-        errorDelegate = DialogErrorDelegate(this)
-    }
 
     override fun supportFragmentInjector(): DispatchingAndroidInjector<Fragment> =
             dispatchingAndroidInjector
@@ -50,18 +35,6 @@ abstract class BaseActivity : AppCompatActivity(), HasSupportFragmentInjector {
                 || !supportFragmentManager.handleOnBackPressed()) {
             super.onBackPressed()
         }
-    }
-
-    var active = false
-
-    override fun onPause() {
-        super.onPause()
-        active = false
-    }
-
-    override fun onResume() {
-        super.onResume()
-        active = true
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {

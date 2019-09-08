@@ -71,16 +71,14 @@ dependencies {
 
     api 'pub.devrel:easypermissions:2.0.0'
 
-    kapt "com.google.dagger:dagger-compiler:$dagger_version"
-    kapt "com.google.dagger:dagger-android-processor:$dagger_version"
-
     api 'androidx.room:room-runtime:2.0.0-beta01'
 
     api "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.1.0"
     api "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.1.0"
 
+    kapt "com.google.dagger:dagger-compiler:$dagger_version"
+    kapt "com.google.dagger:dagger-android-processor:$dagger_version"
     kapt 'androidx.lifecycle:lifecycle-compiler:2.1.0-alpha02'
     kapt 'androidx.room:room-compiler:2.0.0-beta01'
-
 
 }

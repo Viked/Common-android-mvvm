@@ -1,6 +1,7 @@
 package com.viked.commonandroidmvvm.ui.common.delegate.progress
 
 import android.app.ProgressDialog
+import androidx.lifecycle.Lifecycle
 import com.viked.commonandroidmvvm.R
 import com.viked.commonandroidmvvm.ui.activity.BaseActivity
 
@@ -9,6 +10,8 @@ import com.viked.commonandroidmvvm.ui.activity.BaseActivity
  */
 class DialogProgressDelegate(private val context: BaseActivity) : BaseProgressDelegate() {
 
+    private fun isActive(): Boolean = context.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)
+
     private val dialog = ProgressDialog(context)
             .apply {
                 setCancelable(false)
@@ -16,13 +19,13 @@ class DialogProgressDelegate(private val context: BaseActivity) : BaseProgressDe
             }
 
     override fun showProgress() {
-        if (context.active) {
+        if (isActive()) {
             dialog.show()
         }
     }
 
     override fun hideProgress() {
-        if (context.active) {
+        if (isActive()) {
             dialog.dismiss()
         }
     }

@@ -1,8 +1,9 @@
 package com.viked.commonandroidmvvm.ui.common.delegate.error
 
+import androidx.appcompat.app.AlertDialog
 import androidx.databinding.Observable
 import androidx.databinding.ObservableField
-import androidx.appcompat.app.AlertDialog
+import androidx.lifecycle.Lifecycle
 import com.viked.commonandroidmvvm.ui.activity.BaseActivity
 import com.viked.commonandroidmvvm.ui.common.delegate.BaseViewDelegate
 
@@ -11,17 +12,19 @@ import com.viked.commonandroidmvvm.ui.common.delegate.BaseViewDelegate
  */
 class DialogErrorDelegate(private val context: BaseActivity) : BaseViewDelegate<ObservableField<BaseError>>(), ErrorDelegate {
 
+    private fun isActive(): Boolean = context.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)
+
     override fun updateWithValue(observables: Set<Observable>) {
         val errorObserver = observables.filter { it is ObservableField<*> }.map { it as ObservableField<*> }.find { it.get() is BaseError }
         val error = errorObserver?.get() as? BaseError
-        if (context.active && errorObserver != null && error != null) {
+        if (isActive() && errorObserver != null && error != null) {
             showError(error)
             errorObserver.set(null)
         }
     }
 
     override fun showError(error: BaseError) {
-        if (context.active) {
+        if (isActive()) {
             AlertDialog.Builder(context)
                     .setMessage(error.errorMessage[context])
                     .setPositiveButton(android.R.string.ok, { dialog, which ->
