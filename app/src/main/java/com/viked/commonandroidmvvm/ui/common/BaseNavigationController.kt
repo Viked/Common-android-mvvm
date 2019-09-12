@@ -13,7 +13,7 @@ abstract class BaseNavigationController(val context: Context, val fragmentManage
 
     private fun checkState(): Boolean = !fragmentManager.isDestroyed && !fragmentManager.isStateSaved
 
-    private fun getActiveFragment() = fragmentManager.findFragmentById(containerId)
+    fun getActiveFragment() = fragmentManager.findFragmentById(containerId)
 
     fun hasActiveFragment() = getActiveFragment() != null
 

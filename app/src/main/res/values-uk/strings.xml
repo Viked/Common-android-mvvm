@@ -14,8 +14,6 @@
 
     <string name="settings_default_file_name">File</string>
     <string name="create_folder_error">Неможливо створити папку</string>
-    <string name="create_folder_icon">Створити папку</string>
-    <string name="create_folder_msg">Введіть назву папки</string>
     <string name="error_already_exists">Папка вже існує</string>
     <string name="file_icon">Іконка файлу</string>
     <string name="file_name_dialog_massage">Введіть назву папки</string>
