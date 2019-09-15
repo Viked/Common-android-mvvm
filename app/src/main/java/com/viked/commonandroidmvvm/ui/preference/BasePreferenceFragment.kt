@@ -1,7 +1,7 @@
 package com.viked.commonandroidmvvm.ui.preference
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
+import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
@@ -79,7 +79,7 @@ abstract class BasePreferenceFragment<T : BaseViewModel> : PreferenceFragmentCom
     }
 
     open fun initDialogDelegates(dialogDelegates: MutableList<DialogPreferenceDelegate<*>>) {
-        dialogDelegates.add(DialogPreferenceDelegate(EditTextPreference::class.java, EditTextPreferenceDialogFragmentCompat::class.java.name))
+        dialogDelegates.add(DialogPreferenceDelegate(EditTextPreference::class.java, SingleLineEditTextPreferenceDialogFragmentCompat::class.java.name))
         dialogDelegates.add(DialogPreferenceDelegate(ListPreference::class.java, ListPreferenceDialogFragmentCompat::class.java.name))
         dialogDelegates.add(DialogPreferenceDelegate(MultiSelectListPreference::class.java, MultiSelectListPreferenceDialogFragmentCompat::class.java.name))
         dialogDelegates.add(DialogPreferenceDelegate(TimePreference::class.java, TimePreferenceDialogFragment::class.java.name))
@@ -106,10 +106,11 @@ abstract class BasePreferenceFragment<T : BaseViewModel> : PreferenceFragmentCom
         val dialogClassName = dialogDelegates.find { preference::class.java == it.clazz }?.preferenceDialogClassName
                 ?: error("Tried to display dialog for unknown")
 
-        (Fragment.instantiate(context!!, dialogClassName, Bundle(1).apply { putString(ARG_KEY, preference.key) }) as? androidx.fragment.app.DialogFragment)?.also {
-            it.setTargetFragment(this, 0)
-        }
-                ?.show(fragmentManager!!, PREFERENCE_DIALOG_FRAGMENT_TAG)
+        val dialog = fragmentManager?.fragmentFactory?.instantiate(requireActivity().classLoader, dialogClassName) as? DialogFragment
+                ?: return
+        dialog.arguments = Bundle(1).apply { putString(ARG_KEY, preference.key) }
+        dialog.setTargetFragment(this, 0)
+        dialog.show(fragmentManager!!, PREFERENCE_DIALOG_FRAGMENT_TAG)
     }
 
     private fun logStartEvent() {
