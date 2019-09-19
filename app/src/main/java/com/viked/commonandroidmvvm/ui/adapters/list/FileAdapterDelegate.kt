@@ -38,17 +38,9 @@ class FileItemWrapper(val file: File) : ItemWrapper(file) {
 
 }
 
-class NewFolderItemWrapper : ItemWrapper("") {
-    val title = ObservableField<String>("")
-    val error = ObservableInt()
-
-    override fun areItemsTheSame(oldItem: ItemWrapper) = false
-}
-
 class FileAdapterDelegate(inflater: LayoutInflater) : AdapterDelegate(FileItemWrapper::class, inflater, R.layout.item_file, BR.viewModel)
 
 object FileNameInputFilter : InputFilter {
-
     override fun filter(source: CharSequence, start: Int, end: Int, dest: Spanned?, dstart: Int, dend: Int) =
             if (source.all { it.isLetterOrDigit() || it.isWhitespace() }) null else ""
 

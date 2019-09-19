@@ -1,6 +1,8 @@
 package com.viked.commonandroidmvvm.ui.common
 
+import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentFactory
@@ -29,5 +31,12 @@ abstract class BaseNavigationController(val context: Context, val fragmentManage
                 ?: return
         dialog.arguments = arguments
         dialog.show(fragmentManager, dialogClass)
+    }
+
+    fun startActivity(activityClass: String, arguments: Bundle? = null) {
+        val intent = Intent()
+        intent.component = ComponentName(context.packageName, activityClass)
+        if (arguments != null) intent.putExtras(arguments)
+        context.startActivity(intent)
     }
 }

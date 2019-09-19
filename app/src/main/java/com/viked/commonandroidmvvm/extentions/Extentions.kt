@@ -2,8 +2,10 @@ package com.viked.commonandroidmvvm.extentions
 
 import android.app.Activity
 import android.content.Context
-import androidx.fragment.app.FragmentManager
 import android.view.inputmethod.InputMethodManager
+import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import com.viked.commonandroidmvvm.ui.common.Cancelable
 import com.viked.commonandroidmvvm.ui.fragment.BaseFragment
 
@@ -28,5 +30,8 @@ fun FragmentManager.handleOnBackPressed(): Boolean {
             .find { (it is Cancelable && it.handleOnBackPressed()) || it.childFragmentManager.handleOnBackPressed() }
     return fragment != null
 }
+
+inline fun <reified T : ViewModel> ViewModelProvider.getViewModel() = get<T>(T::class.java)
+
 
 inline fun <reified T> className() = T::class.java

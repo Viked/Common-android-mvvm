@@ -34,23 +34,24 @@ abstract class BaseFragment<T : BaseViewModel, B : ViewDataBinding> : Fragment()
     @Inject
     lateinit var analytic: Analytic
 
-    lateinit var viewModel: AutoClearedValue<T>
+    val viewModel:  AutoClearedValue<T> by lazy {
+        AutoClearedValue(this, ViewModelProvider(this, viewModelFactory).get())
+    }
 
     lateinit var binding: AutoClearedValue<B>
 
     abstract val layoutId: Int
 
-    abstract val viewModelClass: Class<T>
+    abstract fun ViewModelProvider.get(): T
 
     open val viewModelBindingId: Int = BR.viewModel
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        val viewModel = ViewModelProviders.of(this, viewModelFactory).get(viewModelClass)
+        val viewModel = viewModel.value
         val binding = binding.value
-        this.viewModel = AutoClearedValue(this, viewModel)
         val activity = activity()
-        if (binding != null && activity != null) {
+        if (viewModel!= null && binding != null && activity != null) {
             binding.lifecycleOwner = this
             arguments?.run { initArguments(viewModel, this) }
             viewModel.onInit()
