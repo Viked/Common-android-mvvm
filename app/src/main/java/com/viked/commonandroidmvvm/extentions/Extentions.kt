@@ -12,15 +12,17 @@ import com.viked.commonandroidmvvm.ui.fragment.BaseFragment
 /**
  * Created by yevgeniishein on 10/7/17.
  */
-fun Context.hideKeyboard() {
+fun Context.hideKeyboard(): Boolean {
     if (this is Activity) {
         val view = currentFocus
         if (view != null) {
             val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.hideSoftInputFromWindow(view.windowToken, 0)
             view.clearFocus()
+            return true
         }
     }
+    return false
 }
 
 

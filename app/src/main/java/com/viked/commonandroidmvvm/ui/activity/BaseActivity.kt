@@ -5,6 +5,7 @@ import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.viked.commonandroidmvvm.extentions.handleOnBackPressed
+import com.viked.commonandroidmvvm.extentions.hideKeyboard
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector
 import pub.devrel.easypermissions.EasyPermissions
@@ -31,8 +32,8 @@ abstract class BaseActivity : AppCompatActivity(), HasSupportFragmentInjector {
     }
 
     override fun onBackPressed() {
-        if (supportFragmentManager.isStateSaved
-                || !supportFragmentManager.handleOnBackPressed()) {
+        if (!hideKeyboard()
+                && (supportFragmentManager.isStateSaved || !supportFragmentManager.handleOnBackPressed())) {
             super.onBackPressed()
         }
     }
