@@ -1,9 +1,9 @@
 package com.viked.commonandroidmvvm.preference
 
 import android.app.Application
-import android.preference.PreferenceManager
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Transformations
+import androidx.preference.PreferenceManager
 import com.google.gson.Gson
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -74,6 +74,12 @@ class PreferenceHelper @Inject constructor(private val context: Application,
         return PreferenceLiveData(this, id.toSet())
     }
 
+    fun init() {
+        initialValues.filterNot { preferences.contains(context.getString(it.key)) }
+                .forEach {
+                    set(it.key, it.initialValue)
+                }
+    }
 }
 
 inline operator fun <reified T : Any> PreferenceHelper.get(id: Int): T {

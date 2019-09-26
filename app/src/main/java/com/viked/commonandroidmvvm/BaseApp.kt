@@ -51,7 +51,7 @@ abstract class BaseApp : Application(), HasActivityInjector, HasWorkerInjector {
         super.onCreate()
         inject()
         initLogger()
-
+        preferenceHelper.init()
         billingRepository.subscribe()
     }
 
