@@ -27,6 +27,7 @@ fun Double.cutDecimal(count: Int) = String.format(Locale.ROOT, "%.${count}f", th
 fun Context.openLink(link: String) {
     val i = Intent(ACTION_VIEW)
     i.data = Uri.parse(link)
+    i.flags = Intent.FLAG_ACTIVITY_NEW_TASK
     when {
         checkIntent(i) -> startActivity(i)
         addTextToClipboard(TextWrapper(R.string.app_name), TextWrapper(link)) -> showToast(R.string.intent_open_link_error)
