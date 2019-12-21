@@ -11,6 +11,7 @@
     <string name="share_with">Поділитися</string>
     <string name="send_email">Відправити email…</string>
     <string name="button_own">Придбано</string>
+    <string name="call_with">Подзвонити…</string>
 
     <string name="settings_default_file_name">File</string>
     <string name="create_folder_error">Неможливо створити папку</string>

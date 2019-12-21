@@ -35,11 +35,25 @@ fun Context.openLink(link: String) {
     }
 }
 
-fun Context.sendEmail(email: String) {
-    val emailIntent = Intent(Intent.ACTION_SENDTO, Uri.fromParts(
-            "mailto", email, null))
-    emailIntent.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.app_name))
+fun Context.sendEmail(email: String, subject: String? = null) {
+    val uri = Uri.fromParts("mailto", email, null).buildUpon().apply {
+        if (subject != null) {
+            appendQueryParameter("subject", subject)
+        }
+    }.build()
+
+    val emailIntent = Intent(Intent.ACTION_SENDTO, uri)
     val intent = Intent.createChooser(emailIntent, getString(R.string.send_email))
+    when {
+        checkIntent(intent) -> startActivity(intent)
+        else -> showToast(R.string.error)
+    }
+}
+
+fun Context.makeCall(phone: String) {
+    val dialIntent = Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", phone, null))
+    dialIntent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+    val intent = Intent.createChooser(dialIntent, getString(R.string.call_with))
     when {
         checkIntent(intent) -> startActivity(intent)
         else -> showToast(R.string.error)
