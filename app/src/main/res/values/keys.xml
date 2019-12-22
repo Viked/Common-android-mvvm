@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
+    <string name="preference_dark_mode" translatable="false">dark_mode</string>
 </resources>

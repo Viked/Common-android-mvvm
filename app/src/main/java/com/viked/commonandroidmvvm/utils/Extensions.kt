@@ -5,6 +5,7 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.content.Intent.ACTION_VIEW
+import android.content.res.Configuration
 import android.net.Uri
 import android.text.format.DateFormat
 import android.widget.Toast
@@ -144,3 +145,5 @@ fun Context.addTextToClipboard(label: TextWrapper, text: TextWrapper): Boolean {
         false
     }
 }
+
+fun Context.isInDarkMode() = (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
