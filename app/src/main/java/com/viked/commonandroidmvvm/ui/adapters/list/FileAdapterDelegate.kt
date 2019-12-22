@@ -3,16 +3,8 @@ package com.viked.commonandroidmvvm.ui.adapters.list
 import android.text.InputFilter
 import android.text.Spanned
 import android.view.LayoutInflater
-import android.view.ViewGroup
-import android.view.inputmethod.EditorInfo
-import androidx.databinding.ObservableField
-import androidx.databinding.ObservableInt
 import com.viked.commonandroidmvvm.BR
 import com.viked.commonandroidmvvm.R
-import com.viked.commonandroidmvvm.ui.adapters.list.AdapterDelegate
-import com.viked.commonandroidmvvm.ui.adapters.list.BindingViewHolder
-import com.viked.commonandroidmvvm.ui.adapters.list.ItemWrapper
-import com.viked.commonandroidmvvm.ui.common.addFilter
 import java.io.File
 
 
@@ -23,7 +15,7 @@ import java.io.File
 const val DIR_UP_FILE_NAME = ".."
 const val ROOT_DIR = "/"
 
-class FileItemWrapper(val file: File) : ItemWrapper(file) {
+class FileItemWrapper(val file: File) : ItemWrapper(file.absolutePath.hashCode().toLong(), file) {
 
     override fun areContentsTheSame(oldItem: ItemWrapper): Boolean {
         val item = oldItem as? FileItemWrapper ?: return false

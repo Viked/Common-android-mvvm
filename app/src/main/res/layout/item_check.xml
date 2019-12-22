@@ -49,7 +49,7 @@
             android:layout_margin="4dp"
             android:checked="@{item.enabled &amp;&amp; item.data.checked}"
             android:enabled="@{item.enabled}"
-            android:onCheckedChanged="@{(checkBox, checked) -> delegate.update(item, checked)}"
+            android:onClick="@{(checkBox) -> delegate.update(item)}"
             app:layout_constraintBottom_toBottomOf="@+id/tvSubtitle"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

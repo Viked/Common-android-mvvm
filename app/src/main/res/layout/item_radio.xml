@@ -48,7 +48,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="4dp"
             android:checked="@{viewModel.data.checked}"
-            android:onCheckedChanged="@{(checkBox, checked) -> delegate.update(viewModel, checked)}"
+            android:onClick="@{(checkBox) -> delegate.update(viewModel)}"
             app:layout_constraintBottom_toBottomOf="@+id/tvSubtitle"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />

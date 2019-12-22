@@ -12,7 +12,7 @@ import com.viked.commonandroidmvvm.ui.adapters.list.ItemWrapper
  */
 class PurchaseItemWrapper(val details: SkuDetails,
                           val billingItem: BillingItem,
-                          val purchase: Purchase?) : ItemWrapper(details) {
+                          val purchase: Purchase?) : ItemWrapper(details.sku.hashCode().toLong(), details) {
 
     val buttonTitle: TextWrapper
         get() = if (purchase != null) {
@@ -21,4 +21,8 @@ class PurchaseItemWrapper(val details: SkuDetails,
             TextWrapper(details.price)
         }
 
+    override fun areContentsTheSame(oldItem: ItemWrapper): Boolean {
+        if (oldItem !is PurchaseItemWrapper) return false
+        return oldItem.details == details && oldItem.billingItem == billingItem && oldItem.purchase == purchase
+    }
 }

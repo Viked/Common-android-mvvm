@@ -8,9 +8,13 @@ import com.hannesdorfmann.adapterdelegates4.AsyncListDifferDelegationAdapter
  */
 class DelegateRecyclerViewAdapter : AsyncListDifferDelegationAdapter<ItemWrapper>(ItemWrapperDiffCallback) {
 
+    init {
+        setHasStableIds(true)
+    }
+
     fun addDelegate(delegate: AdapterDelegate<List<ItemWrapper>>) {
         delegatesManager.addDelegate(delegate)
     }
 
-    override fun getItemId(position: Int) = position.toLong()
+    override fun getItemId(position: Int) = items[position].itemId
 }

@@ -1,32 +1,23 @@
 package com.viked.commonandroidmvvm.ui.adapters.list
 
-import androidx.databinding.ObservableBoolean
 import androidx.recyclerview.widget.DiffUtil
 import com.viked.commonandroidmvvm.text.TextWrapper
 
 /**
  * Created by yevgeniishein on 10/9/17.
  */
-open class ItemWrapper(val value: Any, val name: TextWrapper = TextWrapper()) {
-
-    var updated = false
+open class ItemWrapper(val itemId: Long, val value: Any, val name: TextWrapper = TextWrapper()) {
 
     open fun areItemsTheSame(oldItem: ItemWrapper): Boolean {
-        return oldItem.value == value
+        return oldItem.itemId == itemId
     }
 
     open fun areContentsTheSame(oldItem: ItemWrapper): Boolean {
-        return !oldItem.updated && !updated
+        return oldItem.value == value
     }
-
 }
 
-open class SelectableItemWrapper(value: Any, name: TextWrapper = TextWrapper()) : ItemWrapper(value, name) {
-
-    val selected = ObservableBoolean(false)
-}
-
-val emptyTextWrapper = ItemWrapper("")
+val emptyTextWrapper = ItemWrapper(0L, "")
 
 object ItemWrapperDiffCallback : DiffUtil.ItemCallback<ItemWrapper>() {
 
