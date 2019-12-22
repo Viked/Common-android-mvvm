@@ -38,7 +38,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="start"
-                android:src="@{viewModel.billingItem.iconId}" />
+                android:src="@{viewModel.billingItem.iconId}"
+                android:tint="@color/colorPrimaryText" />
 
             <TextView
                 android:id="@+id/description"
