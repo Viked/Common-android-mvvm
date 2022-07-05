@@ -1,21 +1,22 @@
 package com.viked.commonandroidmvvm
 
-import android.app.Activity
 import android.app.Application
 import android.content.Context
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.multidex.MultiDex
-import androidx.work.Worker
+import androidx.work.Configuration
+import androidx.work.WorkManager
 import com.viked.commonandroidmvvm.billing.BillingRepository
 import com.viked.commonandroidmvvm.log.Analytic
 import com.viked.commonandroidmvvm.log.NotLoggingTree
 import com.viked.commonandroidmvvm.preference.PreferenceHelper
 import com.viked.commonandroidmvvm.preference.getLivePreference
-import com.viked.commonandroidmvvm.work.HasWorkerInjector
+import com.viked.commonandroidmvvm.work.InjectionWorkerFactory
+import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
-import dagger.android.HasActivityInjector
+import dagger.android.HasAndroidInjector
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -23,13 +24,10 @@ import javax.inject.Inject
 /**
  * Created by yevgeniishein on 1/20/18.
  */
-abstract class BaseApp : Application(), HasActivityInjector, HasWorkerInjector {
+abstract class BaseApp : Application(), HasAndroidInjector {
 
     @Inject
-    lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Activity>
-
-    @Inject
-    lateinit var workerDispatchingAndroidInjector: DispatchingAndroidInjector<Worker>
+    lateinit var dispatchingAndroidInjector: DispatchingAndroidInjector<Any>
 
     @Inject
     lateinit var analytic: Analytic
@@ -40,24 +38,29 @@ abstract class BaseApp : Application(), HasActivityInjector, HasWorkerInjector {
     @Inject
     lateinit var preferenceHelper: PreferenceHelper
 
+    @Inject
+    lateinit var workerFactory: InjectionWorkerFactory
+
     private val darkThemeLiveData: LiveData<Int> by lazy {
-        preferenceHelper.getLivePreference<Int>(R.string.preference_dark_mode)
+        preferenceHelper.getLivePreference(R.string.preference_dark_mode)
     }
 
     private val darkThemeLiveDataObserver: Observer<Int> by lazy {
         Observer<Int> {
             when (it) {
-                AppCompatDelegate.MODE_NIGHT_YES -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-                AppCompatDelegate.MODE_NIGHT_NO -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                AppCompatDelegate.MODE_NIGHT_YES -> AppCompatDelegate.setDefaultNightMode(
+                    AppCompatDelegate.MODE_NIGHT_YES
+                )
+                AppCompatDelegate.MODE_NIGHT_NO -> AppCompatDelegate.setDefaultNightMode(
+                    AppCompatDelegate.MODE_NIGHT_NO
+                )
             }
         }
     }
 
     abstract fun inject()
 
-    override fun activityInjector() = dispatchingAndroidInjector
-
-    override fun workerInjector() = workerDispatchingAndroidInjector
+    override fun androidInjector(): AndroidInjector<Any> = dispatchingAndroidInjector
 
     override fun attachBaseContext(context: Context) {
         super.attachBaseContext(context)
@@ -68,6 +71,7 @@ abstract class BaseApp : Application(), HasActivityInjector, HasWorkerInjector {
         super.onCreate()
         inject()
         initLogger()
+        initWorkManager()
         preferenceHelper.init()
         billingRepository.subscribe()
         darkThemeLiveData.observeForever(darkThemeLiveDataObserver)
@@ -79,6 +83,13 @@ abstract class BaseApp : Application(), HasActivityInjector, HasWorkerInjector {
         } else {
             Timber.plant(Timber.DebugTree())
         }
+    }
+
+    private fun initWorkManager() {
+        val workManagerConfig = Configuration.Builder()
+            .setWorkerFactory(workerFactory)
+            .build()
+        WorkManager.initialize(this, workManagerConfig)
     }
 
     override fun onLowMemory() {

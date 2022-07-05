@@ -6,12 +6,14 @@ import androidx.work.WorkerParameters
 import com.viked.commonandroidmvvm.R
 import com.viked.commonandroidmvvm.progress.Progress
 import com.viked.commonandroidmvvm.progress.ProgressDao
-import javax.inject.Inject
+import kotlin.math.roundToInt
 
-abstract class BaseProgressWorker(context: Context, workerParams: WorkerParameters) : BaseWorker(context, workerParams) {
-
-    @Inject
-    lateinit var progressDao: ProgressDao
+abstract class BaseProgressWorker(
+    context: Context,
+    workerParams: WorkerParameters,
+    val progressDao: ProgressDao
+) :
+    BaseWorker(context, workerParams) {
 
     private var progress = 0
 
@@ -26,7 +28,7 @@ abstract class BaseProgressWorker(context: Context, workerParams: WorkerParamete
     }
 
     protected fun updateProgress(current: Int, max: Int) {
-        val progress = Math.round(current.toFloat() / max.toFloat() * 100f)
+        val progress = (current.toFloat() / max.toFloat() * 100f).roundToInt()
         updateProgress(progress)
     }
 

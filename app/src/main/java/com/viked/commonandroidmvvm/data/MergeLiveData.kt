@@ -13,11 +13,13 @@ import com.viked.commonandroidmvvm.utils.doIf
 import kotlinx.coroutines.*
 import timber.log.Timber
 
-class MergeLiveData(private val sources: List<LiveData<*>>,
-                    private val progress: LiveData<List<Progress>>,
-                    private val preferences: LiveData<Map<Int, Any>>,
-                    private val builder: Strategy,
-                    private val comparator: (() -> Comparator<ItemWrapper>)? = null) : MediatorLiveData<Resource<List<ItemWrapper>>>(), Observer<Any?> {
+class MergeLiveData(
+    private val sources: List<LiveData<*>>,
+    private val progress: LiveData<List<Progress>>,
+    private val preferences: LiveData<Map<Int, Any>>,
+    private val builder: Strategy,
+    private val comparator: (() -> Comparator<ItemWrapper>)? = null
+) : MediatorLiveData<Resource<List<ItemWrapper>>>(), Observer<Any?> {
 
     init {
         addSource(preferences, this)
@@ -27,7 +29,8 @@ class MergeLiveData(private val sources: List<LiveData<*>>,
 
     private var updateJob: Job? = null
 
-    private fun listenSources() = sources.forEach { addSource(Transformations.map(it) { p -> p }, this) }
+    private fun listenSources() =
+        sources.forEach { addSource(Transformations.map(it) { p -> p }, this) }
 
     override fun onChanged(t: Any?) {
         val active = progress.value ?: listOf()
@@ -35,7 +38,7 @@ class MergeLiveData(private val sources: List<LiveData<*>>,
             setNewValue()
         } else {
             updateJob?.cancel()
-            postValue(Resource.status((active.minBy { it.value }!!).getMessage()))
+            postValue(Resource.status((active.minByOrNull { it.value }!!).getMessage()))
         }
     }
 
@@ -45,16 +48,24 @@ class MergeLiveData(private val sources: List<LiveData<*>>,
             try {
                 val values = sources.mapNotNull { it.value }
                 val comparator = comparator?.invoke()
-                val r = builder.convert(values, preferences.value
-                        ?: mapOf()).doIf(comparator != null) { it.sortedWith(comparator!!) }
+                val r = builder.convert(
+                    values, preferences.value
+                        ?: mapOf()
+                ).doIf(comparator != null) { it.sortedWith(comparator!!) }
                 withContext(Dispatchers.Main) { postValue(Resource.success(r)) }
             } catch (e: CancellationException) {
                 Timber.i(e)
             } catch (e: Exception) {
                 e.log()
                 withContext(Dispatchers.Main) {
-                    postValue(Resource.error(TextWrapper(e.localizedMessage ?: e.message
-                    ?: "Error")))
+                    postValue(
+                        Resource.error(
+                            TextWrapper(
+                                e.localizedMessage ?: e.message
+                                ?: "Error"
+                            )
+                        )
+                    )
                 }
             }
         }

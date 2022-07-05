@@ -1,21 +1,26 @@
 package com.viked.commonandroidmvvm.work
 
 import android.content.Context
-import androidx.work.Worker
+import androidx.work.CoroutineWorker
+import androidx.work.ListenableWorker
 import androidx.work.WorkerParameters
 import com.viked.commonandroidmvvm.log.log
 
-abstract class BaseWorker(context: Context, workerParams: WorkerParameters) : Worker(context, workerParams) {
+abstract class BaseWorker(context: Context, workerParams: WorkerParameters) :
+    CoroutineWorker(context, workerParams) {
 
-    abstract fun work(): Result
+    abstract suspend fun work(): Result
 
-    override fun doWork(): Result {
-        AndroidWorkerInjection.inject(this)
+    override suspend fun doWork(): Result {
         return try {
             work()
         } catch (e: Exception) {
             e.log()
-            Result.FAILURE
+            Result.failure()
         }
     }
+}
+
+interface ListenableWorkerFactory<T : ListenableWorker> {
+    fun create(context: Context, workerParams: WorkerParameters): T
 }

@@ -2,13 +2,14 @@ package com.viked.commonandroidmvvm.di
 
 import android.app.Activity
 import android.app.Application
+import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
 import dagger.android.AndroidInjection
+import dagger.android.HasAndroidInjector
 import dagger.android.support.AndroidSupportInjection
-import dagger.android.support.HasSupportFragmentInjector
 
 /**
  * Helper class to automatically inject fragments if they implement [Injectable].
@@ -45,7 +46,7 @@ abstract class BaseAppInjector<T : Application> : Application.ActivityLifecycleC
 
     }
 
-    override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle?) {
+    override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {
 
     }
 
@@ -54,16 +55,22 @@ abstract class BaseAppInjector<T : Application> : Application.ActivityLifecycleC
     }
 
     private fun handleActivity(activity: Activity) {
-        if (activity is HasSupportFragmentInjector) {
+        if (activity is HasAndroidInjector) {
             AndroidInjection.inject(activity)
         }
         (activity as? FragmentActivity)?.supportFragmentManager?.registerFragmentLifecycleCallbacks(
-                object : FragmentManager.FragmentLifecycleCallbacks() {
-                    override fun onFragmentCreated(fm: FragmentManager, f: Fragment, savedInstanceState: Bundle?) {
-                        if (f is Injectable) {
-                            AndroidSupportInjection.inject(f)
-                        }
+            object : FragmentManager.FragmentLifecycleCallbacks() {
+                override fun onFragmentAttached(
+                    fm: FragmentManager,
+                    f: Fragment,
+                    context: Context
+                ) {
+                    if (f is Injectable) {
+                        AndroidSupportInjection.inject(f)
                     }
-                }, true)
+                    super.onFragmentAttached(fm, f, context)
+                }
+            }, true
+        )
     }
 }
