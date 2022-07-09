@@ -1,12 +1,10 @@
 package com.viked.commonandroidmvvm.log
 
 import android.app.Application
-import com.crashlytics.android.Crashlytics
-import com.crashlytics.android.answers.Answers
-import com.crashlytics.android.answers.CustomEvent
-import com.crashlytics.android.answers.PurchaseEvent
-import com.viked.commonandroidmvvm.BuildConfig
-import io.fabric.sdk.android.Fabric
+import android.os.Bundle
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.ktx.Firebase
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -16,19 +14,17 @@ import javax.inject.Singleton
 @Singleton
 class Analytic @Inject constructor(val context: Application) {
 
-    private val answers: Answers by lazy { Answers.getInstance() }
-    private val fabric: Fabric? by lazy {
-        if (!BuildConfig.DEBUG) {
-            Fabric.with(context, Crashlytics(), Answers())
-        } else null
+    private val analytics: FirebaseAnalytics by lazy { Firebase.analytics }
+
+    fun log(name: String, params: Bundle? = null) {
+        analytics.logEvent(name, params)
     }
 
-    fun log(event: CustomEvent) {
-        fabric?.run { answers.logCustom(event) }
+    fun setScreen(name: String, clazz: Class<*>) {
+        val bundle = Bundle().apply {
+            putString(FirebaseAnalytics.Param.SCREEN_NAME, name)
+            putString(FirebaseAnalytics.Param.SCREEN_CLASS, clazz.simpleName)
+        }
+        analytics.logEvent(FirebaseAnalytics.Event.SCREEN_VIEW, bundle)
     }
-
-    fun logPurchase(event: PurchaseEvent) {
-        fabric?.run { answers.logPurchase(event) }
-    }
-
 }

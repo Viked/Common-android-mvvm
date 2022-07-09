@@ -10,10 +10,24 @@ import java.util.*
 /**
  * Created by yevgeniishein on 8/5/17.
  */
-class TimePreferenceDialogFragment : PreferenceDialogFragmentCompat(), TimePickerDialog.OnTimeSetListener {
+class TimePreferenceDialogFragment : PreferenceDialogFragmentCompat(),
+    TimePickerDialog.OnTimeSetListener {
+
+    companion object {
+        fun newInstance(key: String?): TimePreferenceDialogFragment {
+            val fragment = TimePreferenceDialogFragment()
+            val b = Bundle(1)
+            b.putString(ARG_KEY, key)
+            fragment.arguments = b
+            return fragment
+        }
+    }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        outState.putBundle(Calendar.DAY_OF_MONTH.toString(), (dialog as TimePickerDialog).onSaveInstanceState())
+        outState.putBundle(
+            Calendar.DAY_OF_MONTH.toString(),
+            (dialog as TimePickerDialog).onSaveInstanceState()
+        )
         super.onSaveInstanceState(outState)
     }
 

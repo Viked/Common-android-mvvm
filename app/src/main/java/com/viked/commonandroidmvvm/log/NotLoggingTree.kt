@@ -1,6 +1,8 @@
 package com.viked.commonandroidmvvm.log
 
-import com.crashlytics.android.Crashlytics
+import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.google.firebase.crashlytics.ktx.crashlytics
+import com.google.firebase.ktx.Firebase
 import timber.log.Timber
 
 /**
@@ -8,9 +10,11 @@ import timber.log.Timber
  */
 class NotLoggingTree : Timber.Tree() {
 
+    private val crashlytics: FirebaseCrashlytics by lazy { Firebase.crashlytics }
+
     override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
         if (t != null) {
-            Crashlytics.logException(t)
+            crashlytics.recordException(t)
         }
     }
 }

@@ -9,8 +9,6 @@ import androidx.databinding.ViewDataBinding
 import androidx.databinding.library.baseAdapters.BR
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
-import com.crashlytics.android.answers.CustomEvent
 import com.viked.commonandroidmvvm.di.Injectable
 import com.viked.commonandroidmvvm.log.Analytic
 import com.viked.commonandroidmvvm.log.log
@@ -26,7 +24,8 @@ import javax.inject.Inject
 /**
  * Created by yevgeniishein on 3/11/18.
  */
-abstract class BaseDialogFragment<T : BaseViewModel, B : ViewDataBinding> : DialogFragment(), Injectable, Cancelable {
+abstract class BaseDialogFragment<T : BaseViewModel, B : ViewDataBinding> : DialogFragment(),
+    Injectable, Cancelable {
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
@@ -34,7 +33,9 @@ abstract class BaseDialogFragment<T : BaseViewModel, B : ViewDataBinding> : Dial
     @Inject
     lateinit var analytic: Analytic
 
-    lateinit var viewModel: AutoClearedValue<T>
+    val viewModel: AutoClearedValue<T> by lazy {
+        AutoClearedValue(this, ViewModelProvider(this, viewModelFactory).get())
+    }
 
     lateinit var binding: AutoClearedValue<B>
 
@@ -42,15 +43,25 @@ abstract class BaseDialogFragment<T : BaseViewModel, B : ViewDataBinding> : Dial
 
     abstract val layoutId: Int
 
-    abstract val viewModelClass: Class<T>
+    abstract fun ViewModelProvider.get(): T
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        val viewModel = ViewModelProviders.of(this, viewModelFactory).get(viewModelClass)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        val dataBinding = DataBindingUtil
+            .inflate<B>(inflater, layoutId, container, false)
+        binding = AutoClearedValue(this, dataBinding)
+        return dataBinding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        val viewModel = viewModel.value
         val binding = binding.value
-        this.viewModel = AutoClearedValue(this, viewModel)
         val activity = activity()
-        if (binding != null && activity != null) {
+        if (viewModel != null && binding != null && activity != null) {
             binding.lifecycleOwner = this
             arguments?.run { initArguments(viewModel, this) }
             adapters = AutoClearedValue(this, mutableListOf())
@@ -63,13 +74,6 @@ abstract class BaseDialogFragment<T : BaseViewModel, B : ViewDataBinding> : Dial
         } else {
             RuntimeException("BaseFragment has empty params\nbinding: ${this.binding.value}\nviewModel: ${this.viewModel.value}").log()
         }
-    }
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val dataBinding = DataBindingUtil
-                .inflate<B>(inflater, layoutId, container, false)
-        binding = AutoClearedValue(this, dataBinding)
-        return dataBinding.root
     }
 
     override fun onDestroyView() {
@@ -92,7 +96,7 @@ abstract class BaseDialogFragment<T : BaseViewModel, B : ViewDataBinding> : Dial
     }
 
     private fun logStartEvent() {
-        analytic.log(CustomEvent("Dialog viewed").putCustomAttribute("name", this::class.java.simpleName))
+//        analytic.log(CustomEvent("Dialog viewed").putCustomAttribute("name", this::class.java.simpleName))
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -108,8 +112,8 @@ abstract class BaseDialogFragment<T : BaseViewModel, B : ViewDataBinding> : Dial
 
     override fun onResume() {
         super.onResume()
-        dialog?.setOnKeyListener { dialog, keyCode, event ->
-            if (keyCode == android.view.KeyEvent.KEYCODE_BACK) {
+        dialog?.setOnKeyListener { _, keyCode, event ->
+            if (keyCode == KeyEvent.KEYCODE_BACK) {
                 if (event.action != KeyEvent.ACTION_DOWN)
                     handleOnBackPressed()
                 else false
@@ -127,10 +131,21 @@ abstract class BaseDialogFragment<T : BaseViewModel, B : ViewDataBinding> : Dial
 
     override fun handleOnBackPressed() = false
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
         // Forward results to EasyPermissions
-        Handler().post { EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this) }
+        Handler().post {
+            EasyPermissions.onRequestPermissionsResult(
+                requestCode,
+                permissions,
+                grantResults,
+                this
+            )
+        }
     }
 }

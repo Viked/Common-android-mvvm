@@ -1,7 +1,9 @@
 package com.viked.commonandroidmvvm.ui.dialog.purchase
 
+import androidx.lifecycle.ViewModelProvider
 import com.viked.commonandroidmvvm.R
 import com.viked.commonandroidmvvm.databinding.DialogPurchaseBinding
+import com.viked.commonandroidmvvm.extentions.getViewModel
 import com.viked.commonandroidmvvm.ui.adapters.list.DelegateRecyclerViewAdapter
 import com.viked.commonandroidmvvm.ui.adapters.list.ListDelegate
 import com.viked.commonandroidmvvm.ui.common.click.BaseClickComponent
@@ -15,7 +17,7 @@ class PurchaseDialogFragment : BaseDialogFragment<PurchaseViewModel, DialogPurch
 
     override val layoutId = R.layout.dialog_purchase
 
-    override val viewModelClass = PurchaseViewModel::class.java
+    override fun ViewModelProvider.get(): PurchaseViewModel = getViewModel()
 
     override fun initView(binding: DialogPurchaseBinding, viewModel: PurchaseViewModel) {
         super.initView(binding, viewModel)

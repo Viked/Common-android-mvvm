@@ -3,8 +3,11 @@ package com.viked.commonandroidmvvm.preference
 import android.content.SharedPreferences
 import androidx.lifecycle.MediatorLiveData
 
-class PreferenceLiveData(private val preferenceHelper: PreferenceHelper, private val keys: Set<Int>) : MediatorLiveData<Map<Int, Any>>(),
-        SharedPreferences.OnSharedPreferenceChangeListener {
+class PreferenceLiveData(
+    private val preferenceHelper: PreferenceHelper,
+    private val keys: Set<Int>
+) : MediatorLiveData<Map<Int, Any>>(),
+    SharedPreferences.OnSharedPreferenceChangeListener {
 
     private val keyMap = keys.associateBy { preferenceHelper.getKeyForId(it) }
 
@@ -25,9 +28,9 @@ class PreferenceLiveData(private val preferenceHelper: PreferenceHelper, private
     }
 
     private fun setValue() {
-        val values = keys.map {
-            Pair(it, preferenceHelper.getValue(it))
-        }.toMap()
+        val values = keys.associateWith {
+            preferenceHelper.getValue(it)
+        }
         postValue(values)
     }
 }

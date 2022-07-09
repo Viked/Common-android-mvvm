@@ -2,15 +2,17 @@ package com.viked.commonandroidmvvm.ui.dialog
 
 import android.app.AlertDialog
 import android.app.Dialog
+import android.content.DialogInterface
 import android.os.Bundle
 import androidx.annotation.StringRes
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.setFragmentResult
 import com.viked.commonandroidmvvm.R
 
 /**
  * Created by yevgeniishein on 7/25/17.
  */
-class ConfirmDialogFragment : androidx.fragment.app.DialogFragment() {
+class ConfirmDialogFragment : DialogFragment(), DialogInterface.OnClickListener {
 
     companion object {
         private const val TITLE_KEY = "title_key"
@@ -18,19 +20,19 @@ class ConfirmDialogFragment : androidx.fragment.app.DialogFragment() {
         val TAG: String = ConfirmDialogFragment::class.java.simpleName
 
         fun newInstance(title: String, id: Int) =
-                ConfirmDialogFragment().apply {
-                    arguments = Bundle().apply {
-                        putString(TITLE_KEY, title)
-                        putInt(ID_KEY, id)
-                    }
+            ConfirmDialogFragment().apply {
+                arguments = Bundle().apply {
+                    putString(TITLE_KEY, title)
+                    putInt(ID_KEY, id)
                 }
+            }
 
         fun newInstance(@StringRes titleId: Int) =
-                ConfirmDialogFragment().apply {
-                    arguments = Bundle().apply {
-                        putInt(ID_KEY, titleId)
-                    }
+            ConfirmDialogFragment().apply {
+                arguments = Bundle().apply {
+                    putInt(ID_KEY, titleId)
                 }
+            }
 
     }
 
@@ -46,12 +48,10 @@ class ConfirmDialogFragment : androidx.fragment.app.DialogFragment() {
             dialogId = savedInstanceState.getInt(ID_KEY, -1)
         }
         return AlertDialog.Builder(activity)
-                .setMessage(title)
-                .setPositiveButton(R.string.confirm, { dialog, which ->
-                    getParentCallback().confirm(dialogId)
-                    dialog.dismiss()
-                })
-                .setNegativeButton(android.R.string.cancel, { dialog, which -> dialog.cancel() }).create()
+            .setMessage(title)
+            .setPositiveButton(R.string.confirm, this)
+            .setNegativeButton(android.R.string.cancel, this)
+            .create()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -60,17 +60,13 @@ class ConfirmDialogFragment : androidx.fragment.app.DialogFragment() {
         super.onSaveInstanceState(outState)
     }
 
-    private fun getParentCallback(): Callback {
-        return when {
-            targetFragment is Callback -> targetFragment as Callback
-            parentFragment is Callback -> parentFragment as Callback
-            activity is Callback -> activity as Callback
-            else -> error("ConfirmDialogFragment.Callback not implemented in parent elements")
+    override fun onClick(dialog: DialogInterface, which: Int) {
+        when (which) {
+            DialogInterface.BUTTON_POSITIVE -> {
+                setFragmentResult(getString(dialogId), Bundle())
+                dialog.dismiss()
+            }
+            else -> dialog.cancel()
         }
     }
-
-    interface Callback {
-        fun confirm(id: Int)
-    }
-
 }

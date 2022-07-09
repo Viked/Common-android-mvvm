@@ -12,12 +12,21 @@ import javax.inject.Singleton
  * Created by yevgeniishein on 9/20/17.
  */
 @Singleton
-class PreferenceHelper @Inject constructor(private val context: Application,
-                                           private val initialValues: Set<@JvmSuppressWildcards PreferenceItem>) {
+class PreferenceHelper @Inject constructor(
+    private val context: Application,
+    private val initialValues: Set<@JvmSuppressWildcards PreferenceItem>
+) {
 
     private val gson = Gson()
 
-    private val keyMap: Map<String, Int> by lazy { initialValues.map { Pair(context.getString(it.key), it.key) }.toMap() }
+    private val keyMap: Map<String, Int> by lazy {
+        initialValues.associate {
+            Pair(
+                context.getString(it.key),
+                it.key
+            )
+        }
+    }
 
     val preferences = PreferenceManager.getDefaultSharedPreferences(context)
 
@@ -36,7 +45,7 @@ class PreferenceHelper @Inject constructor(private val context: Application,
     fun <T> getValue(key: String, clazz: Class<T>) = getValue(getIdForKey(key), key, clazz)
 
     private fun getInitialValue(id: Int): Any = initialValues.find { it.key == id }?.initialValue
-            ?: error("No initial value")
+        ?: error("No initial value")
 
     private fun <T> getValue(id: Int, key: String, clazz: Class<T>): T {
         val value = preferences.all[key] ?: return getInitialValue(id) as T
@@ -76,9 +85,9 @@ class PreferenceHelper @Inject constructor(private val context: Application,
 
     fun init() {
         initialValues.filterNot { preferences.contains(context.getString(it.key)) }
-                .forEach {
-                    set(it.key, it.initialValue)
-                }
+            .forEach {
+                set(it.key, it.initialValue)
+            }
     }
 }
 

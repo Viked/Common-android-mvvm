@@ -1,17 +1,12 @@
 package com.viked.commonandroidmvvm.ui.preference
 
 import android.os.Bundle
-import androidx.fragment.app.DialogFragment
-import androidx.lifecycle.Observer
+import android.view.View
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
 import androidx.preference.*
-import androidx.preference.MultiSelectListPreference
-import com.crashlytics.android.answers.CustomEvent
 import com.viked.commonandroidmvvm.di.Injectable
 import com.viked.commonandroidmvvm.log.Analytic
 import com.viked.commonandroidmvvm.log.log
-import com.viked.commonandroidmvvm.preference.ARG_KEY
 import com.viked.commonandroidmvvm.preference.PreferenceItem
 import com.viked.commonandroidmvvm.preference.time.TimePreference
 import com.viked.commonandroidmvvm.preference.time.TimePreferenceDialogFragment
@@ -25,7 +20,8 @@ import javax.inject.Inject
 /**
  * Created by yevgeniishein on 10/9/17.
  */
-abstract class BasePreferenceFragment<T : BaseViewModel> : PreferenceFragmentCompat(), Injectable, Cancelable {
+abstract class BasePreferenceFragment<T : BaseViewModel> : PreferenceFragmentCompat(), Injectable,
+    Cancelable, PreferenceFragmentCompat.OnPreferenceDisplayDialogCallback {
 
     @Inject
     lateinit var viewModelFactory: ViewModelProvider.Factory
@@ -36,33 +32,34 @@ abstract class BasePreferenceFragment<T : BaseViewModel> : PreferenceFragmentCom
     @Inject
     lateinit var initialValues: Set<@JvmSuppressWildcards PreferenceItem>
 
-    lateinit var viewModel: AutoClearedValue<T>
+    val viewModel: AutoClearedValue<T> by lazy {
+        AutoClearedValue(this, ViewModelProvider(this, viewModelFactory).get())
+    }
 
-    abstract val viewModelClass: Class<T>
+    abstract fun ViewModelProvider.get(): T
+
+    abstract val screenName: String
 
     abstract fun initPreferences(viewModel: T, activity: BaseActivity)
 
-    private val dialogDelegates = mutableListOf<DialogPreferenceDelegate<*>>()
-
     operator fun <R : Preference> get(id: Int): R? = findPreference(getString(id)) as R?
-    operator fun set(id: Int, click: () -> Unit) = findPreference(getString(id)).setOnPreferenceClickListener { click.invoke(); true }
+    operator fun set(id: Int, click: () -> Unit) =
+        findPreference<Preference>(getString(id))?.setOnPreferenceClickListener { click.invoke(); true }
 
     fun <T> default(id: Int): T = initialValues.find { it.key == id }?.initialValue as? T
-            ?: error("Not valid default preference id: $id")
+        ?: error("Not valid default preference id: $id")
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        val viewModel = ViewModelProviders.of(this, viewModelFactory).get(viewModelClass)
-        this.viewModel = AutoClearedValue(this, viewModel)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        val viewModel = viewModel.value
         val activity = activity()
-        if (activity != null) {
+        if (viewModel != null && activity != null) {
             arguments?.run { initArguments(viewModel, this) }
             viewModel.loadData()
             initToolbar(activity, viewModel)
-            initDialogDelegates(dialogDelegates)
             initPreferences(viewModel, activity)
             logStartEvent()
-            viewModel.title.observe(this, Observer { setTitle(it) })
+            viewModel.title.observe(viewLifecycleOwner) { setTitle(it) }
         } else {
             RuntimeException("BasePreferenceFragment has empty params\nviewModel: ${this.viewModel.value}").log()
         }
@@ -78,14 +75,17 @@ abstract class BasePreferenceFragment<T : BaseViewModel> : PreferenceFragmentCom
         //Set initial data to view model
     }
 
-    open fun initDialogDelegates(dialogDelegates: MutableList<DialogPreferenceDelegate<*>>) {
-        dialogDelegates.add(DialogPreferenceDelegate(EditTextPreference::class.java, SingleLineEditTextPreferenceDialogFragmentCompat::class.java.name))
-        dialogDelegates.add(DialogPreferenceDelegate(ListPreference::class.java, ListPreferenceDialogFragmentCompat::class.java.name))
-        dialogDelegates.add(DialogPreferenceDelegate(MultiSelectListPreference::class.java, MultiSelectListPreferenceDialogFragmentCompat::class.java.name))
-        dialogDelegates.add(DialogPreferenceDelegate(TimePreference::class.java, TimePreferenceDialogFragment::class.java.name))
-    }
-
     fun activity() = activity as BaseActivity?
+
+    fun refreshSettings() {
+        val viewModel = viewModel.value
+        val activity = activity()
+        if (viewModel != null && activity != null) {
+            preferenceScreen = null
+            onCreatePreferences(null, null)
+            initPreferences(viewModel, activity)
+        }
+    }
 
     protected fun setTitle(title: TextWrapper?) {
         val activity = activity()
@@ -97,24 +97,26 @@ abstract class BasePreferenceFragment<T : BaseViewModel> : PreferenceFragmentCom
         }
     }
 
-    override fun onDisplayPreferenceDialog(preference: Preference?) {
-        // check if dialog is already showing
-        if (preference == null || fragmentManager?.findFragmentByTag(PREFERENCE_DIALOG_FRAGMENT_TAG) != null) {
-            return
+    override fun onPreferenceDisplayDialog(
+        caller: PreferenceFragmentCompat,
+        pref: Preference
+    ): Boolean {
+        val fragment: PreferenceDialogFragmentCompat? = when (pref) {
+            is EditTextPreference -> SingleLineEditTextPreferenceDialogFragmentCompat.newInstance(
+                pref.key
+            )
+            is TimePreference -> TimePreferenceDialogFragment.newInstance(pref.key)
+            else -> null
         }
 
-        val dialogClassName = dialogDelegates.find { preference::class.java == it.clazz }?.preferenceDialogClassName
-                ?: error("Tried to display dialog for unknown")
-
-        val dialog = fragmentManager?.fragmentFactory?.instantiate(requireActivity().classLoader, dialogClassName) as? DialogFragment
-                ?: return
-        dialog.arguments = Bundle(1).apply { putString(ARG_KEY, preference.key) }
-        dialog.setTargetFragment(this, 0)
-        dialog.show(fragmentManager!!, PREFERENCE_DIALOG_FRAGMENT_TAG)
+        return fragment?.also {
+            it.setTargetFragment(this, 0)
+            it.show(parentFragmentManager, PREFERENCE_DIALOG_FRAGMENT_TAG)
+        } != null
     }
 
     private fun logStartEvent() {
-        analytic.log(CustomEvent("Screen viewed").putCustomAttribute("name", this::class.java.simpleName))
+        analytic.setScreen(screenName, this::class.java)
     }
 
 }

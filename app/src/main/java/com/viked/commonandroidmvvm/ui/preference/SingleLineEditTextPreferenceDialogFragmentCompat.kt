@@ -2,6 +2,7 @@ package com.viked.commonandroidmvvm.ui.preference
 
 import android.content.Context
 import android.content.DialogInterface
+import android.os.Bundle
 import android.view.View
 import android.view.WindowManager
 import android.view.inputmethod.EditorInfo
@@ -10,15 +11,25 @@ import android.widget.EditText
 import androidx.preference.EditTextPreferenceDialogFragmentCompat
 
 class SingleLineEditTextPreferenceDialogFragmentCompat : EditTextPreferenceDialogFragmentCompat() {
+    companion object {
+        fun newInstance(key: String?): SingleLineEditTextPreferenceDialogFragmentCompat {
+            val fragment = SingleLineEditTextPreferenceDialogFragmentCompat()
+            val b = Bundle(1)
+            b.putString(ARG_KEY, key)
+            fragment.arguments = b
+            return fragment
+        }
+    }
+
     override fun onBindDialogView(view: View) {
         super.onBindDialogView(view)
         val editText = view.findViewById<EditText>(android.R.id.edit)
         editText.setSingleLine()
         editText.imeOptions = EditorInfo.IME_ACTION_DONE
-        editText.setOnEditorActionListener { v, actionId, event ->
+        editText.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 val dialog = dialog
-                        ?: return@setOnEditorActionListener false
+                    ?: return@setOnEditorActionListener false
                 onClick(dialog, DialogInterface.BUTTON_POSITIVE)
                 onDismiss(dialog)
                 true
@@ -27,7 +38,7 @@ class SingleLineEditTextPreferenceDialogFragmentCompat : EditTextPreferenceDialo
         editText.requestFocus()
     }
 
-    override fun onClick(dialog: DialogInterface?, which: Int) {
+    override fun onClick(dialog: DialogInterface, which: Int) {
         hideKeyboard()
         super.onClick(dialog, which)
     }
