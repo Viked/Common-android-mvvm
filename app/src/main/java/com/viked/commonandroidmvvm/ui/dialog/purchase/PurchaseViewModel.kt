@@ -1,5 +1,6 @@
 package com.viked.commonandroidmvvm.ui.dialog.purchase
 
+import android.app.Activity
 import androidx.lifecycle.LiveData
 import com.viked.commonandroidmvvm.billing.BillingRepository
 import com.viked.commonandroidmvvm.ui.adapters.list.ItemWrapper
@@ -14,5 +15,7 @@ class PurchaseViewModel @Inject constructor(private val billingRepository: Billi
 
     val list: LiveData<Resource<List<ItemWrapper>>> = billingRepository.list
 
-    fun startFlow(itemWrapper: PurchaseItemWrapper) = billingRepository.initiatePurchaseFlow(itemWrapper.details)
+    fun startFlow(itemWrapper: PurchaseItemWrapper, activity: Activity) {
+        billingRepository.buy(itemWrapper.details, activity)
+    }
 }

@@ -2,303 +2,478 @@ package com.viked.commonandroidmvvm.billing
 
 import android.app.Activity
 import android.app.Application
-import android.os.Bundle
-import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.MutableLiveData
+import android.text.format.DateUtils.SECOND_IN_MILLIS
+import androidx.lifecycle.*
 import com.android.billingclient.api.*
-import com.crashlytics.android.answers.PurchaseEvent
-import com.viked.commonandroidmvvm.data.lazySuspendFun
-import com.viked.commonandroidmvvm.log.Analytic
 import com.viked.commonandroidmvvm.log.log
 import com.viked.commonandroidmvvm.ui.adapters.list.ItemWrapper
 import com.viked.commonandroidmvvm.ui.data.Resource
 import com.viked.commonandroidmvvm.ui.dialog.purchase.PurchaseItemWrapper
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import timber.log.Timber
-import java.math.BigDecimal
-import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
+
+const val MAX_CURRENT_PURCHASES_ALLOWED = 1
 
 /**
  * Created by yevgeniishein on 3/2/18.
  */
 @Singleton
-class BillingRepository @Inject constructor(private val application: Application,
-                                            private val analytic: Analytic,
-                                            private val billingSecurity: BillingSecurity,
-                                            private val billingItems: Set<@JvmSuppressWildcards BillingItem>) :
-        Application.ActivityLifecycleCallbacks, PurchasesUpdatedListener {
+class BillingRepository @Inject constructor(
+    private val application: Application,
+    private val billingSecurity: BillingSecurity,
+    private val billingItems: Set<@JvmSuppressWildcards BillingItem>
+) :
+    DefaultLifecycleObserver, PurchasesUpdatedListener, BillingClientStateListener,
+    ProductDetailsResponseListener, PurchasesResponseListener {
 
-    /** A reference to BillingClient  */
-    private val billingClient = GlobalScope.lazySuspendFun<BillingClient?> {
-        val client = BillingClient.newBuilder(application).setListener(this).build()
-        suspendCoroutine { continuation ->
-            client.startConnection(object : BillingClientStateListener {
-
-                var done = false
-
-                override fun onBillingSetupFinished(@BillingClient.BillingResponse billingResponseCode: Int) {
-                    Timber.i("Setup finished. Response code: $billingResponseCode")
-                    if (!done && billingResponseCode == BillingClient.BillingResponse.OK) {
-                        done = true
-                        continuation.resume(client)
-                    }
-                }
-
-                override fun onBillingServiceDisconnected() {
-
-                }
-            })
-        }
+    init {
+        ProcessLifecycleOwner.get().lifecycle.addObserver(this)
     }
 
-    private val purchaseSkuIds = billingItems.filter { it.isSubscription.not() }.map { it.sku }
-    private val subscriptionsSkuIds = billingItems.filter { it.isSubscription }.map { it.sku }
+    private val externalScope: CoroutineScope by lazy { CoroutineScope(SupervisorJob() + Dispatchers.Default) }
+    private val billingOffers: BillingOffers by lazy { BillingOffers() }
 
-    private var activity: Activity? = null
+    /** A reference to BillingClient  */
+    private lateinit var billingClient: BillingClient
+    private var connectionAttempt = 0
 
-    private val products = MutableLiveData<List<SkuDetails>>()
-    private val subscriptions = MutableLiveData<List<SkuDetails>>()
+    private val products = MutableLiveData<List<ProductDetails>>()
     private val purchases = MutableLiveData<List<Purchase>>()
 
     val list = MediatorLiveData<Resource<List<ItemWrapper>>>().apply {
         addSource(products) { updateList() }
-        addSource(subscriptions) { updateList() }
         addSource(purchases) { updateList() }
     }
 
     val hasValidSubscription = MediatorLiveData<Boolean>().apply {
         value = billingItems.any { it.isSubscription }
         addSource(purchases) { updateValidSubscription() }
-        addSource(subscriptions) { updateValidSubscription() }
+        addSource(products) { updateValidSubscription() }
     }
 
     private fun updateList() {
         val productsValue = products.value ?: listOf()
-        val subscriptionsValue = subscriptions.value ?: listOf()
         val purchasesValue = purchases.value ?: listOf()
 
-        val skuMap = (productsValue + subscriptionsValue).map { Pair(it.sku, it) }.toMap()
-        val purchasesMap = purchasesValue.map { Pair(it.sku, it) }.toMap()
-        val billingItemsMap = billingItems.map { Pair(it.sku, it) }.toMap()
+        val productMap = productsValue.associateBy { it.productId }
+        val purchasesMap =
+            purchasesValue.map { p -> p.products.map { Pair(it, p) } }.flatten().toMap()
+        val billingItemsMap = billingItems.associateBy { it.productId }
 
-        val listWrappers = billingItemsMap.keys.filter { skuMap.containsKey(it) }.map {
-            PurchaseItemWrapper(skuMap.getValue(it), billingItemsMap.getValue(it), purchasesMap[it])
+        val listWrappers = billingItemsMap.keys.filter { productMap.containsKey(it) }.map {
+            PurchaseItemWrapper(
+                productMap.getValue(it),
+                billingItemsMap.getValue(it),
+                purchasesMap[it]
+            )
         }.sortedBy { it.billingItem.order }
 
         list.postValue(Resource.success(listWrappers))
     }
 
     private fun updateValidSubscription() {
-        val subscriptionList = subscriptions.value?.map { it.sku } ?: return
-        val purchaseList = purchases.value ?: return
+        val subscriptionList = products.value?.map { it.productId } ?: emptyList()
+        val purchaseList = purchases.value ?: emptyList()
+        externalScope.launch {
+            val hasValid = try {
+                hasValidSubscription(subscriptionList, purchaseList)
+            } catch (e: Exception) {
+                e.log()
+                false
+            }
+            hasValidSubscription.postValue(hasValid)
+        }
+    }
 
-        if (subscriptionList.isEmpty() || purchaseList.isEmpty()) {
-            hasValidSubscription.postValue(false)
-        } else {
-            GlobalScope.launch {
-                val hasValid = try {
-                    purchaseList.filter { subscriptionList.contains(it.sku) }
-                            .any { billingSecurity.verifyPurchase(true, it.purchaseToken, it.sku) }
-                } catch (e: Exception) {
-                    e.log()
-                    false
+    private fun hasValidSubscription(productIds: List<String>, purchases: List<Purchase>): Boolean {
+        if (productIds.isEmpty() || purchases.isEmpty()) {
+            return false
+        }
+
+        for (purchase in purchases) {
+            for (productId in purchase.products) {
+                if (productIds.contains(productId)) {
+                    if (billingSecurity.verifyPurchase(
+                            true,
+                            purchase.purchaseToken,
+                            productId
+                        )
+                    ) {
+                        return true
+                    }
                 }
-                hasValidSubscription.postValue(hasValid)
             }
         }
+        return false
     }
 
+    override fun onPurchasesUpdated(billingResult: BillingResult, purchases: List<Purchase>?) {
+        val responseCode = billingResult.responseCode
+        val debugMessage = billingResult.debugMessage
+        Timber.i("BillingRepository - onPurchasesUpdated: $responseCode $debugMessage")
 
-    fun subscribe() {
-        Timber.i("Creating Billing client.")
-        application.registerActivityLifecycleCallbacks(this)
-
-        querySkuDetails()
-
-        Timber.i("End setup.")
-    }
-
-    fun unsubscribe() = GlobalScope.launch {
-        val client = billingClient() ?: return@launch
-        if (client.isReady) {
-            client.endConnection()
-        }
-    }
-
-    override fun onPurchasesUpdated(responseCode: Int, purchases: List<Purchase>?) {
         when (responseCode) {
-            BillingClient.BillingResponse.OK -> this.purchases.postValue(purchases ?: listOf())
-            BillingClient.BillingResponse.USER_CANCELED -> Timber.i("onPurchasesUpdated() - user cancelled the purchase flow - skipping")
-            BillingClient.BillingResponse.DEVELOPER_ERROR,
-            BillingClient.BillingResponse.ERROR,
-            BillingClient.BillingResponse.BILLING_UNAVAILABLE,
-            BillingClient.BillingResponse.SERVICE_DISCONNECTED,
-            BillingClient.BillingResponse.SERVICE_UNAVAILABLE -> {
-                if (this.purchases.value == null) {
-                    this.purchases.postValue(listOf())
+            BillingClient.BillingResponseCode.OK -> {
+                if (purchases == null) {
+                    Timber.i("BillingRepository - onPurchasesUpdated: null purchase list")
+                    processPurchases(null)
+                } else {
+                    processPurchases(purchases)
                 }
             }
-            BillingClient.BillingResponse.FEATURE_NOT_SUPPORTED,
-            BillingClient.BillingResponse.ITEM_ALREADY_OWNED,
-            BillingClient.BillingResponse.ITEM_NOT_OWNED,
-            BillingClient.BillingResponse.ITEM_UNAVAILABLE -> Timber.e(RuntimeException("onPurchasesUpdated() got resultCode: $responseCode"))
-            else -> Timber.i("onPurchasesUpdated() got unknown resultCode: $responseCode")
+            BillingClient.BillingResponseCode.USER_CANCELED -> {
+                Timber.i("BillingRepository - onPurchasesUpdated: User canceled the purchase")
+            }
+            BillingClient.BillingResponseCode.ITEM_ALREADY_OWNED -> {
+                Timber.i("BillingRepository - onPurchasesUpdated: The user already owns this item")
+            }
+            BillingClient.BillingResponseCode.DEVELOPER_ERROR -> {
+                Timber.i(
+                    "BillingRepository - onPurchasesUpdated: Developer error means that Google Play " +
+                            "does not recognize the configuration. If you are just getting started, " +
+                            "make sure you have configured the application correctly in the " +
+                            "Google Play Console. The product ID must match and the APK you " +
+                            "are using must be signed with release keys."
+                )
+            }
+            else -> Timber.i("BillingRepository - onPurchasesUpdated: Got unknown resultCode")
         }
     }
 
-    override fun onActivityPaused(activity: Activity?) {
-        //Ignore
+    /**
+     * Instantiate a new BillingClient instance.
+     */
+    override fun onCreate(owner: LifecycleOwner) {
+        Timber.i("BillingRepository - onCreate")
+        billingClient =
+            BillingClient.newBuilder(application).enablePendingPurchases().setListener(this).build()
+        if (!billingClient.isReady) {
+            Timber.i("BillingRepository - start connection")
+            billingClient.startConnection(this)
+        }
     }
 
-    override fun onActivityResumed(activity: Activity?) {
-        this.activity = activity
+    override fun onDestroy(owner: LifecycleOwner) {
+        Timber.i("BillingRepository - onDestroy")
+        if (billingClient.isReady) {
+            Timber.i("BillingRepository - end connection")
+            // BillingClient can only be used once.
+            // After calling endConnection(), we must create a new BillingClient.
+            billingClient.endConnection()
+        }
     }
 
-    override fun onActivityStarted(activity: Activity?) {
-        //Ignore
+    override fun onBillingSetupFinished(billingResult: BillingResult) {
+        val responseCode = billingResult.responseCode
+        val debugMessage = billingResult.debugMessage
+        Timber.i("BillingRepository - Billing setup finished: $responseCode $debugMessage")
+        if (responseCode == BillingClient.BillingResponseCode.OK) {
+            connectionAttempt = 0
+            // The billing client is ready.
+            queryProductDetails()
+            queryPurchases()
+        }
     }
 
-    override fun onActivityDestroyed(activity: Activity?) {
-        //Ignore
+    override fun onBillingServiceDisconnected() {
+        Timber.i("BillingRepository - Billing service disconnected")
+        externalScope.launch {
+            delay((++connectionAttempt) * SECOND_IN_MILLIS)
+            billingClient.startConnection(this@BillingRepository)
+        }
     }
 
-    override fun onActivitySaveInstanceState(activity: Activity?, outState: Bundle?) {
-        //Ignore
+    /**
+     * In order to make purchases, you need the [ProductDetails] for the item or subscription.
+     * This is an asynchronous call that will receive a result in [onProductDetailsResponse].
+     *
+     * queryProductDetails uses method calls from GPBL 5.0.0. PBL5, released in May 2022,
+     * is backwards compatible with previous versions.
+     * To learn more about this you can read https://developer.android.com/google/play/billing/compatibility
+     */
+    private fun queryProductDetails() {
+        Timber.i("BillingRepository - query product details")
+        val params = QueryProductDetailsParams.newBuilder()
+
+        val productList: MutableList<QueryProductDetailsParams.Product> = arrayListOf()
+        for (item in billingItems) {
+            val type = if (item.isSubscription) {
+                BillingClient.ProductType.SUBS
+            } else {
+                BillingClient.ProductType.INAPP
+            }
+            productList.add(
+                QueryProductDetailsParams.Product.newBuilder()
+                    .setProductId(item.productId)
+                    .setProductType(type)
+                    .build()
+            )
+        }
+
+        params.setProductList(productList).let { productDetailsParams ->
+            Timber.i("BillingRepository - query product details async")
+            billingClient.queryProductDetailsAsync(productDetailsParams.build(), this)
+        }
     }
 
-    override fun onActivityStopped(activity: Activity?) {
-        //Ignore
+    /**
+     * Receives the result from [queryProductDetails].
+     *
+     * Store the ProductDetails and post them in the [products]. This allows other parts
+     * of the app to use the [ProductDetails] to show product information and make purchases.
+     *
+     * onProductDetailsResponse() uses method calls from GPBL 5.0.0. PBL5, released in May 2022,
+     * is backwards compatible with previous versions.
+     * To learn more about this you can read https://developer.android.com/google/play/billing/compatibility
+     */
+    override fun onProductDetailsResponse(
+        billingResult: BillingResult,
+        productDetailsList: List<ProductDetails?>
+    ) {
+        Timber.i("BillingRepository - product details response")
+        val response = BillingResponse(billingResult.responseCode)
+        val debugMessage = billingResult.debugMessage
+        when {
+            response.isOk -> {
+                val expectedProductDetailsCount = billingItems.size
+                if (productDetailsList.isEmpty()) {
+                    products.postValue(emptyList())
+                    Timber.e(
+                        "BillingRepository - product details response: " +
+                                "Expected ${expectedProductDetailsCount}, " +
+                                "Found null ProductDetails. " +
+                                "Check to see if the products you requested are correctly published " +
+                                "in the Google Play Console."
+                    )
+                } else {
+                    products.postValue(productDetailsList.filterNotNull().also { postedValue ->
+                        val productDetailsCount = postedValue.size
+                        if (productDetailsCount == expectedProductDetailsCount) {
+                            Timber.i("BillingRepository - product details response: Found $productDetailsCount ProductDetails")
+                        } else {
+                            Timber.e(
+                                "BillingRepository - product details response: " +
+                                        "Expected ${expectedProductDetailsCount}, " +
+                                        "Found $productDetailsCount ProductDetails. " +
+                                        "Check to see if the products you requested are correctly published " +
+                                        "in the Google Play Console."
+                            )
+                        }
+                    }
+                    )
+                }
+            }
+            response.isTerribleFailure -> {
+                // These response codes are not expected.
+                Timber.i("BillingRepository - product details response: : ${response.code} $debugMessage")
+            }
+            else -> {
+                Timber.e("BillingRepository - product details response: : ${response.code} $debugMessage")
+            }
+
+        }
     }
 
-    override fun onActivityCreated(activity: Activity?, savedInstanceState: Bundle?) {
-        //Ignore
+    /**
+     * Callback from the billing library when queryPurchasesAsync is called.
+     */
+    override fun onQueryPurchasesResponse(p0: BillingResult, p1: List<Purchase?>) {
+        processPurchases(p1.filterNotNull())
+    }
+
+    /**
+     * Send purchase to LiveData, which will trigger network call to verify the subscriptions
+     * on the sever.
+     */
+    private fun processPurchases(purchasesList: List<Purchase>?) {
+        Timber.i("BillingRepository - process purchases: ${purchasesList?.size} purchase(s)")
+        if (purchasesList == null || purchasesList.isEmpty()) {
+            Timber.i("BillingRepository - process purchases: No purchases found")
+            return
+        }
+        purchases.postValue(purchasesList)
+        logAcknowledgementStatus(purchasesList)
+    }
+
+    /**
+     * Log the number of purchases that are acknowledge and not acknowledged.
+     *
+     * https://developer.android.com/google/play/billing/billing_library_releases_notes#2_0_acknowledge
+     *
+     * When the purchase is first received, it will not be acknowledge.
+     * This application sends the purchase token to the server for registration. After the
+     * purchase token is registered to an account, the Android app acknowledges the purchase token.
+     * The next time the purchase list is updated, it will contain acknowledged purchases.
+     */
+    private fun logAcknowledgementStatus(purchasesList: List<Purchase>) {
+        var acknowledgedCounter = 0
+        var unacknowledgedCounter = 0
+        for (purchase in purchasesList) {
+            if (purchase.isAcknowledged) {
+                acknowledgedCounter++
+            } else {
+                unacknowledgedCounter++
+            }
+        }
+        Timber.i(
+            "BillingRepository - log acknowledgement status: ${purchasesList.size} purchase(s)" +
+                    " acknowledged $acknowledgedCounter unacknowledged $unacknowledgedCounter"
+        )
+    }
+
+    /**
+     * Use the Google Play Billing Library to make a purchase.
+     *
+     * @param productDetails ProductDetails object returned by the library.
+     * @param activity [Activity] instance.
+     */
+    fun buy(
+        productDetails: ProductDetails,
+        activity: Activity
+    ) {
+        val currentPurchases = purchases.value ?: emptyList()
+        val offerToken = billingOffers.getOfferToken(productDetails)
+        val oldPurchaseToken: String
+
+        // Get current purchase. In this app, a user can only have one current purchase at
+        // any given time.
+        if (currentPurchases.isNotEmpty() &&
+            currentPurchases.size == MAX_CURRENT_PURCHASES_ALLOWED
+        ) {
+            // This either an upgrade, downgrade, or conversion purchase.
+            val currentPurchase = currentPurchases.first()
+
+            // Get the token from current purchase.
+            oldPurchaseToken = currentPurchase.purchaseToken
+
+            val billingParams = offerToken?.let {
+                upDowngradeBillingFlowParamsBuilder(
+                    productDetails = productDetails,
+                    offerToken = it,
+                    oldToken = oldPurchaseToken
+                )
+            }
+
+            if (billingParams != null) {
+                launchBillingFlow(
+                    activity,
+                    billingParams
+                )
+            }
+        } else if (currentPurchases.isEmpty()) {
+            // This is a normal purchase.
+            val billingParams = offerToken?.let {
+                billingFlowParamsBuilder(
+                    productDetails = productDetails,
+                    offerToken = it
+                )
+            }
+
+            if (billingParams != null) {
+                launchBillingFlow(
+                    activity,
+                    billingParams.build()
+                )
+            }
+        } else if (currentPurchases.isNotEmpty() &&
+            currentPurchases.size > MAX_CURRENT_PURCHASES_ALLOWED
+        ) {
+            // The developer has allowed users  to have more than 1 purchase, so they need to
+            /// implement a logic to find which one to use.
+            Timber.i("BillingRepository - launch billing flow: User has more than $MAX_CURRENT_PURCHASES_ALLOWED current purchase.")
+        }
     }
 
     /**
      * Start a purchase or subscription replace flow
      */
-    fun initiatePurchaseFlow(details: SkuDetails) = GlobalScope.launch {
-        val client = billingClient() ?: return@launch
-        if (activity == null) return@launch
-
-//        TODO add replace old SKU
-//        Timber.i("Launching in-app purchase flow. Replace old SKU? ${(oldSkus != null)}")
-//        .setOldSkus(oldSkus)
-        val purchaseParams = BillingFlowParams
-                .newBuilder()
-                .setSku(details.sku)
-                .setType(details.type)
-                .build()
-        val result = client.launchBillingFlow(activity, purchaseParams) == BillingClient.BillingResponse.OK
-
-        val event = PurchaseEvent().apply {
-            putCurrency(Currency.getInstance(details.priceCurrencyCode))
-            putItemPrice(BigDecimal.valueOf(details.price.toDoubleOrNull() ?: 0.0))
-            putItemId(details.sku)
-            putItemName(details.title)
-            putItemType(details.type)
-            putSuccess(result)
-        }
-        analytic.logPurchase(event)
-    }
-
-
-    /**
-     * Queries for in-app and subscriptions SKU details
-     */
-    private fun querySkuDetails() {
-        if (subscriptionsSkuIds.isNotEmpty()) {
-            getSku(subscriptionsSkuIds, BillingClient.SkuType.SUBS) { subscriptions.postValue(it) }
-        }
-        if (purchaseSkuIds.isNotEmpty()) {
-            getSku(purchaseSkuIds, BillingClient.SkuType.INAPP) { products.postValue(it) }
-        }
-        queryPurchases()
-    }
-
-    private fun getSku(skuList: List<String>,
-                       @BillingClient.SkuType billingType: String, executeWhenFinished: (List<SkuDetails>) -> Unit) = GlobalScope.launch {
-        val client = billingClient()
-        if (client == null) {
-            executeWhenFinished(listOf())
-            return@launch
-        }
-        val params = SkuDetailsParams
-                .newBuilder()
-                .setSkusList(skuList)
-                .setType(billingType)
-                .build()
-        client.querySkuDetailsAsync(params) { responseCode, skuDetailsList ->
-            val list = skuDetailsList ?: listOf()
-            if (responseCode != BillingClient.BillingResponse.OK) {
-                Timber.i("Unsuccessful query for type: $billingType. Error code: $responseCode")
-                executeWhenFinished(list)
-            } else {
-                Timber.i("Successful query for type: $billingType. Response code: $responseCode")
-                executeWhenFinished(list)
-            }
-        }
-    }
-
-
-    /**
-     * Query purchases across various use cases and deliver the result in a formalized way through
-     * a listener
-     */
-    private fun queryPurchases() = GlobalScope.launch {
-        val client = billingClient()
-        if (client == null) {
-            onPurchasesUpdated(BillingClient.BillingResponse.OK, listOf())
-            return@launch
+    private fun launchBillingFlow(activity: Activity, params: BillingFlowParams): Int {
+        if (!billingClient.isReady) {
+            Timber.i("BillingRepository - launch billing flow: BillingClient is not ready")
+            return BillingClient.BillingResponseCode.DEVELOPER_ERROR
         }
 
-        val time = System.currentTimeMillis()
-        val purchasesResult = client.queryPurchases(BillingClient.SkuType.INAPP)
-        Timber.i("Querying purchases elapsed time: ${System.currentTimeMillis() - time}ms")
-        // If there are subscriptions supported, we add subscription rows as well
-        if (areSubscriptionsSupported().await()) {
-            val subscriptionResult = client.queryPurchases(BillingClient.SkuType.SUBS)
-
-            if (subscriptionResult.responseCode == BillingClient.BillingResponse.OK && purchasesResult.purchasesList != null && subscriptionResult.purchasesList != null) {
-                purchasesResult.purchasesList.addAll(subscriptionResult.purchasesList)
-            } else {
-                Timber.e("Got an error response trying to query subscription purchases")
-            }
-        } else if (purchasesResult.responseCode == BillingClient.BillingResponse.OK) {
-            Timber.i("Skipped subscription purchases query since they are not supported")
-        } else {
-            Timber.i("queryPurchases() got an error response code: ${purchasesResult.responseCode}")
-        }
-        // Have we been disposed of in the meantime? If so, or bad result code, then quit
-        if (purchasesResult.responseCode != BillingClient.BillingResponse.OK) {
-            Timber.i("Billing client was null or result code (${purchasesResult.responseCode}) was bad - quitting")
-        } else {
-            Timber.i("Query inventory was successful.")
-            onPurchasesUpdated(BillingClient.BillingResponse.OK, purchasesResult.purchasesList)
-        }
+        val billingResult = billingClient.launchBillingFlow(activity, params)
+        val responseCode = billingResult.responseCode
+        val debugMessage = billingResult.debugMessage
+        Timber.i("BillingRepository - launch billing flow: BillingResponse $responseCode $debugMessage")
+        return responseCode
     }
 
     /**
-     * Checks if subscriptions are supported for current client
+     * Query Google Play Billing for existing purchases.
      *
-     * Note: This method does not automatically retry for RESULT_SERVICE_DISCONNECTED.
-     * It is only used in unit tests and after queryPurchases execution, which already has
-     * a retry-mechanism implemented.
-     *
+     * New purchases will be provided to the PurchasesUpdatedListener.
+     * You still need to check the Google Play Billing API to know when purchase tokens are removed.
      */
-    private fun areSubscriptionsSupported() = GlobalScope.async {
-        val client = billingClient() ?: return@async false
-        val responseCode = client.isFeatureSupported(BillingClient.FeatureType.SUBSCRIPTIONS)
-        if (responseCode != BillingClient.BillingResponse.OK) {
-            Timber.i("Error response: $responseCode")
+    private fun queryPurchases() {
+        Timber.i("BillingRepository - query purchases")
+        if (!billingClient.isReady) {
+            Timber.e("BillingRepository - query purchases: BillingClient is not ready")
+            billingClient.startConnection(this)
+            return
         }
-        responseCode == BillingClient.BillingResponse.OK
+        billingClient.queryPurchasesAsync(
+            QueryPurchasesParams.newBuilder()
+                .setProductType(BillingClient.ProductType.SUBS)
+                .build(), this
+        )
+    }
+
+
+    /**
+     * BillingFlowParams Builder for upgrades and downgrades.
+     *
+     * @param productDetails ProductDetails object returned by the library.
+     * @param offerToken the least priced offer's offer id token returned by
+     * @param oldToken the purchase token of the subscription purchase being upgraded or downgraded.
+     *
+     * @return [BillingFlowParams] builder.
+     */
+    private fun upDowngradeBillingFlowParamsBuilder(
+        productDetails: ProductDetails,
+        offerToken: String,
+        oldToken: String
+    ): BillingFlowParams {
+        return BillingFlowParams.newBuilder().setProductDetailsParamsList(
+            listOf(
+                BillingFlowParams.ProductDetailsParams.newBuilder()
+                    .setProductDetails(productDetails)
+                    .setOfferToken(offerToken)
+                    .build()
+            )
+        ).setSubscriptionUpdateParams(
+            BillingFlowParams.SubscriptionUpdateParams.newBuilder()
+                .setOldPurchaseToken(oldToken)
+                .setReplaceProrationMode(
+                    BillingFlowParams.ProrationMode.IMMEDIATE_AND_CHARGE_FULL_PRICE
+                )
+                .build()
+        ).build()
+    }
+
+    /**
+     * BillingFlowParams Builder for normal purchases.
+     *
+     * @param productDetails ProductDetails object returned by the library.
+     * @param offerToken the least priced offer's offer id token returned by
+     *
+     * @return [BillingFlowParams] builder.
+     */
+    private fun billingFlowParamsBuilder(
+        productDetails: ProductDetails,
+        offerToken: String
+    ): BillingFlowParams.Builder {
+        return BillingFlowParams.newBuilder().setProductDetailsParamsList(
+            listOf(
+                BillingFlowParams.ProductDetailsParams.newBuilder()
+                    .setProductDetails(productDetails)
+                    .setOfferToken(offerToken)
+                    .build()
+            )
+        )
     }
 
 }

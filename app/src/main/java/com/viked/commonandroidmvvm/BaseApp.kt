@@ -8,7 +8,6 @@ import androidx.lifecycle.Observer
 import androidx.multidex.MultiDex
 import androidx.work.Configuration
 import androidx.work.WorkManager
-import com.viked.commonandroidmvvm.billing.BillingRepository
 import com.viked.commonandroidmvvm.log.Analytic
 import com.viked.commonandroidmvvm.log.NotLoggingTree
 import com.viked.commonandroidmvvm.preference.PreferenceHelper
@@ -31,9 +30,6 @@ abstract class BaseApp : Application(), HasAndroidInjector {
 
     @Inject
     lateinit var analytic: Analytic
-
-    @Inject
-    lateinit var billingRepository: BillingRepository
 
     @Inject
     lateinit var preferenceHelper: PreferenceHelper
@@ -73,7 +69,6 @@ abstract class BaseApp : Application(), HasAndroidInjector {
         initLogger()
         initWorkManager()
         preferenceHelper.init()
-        billingRepository.subscribe()
         darkThemeLiveData.observeForever(darkThemeLiveDataObserver)
     }
 
@@ -93,7 +88,6 @@ abstract class BaseApp : Application(), HasAndroidInjector {
     }
 
     override fun onLowMemory() {
-        billingRepository.unsubscribe()
         darkThemeLiveData.removeObserver(darkThemeLiveDataObserver)
         super.onLowMemory()
     }
