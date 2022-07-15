@@ -14,6 +14,7 @@ import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
+
 const val MAX_CURRENT_PURCHASES_ALLOWED = 1
 
 /**
@@ -101,6 +102,9 @@ class BillingRepository @Inject constructor(
                             productId
                         )
                     ) {
+                        if (!purchase.isAcknowledged) {
+                            acknowledgePurchase(purchase.purchaseToken)
+                        }
                         return true
                     }
                 }
@@ -476,4 +480,17 @@ class BillingRepository @Inject constructor(
         )
     }
 
+    private fun acknowledgePurchase(purchaseToken: String) {
+        Timber.i("BillingRepository - acknowledge purchase")
+        val params = AcknowledgePurchaseParams.newBuilder()
+            .setPurchaseToken(purchaseToken)
+            .build()
+        billingClient.acknowledgePurchase(
+            params
+        ) { billingResult ->
+            val responseCode = billingResult.responseCode
+            val debugMessage = billingResult.debugMessage
+            Timber.i("BillingRepository - acknowledge purchase:  $responseCode $debugMessage")
+        }
+    }
 }
