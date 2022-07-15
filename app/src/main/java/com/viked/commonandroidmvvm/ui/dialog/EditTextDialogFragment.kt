@@ -2,16 +2,18 @@ package com.viked.commonandroidmvvm.ui.dialog
 
 import android.app.AlertDialog
 import android.app.Dialog
+import android.content.DialogInterface
 import android.os.Bundle
-import androidx.fragment.app.DialogFragment
 import android.view.LayoutInflater
 import android.widget.EditText
+import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.setFragmentResult
 import com.viked.commonandroidmvvm.R
 
 /**
  * Created by yevgeniishein on 2/28/18.
  */
-class EditTextDialogFragment : androidx.fragment.app.DialogFragment() {
+class EditTextDialogFragment : DialogFragment(), DialogInterface.OnClickListener {
 
     private var text = ""
     private var titleId = 0
@@ -23,14 +25,14 @@ class EditTextDialogFragment : androidx.fragment.app.DialogFragment() {
         const val TEXT_KEY = "text_key"
 
         fun newInstance(text: String, titleId: Int) =
-                EditTextDialogFragment()
+            EditTextDialogFragment()
+                .apply {
+                    arguments = Bundle()
                         .apply {
-                            arguments = Bundle()
-                                    .apply {
-                                        putInt(TITLE_KEY, titleId)
-                                        putString(TEXT_KEY, text)
-                                    }
+                            putInt(TITLE_KEY, titleId)
+                            putString(TEXT_KEY, text)
                         }
+                }
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -47,14 +49,23 @@ class EditTextDialogFragment : androidx.fragment.app.DialogFragment() {
         etText?.setText(text)
 
         return AlertDialog.Builder(activity)
-                .setTitle(titleId)
-                .setPositiveButton(android.R.string.ok, { dialog, which ->
-                    getParentCallback().confirm(titleId, etText?.text?.toString() ?: text)
-                    dialog.dismiss()
+            .setTitle(titleId)
+            .setPositiveButton(android.R.string.ok, this)
+            .setNegativeButton(android.R.string.cancel, this)
+            .setView(view)
+            .create()
+    }
+
+    override fun onClick(dialog: DialogInterface?, which: Int) {
+        when (which) {
+            DialogInterface.BUTTON_POSITIVE -> {
+                setFragmentResult(getString(titleId), Bundle().apply {
+                    putString(TEXT_KEY, etText?.text?.toString() ?: text)
                 })
-                .setNegativeButton(android.R.string.cancel, { dialog, which -> dialog.cancel() })
-                .setView(view)
-                .create()
+                dialog?.dismiss()
+            }
+            else -> dialog?.cancel()
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -63,19 +74,6 @@ class EditTextDialogFragment : androidx.fragment.app.DialogFragment() {
             putString(TEXT_KEY, etText?.text?.toString() ?: text)
         }
         super.onSaveInstanceState(outState)
-    }
-
-    private fun getParentCallback(): Callback {
-        return when {
-            activity is Callback -> activity as Callback
-            parentFragment is Callback -> parentFragment as Callback
-            targetFragment is Callback -> targetFragment as Callback
-            else -> error("EditTextDialogFragment.Callback not implemented in parent elements")
-        }
-    }
-
-    interface Callback {
-        fun confirm(id: Int, text: String)
     }
 
 }
