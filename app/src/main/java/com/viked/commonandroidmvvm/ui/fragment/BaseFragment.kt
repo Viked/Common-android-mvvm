@@ -1,15 +1,14 @@
 package com.viked.commonandroidmvvm.ui.fragment
 
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.databinding.library.baseAdapters.BR
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import com.viked.commonandroidmvvm.di.Injectable
 import com.viked.commonandroidmvvm.log.Analytic
@@ -18,13 +17,13 @@ import com.viked.commonandroidmvvm.text.TextWrapper
 import com.viked.commonandroidmvvm.ui.activity.BaseActivity
 import com.viked.commonandroidmvvm.ui.common.AutoClearedValue
 import com.viked.commonandroidmvvm.ui.common.Cancelable
-import pub.devrel.easypermissions.EasyPermissions
 import javax.inject.Inject
 
 /**
  * Created by yevgeniishein on 10/9/17.
  */
-abstract class BaseFragment<T : BaseViewModel, B : ViewDataBinding> : Fragment(), Injectable,
+abstract class BaseFragment<T : BaseViewModel, B : ViewDataBinding> : Fragment(), MenuProvider,
+    Injectable,
     Cancelable {
 
     @Inject
@@ -46,6 +45,8 @@ abstract class BaseFragment<T : BaseViewModel, B : ViewDataBinding> : Fragment()
     abstract fun ViewModelProvider.get(): T
 
     open val viewModelBindingId: Int = BR.viewModel
+
+    open val hasMenu: Boolean = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -73,6 +74,7 @@ abstract class BaseFragment<T : BaseViewModel, B : ViewDataBinding> : Fragment()
             initView(binding, viewModel)
             logStartEvent()
             viewModel.title.observe(viewLifecycleOwner) { setTitle(it) }
+            if (hasMenu) createMenu()
         } else {
             RuntimeException("BaseFragment has empty params\nbinding: ${this.binding.value}\nviewModel: ${this.viewModel.value}").log()
         }
@@ -81,6 +83,19 @@ abstract class BaseFragment<T : BaseViewModel, B : ViewDataBinding> : Fragment()
     override fun onResume() {
         super.onResume()
         viewModel.value?.title?.value?.let { setTitle(it) }
+    }
+
+    open fun createMenu() {
+        val menuHost: MenuHost = requireActivity()
+        menuHost.addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
+    }
+
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        // override to add menu items
+    }
+
+    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+        return false
     }
 
     override fun handleOnBackPressed() = false
@@ -116,23 +131,4 @@ abstract class BaseFragment<T : BaseViewModel, B : ViewDataBinding> : Fragment()
     private fun logStartEvent() {
         analytic.setScreen(screenName, this::class.java)
     }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-
-        // Forward results to EasyPermissions
-        Handler(Looper.getMainLooper()).post {
-            EasyPermissions.onRequestPermissionsResult(
-                requestCode,
-                permissions,
-                grantResults,
-                this
-            )
-        }
-    }
-
 }

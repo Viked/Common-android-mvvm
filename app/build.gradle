@@ -71,8 +71,6 @@ dependencies {
 
     api 'com.google.code.gson:gson:2.8.9'
 
-    api 'pub.devrel:easypermissions:3.0.0'
-
     api "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.1"
     api "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.1"
 

@@ -1,14 +1,11 @@
 package com.viked.commonandroidmvvm.ui.activity
 
-import android.os.Handler
-import android.os.Looper
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import com.viked.commonandroidmvvm.extentions.handleOnBackPressed
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.HasAndroidInjector
-import pub.devrel.easypermissions.EasyPermissions
 import javax.inject.Inject
 
 /**
@@ -35,22 +32,4 @@ abstract class BaseActivity : AppCompatActivity(), HasAndroidInjector {
             super.onBackPressed()
         }
     }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        // Forward results to EasyPermissions
-        Handler(Looper.getMainLooper()).post {
-            EasyPermissions.onRequestPermissionsResult(
-                requestCode,
-                permissions,
-                grantResults,
-                this
-            )
-        }
-    }
-
 }
