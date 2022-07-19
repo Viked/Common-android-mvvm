@@ -23,6 +23,8 @@ import java.util.*
 /**
  * Created by yevgeniishein on 7/25/17.
  */
+val coroutineScope: CoroutineScope by lazy { CoroutineScope(SupervisorJob() + Dispatchers.IO) }
+
 fun Double.cutDecimal(count: Int) = String.format(Locale.ROOT, "%.${count}f", this)
 
 fun Context.openLink(link: String) {
@@ -31,7 +33,10 @@ fun Context.openLink(link: String) {
     i.flags = Intent.FLAG_ACTIVITY_NEW_TASK
     when {
         checkIntent(i) -> startActivity(i)
-        addTextToClipboard(TextWrapper(R.string.app_name), TextWrapper(link)) -> showToast(R.string.intent_open_link_error)
+        addTextToClipboard(
+            TextWrapper(R.string.app_name),
+            TextWrapper(link)
+        ) -> showToast(R.string.intent_open_link_error)
         else -> showToast(R.string.error)
     }
 }
@@ -70,7 +75,10 @@ fun Context.shareApp() {
     val intent = Intent.createChooser(sharingIntent, getString(R.string.share_with))
     when {
         checkIntent(intent) -> startActivity(intent)
-        addTextToClipboard(TextWrapper(R.string.app_name), TextWrapper(getAppUrl())) -> showToast(R.string.intent_open_link_error)
+        addTextToClipboard(
+            TextWrapper(R.string.app_name),
+            TextWrapper(getAppUrl())
+        ) -> showToast(R.string.intent_open_link_error)
         else -> showToast(R.string.error)
     }
 }
@@ -81,7 +89,10 @@ fun Context.rateApp() {
     when {
         checkIntent(playIntent) -> startActivity(playIntent)
         checkIntent(urlIntent) -> startActivity(urlIntent)
-        addTextToClipboard(TextWrapper(R.string.app_name), TextWrapper(getAppUrl())) -> showToast(R.string.intent_open_link_error)
+        addTextToClipboard(
+            TextWrapper(R.string.app_name),
+            TextWrapper(getAppUrl())
+        ) -> showToast(R.string.intent_open_link_error)
         else -> showToast(R.string.error)
     }
 }
@@ -98,7 +109,8 @@ private fun Context.getAppUrl() = "https://play.google.com/store/apps/details?id
 
 fun <T> T.toObservable() = ObservableField<T>(this)
 
-inline fun <T> T.doIf(value: Boolean, operation: (T) -> T) = let { if (value) operation.invoke(it) else it }
+inline fun <T> T.doIf(value: Boolean, operation: (T) -> T) =
+    let { if (value) operation.invoke(it) else it }
 
 @DrawableRes
 fun Context.getAndroidDrawable(resourceId: Int): Int {
@@ -112,7 +124,7 @@ fun Context.getPreferenceHelper() = (applicationContext as BaseApp).preferenceHe
 
 fun <T> lazyPromise(block: suspend CoroutineScope.() -> T): Lazy<Deferred<T>> {
     return lazy {
-        GlobalScope.async(start = CoroutineStart.LAZY) {
+        coroutineScope.async(start = CoroutineStart.LAZY) {
             block.invoke(this)
         }
     }
@@ -120,10 +132,12 @@ fun <T> lazyPromise(block: suspend CoroutineScope.() -> T): Lazy<Deferred<T>> {
 
 fun Context.checkIntent(intent: Intent): Boolean = intent.resolveActivity(packageManager) != null
 fun Context.showToast(@StringRes stringId: Int) {
-    Toast.makeText(this,
-            getString(stringId),
-            Toast.LENGTH_LONG)
-            .show()
+    Toast.makeText(
+        this,
+        getString(stringId),
+        Toast.LENGTH_LONG
+    )
+        .show()
 }
 
 fun Context.runIntent(intent: Intent, @StringRes errorStringId: Int) {
@@ -146,4 +160,5 @@ fun Context.addTextToClipboard(label: TextWrapper, text: TextWrapper): Boolean {
     }
 }
 
-fun Context.isInDarkMode() = (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+fun Context.isInDarkMode() =
+    (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
