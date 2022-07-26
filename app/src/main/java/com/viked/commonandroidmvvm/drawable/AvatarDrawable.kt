@@ -2,24 +2,24 @@ package com.viked.commonandroidmvvm.drawable
 
 import android.graphics.*
 import android.graphics.drawable.Drawable
+import java.util.*
 import kotlin.math.min
 
 
 class AvatarDrawable(private val text: String) : Drawable() {
 
-    private val DEFAULT_PLACEHOLDER_COLOR = "#3F51B5"
-    private val COLOR_FORMAT = "#FF%06X"
-    private val DEFAULT_TEXT_SIZE_PERCENTAGE = 33f
+    private val defaultPlaceholderColor = "#3F51B5"
+    private val defaultTextSizePercentage = 33f
 
     private val initials = text.split(' ')
-            .filter { it.isNotEmpty() }
-            .take(2)
-            .map { it[0].toString() }.let {
-                if (it.isEmpty())
-                    ""
-                else
-                    it.reduce { acc, s -> acc + s }.toUpperCase()
-            }
+        .filter { it.isNotEmpty() }
+        .take(2)
+        .map { it[0].toString() }.let {
+            if (it.isEmpty())
+                ""
+            else
+                it.reduce { acc, s -> acc + s }.uppercase(Locale.getDefault())
+        }
 
 
     private val textPaint = Paint().apply {
@@ -42,7 +42,8 @@ class AvatarDrawable(private val text: String) : Drawable() {
 
     override fun draw(canvas: Canvas) {
         if (radius == 0f) {
-            setAvatarCircleValues(canvas.width, canvas.height)
+            val bounds = canvas.clipBounds
+            setAvatarCircleValues(bounds.width(), bounds.height())
             setAvatarTextValues()
         }
 
@@ -60,8 +61,7 @@ class AvatarDrawable(private val text: String) : Drawable() {
     }
 
     override fun setColorFilter(colorFilter: ColorFilter?) {
-        textPaint.colorFilter = colorFilter
-        backgroundPaint.colorFilter = colorFilter
+        // Ignore color filter for avatar
     }
 
     private fun setAvatarTextValues() {
@@ -77,7 +77,7 @@ class AvatarDrawable(private val text: String) : Drawable() {
     }
 
     private fun calculateTextSize(): Float {
-        return bounds.height() * DEFAULT_TEXT_SIZE_PERCENTAGE / 100
+        return bounds.height() * defaultTextSizePercentage / 100
     }
 
     private fun calculateTextStartXPoint(): Float {
@@ -90,7 +90,7 @@ class AvatarDrawable(private val text: String) : Drawable() {
     }
 
     private fun convertStringToColor(text: String): Int {
-        if (text.isEmpty()) return Color.parseColor(DEFAULT_PLACEHOLDER_COLOR)
+        if (text.isEmpty()) return Color.parseColor(defaultPlaceholderColor)
         val hash = 0xFFFF and text.hashCode()
         val hue = 360.0f * hash.toFloat() / (1 shl 15) % 360.0f
         return Color.HSVToColor(floatArrayOf(hue, 0.4f, 0.90f))

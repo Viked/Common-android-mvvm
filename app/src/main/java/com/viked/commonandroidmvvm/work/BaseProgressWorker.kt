@@ -28,7 +28,11 @@ abstract class BaseProgressWorker(
     }
 
     protected fun updateProgress(current: Int, max: Int) {
-        val progress = (current.toFloat() / max.toFloat() * 100f).roundToInt()
+        val progress = if (max == 0) {
+            0
+        } else {
+            (current.toFloat() / max.toFloat() * 100f).roundToInt()
+        }
         updateProgress(progress)
     }
 

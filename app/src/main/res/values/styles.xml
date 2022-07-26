@@ -8,9 +8,10 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="colorSurface">@color/colorSurface</item>
         <item name="preferenceTheme">@style/PreferenceTheme</item>
-        <item name="dialogTheme">@style/AppTheme.Dialog</item>
         <item name="toolbarStyle">@style/AppTheme.Toolbar</item>
         <item name="actionOverflowButtonStyle">@style/AppTheme.OverflowButtonStyle</item>
+        <item name="dialogTheme">@style/AppTheme.Dialog</item>
+        <item name="android:dialogTheme">?dialogTheme</item>
     </style>
 
     <style name="PreferenceTheme" parent="PreferenceThemeOverlay">
@@ -22,7 +23,7 @@
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="AppTheme.Dialog">
+    <style name="AppTheme.Dialog" parent="ThemeOverlay.Material3.Dialog">
         <item name="colorSurface">@color/colorDialogSurface</item>
     </style>
 

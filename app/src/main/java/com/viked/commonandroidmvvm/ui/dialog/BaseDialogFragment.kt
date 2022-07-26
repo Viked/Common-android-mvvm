@@ -94,7 +94,9 @@ abstract class BaseDialogFragment<T : BaseViewModel, B : ViewDataBinding> : Dial
     }
 
     private fun logStartEvent() {
-//        analytic.log(CustomEvent("Dialog viewed").putCustomAttribute("name", this::class.java.simpleName))
+        analytic.log(
+            "dialog_viewed",
+            Bundle().apply { putString("name", this::class.java.simpleName) })
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
