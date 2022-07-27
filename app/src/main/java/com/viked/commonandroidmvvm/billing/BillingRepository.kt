@@ -50,8 +50,11 @@ class BillingRepository @Inject constructor(
 
     val hasValidSubscription = MediatorLiveData<Boolean>().apply {
         value = billingItems.any { it.isSubscription }
-        addSource(purchases) { updateValidSubscription() }
-        addSource(products) { updateValidSubscription() }
+        addSource(purchases) {
+            val value = it.any { p -> p.purchaseState == Purchase.PurchaseState.PURCHASED }
+            postValue(value)
+            updateValidSubscription()
+        }
     }
 
     private fun updateList() {
@@ -75,11 +78,10 @@ class BillingRepository @Inject constructor(
     }
 
     private fun updateValidSubscription() {
-        val subscriptionList = products.value?.map { it.productId } ?: emptyList()
         val purchaseList = purchases.value ?: emptyList()
         externalScope.launch {
             val hasValid = try {
-                hasValidSubscription(subscriptionList, purchaseList)
+                hasValidSubscription(purchaseList)
             } catch (e: Exception) {
                 e.log()
                 false
@@ -88,14 +90,15 @@ class BillingRepository @Inject constructor(
         }
     }
 
-    private fun hasValidSubscription(productIds: List<String>, purchases: List<Purchase>): Boolean {
-        if (productIds.isEmpty() || purchases.isEmpty()) {
+    private fun hasValidSubscription(purchases: List<Purchase>): Boolean {
+        if (purchases.isEmpty()) {
             return false
         }
 
         for (purchase in purchases) {
             for (productId in purchase.products) {
-                if (productIds.contains(productId)) {
+                val billingItem = billingItems.firstOrNull { it.productId == productId }
+                if (billingItem != null && billingItem.isSubscription) {
                     if (billingSecurity.verifyPurchase(
                             true,
                             purchase.purchaseToken,
