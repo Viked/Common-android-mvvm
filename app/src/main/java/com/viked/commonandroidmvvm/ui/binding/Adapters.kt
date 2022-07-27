@@ -1,6 +1,7 @@
 package com.viked.commonandroidmvvm.ui.binding
 
 import android.app.Activity
+import android.content.res.ColorStateList
 import android.text.SpannableString
 import android.text.TextUtils
 import android.text.format.DateFormat
@@ -32,12 +33,18 @@ fun setVisible(view: View, show: Boolean?) {
 }
 
 @BindingAdapter("ptrListener")
-fun setPtrListener(layout: androidx.swiperefreshlayout.widget.SwipeRefreshLayout, listener: androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener?) {
+fun setPtrListener(
+    layout: androidx.swiperefreshlayout.widget.SwipeRefreshLayout,
+    listener: androidx.swiperefreshlayout.widget.SwipeRefreshLayout.OnRefreshListener?
+) {
     layout.setOnRefreshListener(listener)
 }
 
 @BindingAdapter("ptrLoading")
-fun setPtrLoading(layout: androidx.swiperefreshlayout.widget.SwipeRefreshLayout, loading: Boolean?) {
+fun setPtrLoading(
+    layout: androidx.swiperefreshlayout.widget.SwipeRefreshLayout,
+    loading: Boolean?
+) {
     layout.isRefreshing = loading != null && loading
 }
 
@@ -51,7 +58,7 @@ fun setTitle(layout: Toolbar, title: TextWrapper?) {
 
 @BindingAdapter("textUnderline")
 fun setUnderlinedText(textView: TextView, stringId: Int) {
-    val text = textView.context.getString(stringId) ?: ""
+    val text = textView.context.getString(stringId)
     setUnderlinedText(textView, text)
 }
 
@@ -94,9 +101,10 @@ fun setImageViewResource(imageView: ImageView, resource: Int?) {
 @BindingAdapter("adapter", "android:selectedItemPosition", requireAll = false)
 fun setAdapter(spinner: Spinner, list: List<ItemWrapper>?, selectedItemPosition: Int?) {
     spinner.adapter = ArrayAdapter(
-            spinner.context,
-            android.R.layout.simple_spinner_item,
-            list?.map { it.name[spinner.context] }?.toTypedArray() ?: arrayOf())
+        spinner.context,
+        android.R.layout.simple_spinner_item,
+        list?.map { it.name[spinner.context] }?.toTypedArray() ?: arrayOf()
+    )
     if (selectedItemPosition != null && list != null && list.size > selectedItemPosition) {
         spinner.setSelection(selectedItemPosition)
     }
@@ -145,7 +153,8 @@ fun setDate(textView: TextView, date: Long?) {
 fun setFullDate(textView: TextView, date: Date?) {
     var text = ""
     if (date != null) {
-        text = DateFormat.getDateFormat(textView.context).format(date) + " - " + DateFormat.getTimeFormat(textView.context).format(date)
+        text = DateFormat.getDateFormat(textView.context)
+            .format(date) + " - " + DateFormat.getTimeFormat(textView.context).format(date)
     }
     textView.text = text
 }
@@ -154,7 +163,9 @@ fun setFullDate(textView: TextView, date: Date?) {
 fun setFullDate(textView: TextView, date: Long?) {
     var text = ""
     if (date != null) {
-        text = DateFormat.getDateFormat(textView.context).format(Date(date)) + " - " + DateFormat.getTimeFormat(textView.context).format(Date(date))
+        text = DateFormat.getDateFormat(textView.context)
+            .format(Date(date)) + " - " + DateFormat.getTimeFormat(textView.context)
+            .format(Date(date))
     }
     textView.text = text
 }
@@ -166,10 +177,13 @@ fun setCommentIcon(view: ImageView, comment: String) {
 
 @BindingAdapter("autoCompleteAdapter")
 fun setAdapter(textView: MultiAutoCompleteTextView, list: List<String>?) {
-    textView.setAdapter(ArrayAdapter(
+    textView.setAdapter(
+        ArrayAdapter(
             textView.context,
             android.R.layout.simple_spinner_item,
-            list ?: listOf()))
+            list ?: listOf()
+        )
+    )
     textView.setTokenizer(MultiAutoCompleteTextView.CommaTokenizer())
     textView.clearFocus()
 }
@@ -218,4 +232,9 @@ fun setHint(view: TextInputLayout, hint: Int?) {
     view.hint = if (hint != null) {
         view.context.getString(hint)
     } else ""
+}
+
+@BindingAdapter("tint")
+fun setTint(view: ImageView, tint: Int?) {
+    view.imageTintList = ColorStateList.valueOf(tint ?: return)
 }
