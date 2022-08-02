@@ -13,6 +13,8 @@ class NotLoggingTree : Timber.Tree() {
     private val crashlytics: FirebaseCrashlytics by lazy { Firebase.crashlytics }
 
     override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
+        val prefix = if (tag != null) "$tag: " else ""
+        crashlytics.log("$prefix$message")
         if (t != null) {
             crashlytics.recordException(t)
         }
