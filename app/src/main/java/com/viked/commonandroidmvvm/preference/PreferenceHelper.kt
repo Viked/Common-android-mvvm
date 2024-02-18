@@ -2,7 +2,7 @@ package com.viked.commonandroidmvvm.preference
 
 import android.app.Application
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.map
 import androidx.preference.PreferenceManager
 import com.google.gson.Gson
 import javax.inject.Inject
@@ -100,5 +100,5 @@ inline operator fun <reified T : Any> PreferenceHelper.get(key: String): T {
 }
 
 inline fun <reified T : Any> PreferenceHelper.getLivePreference(id: Int): LiveData<T> {
-    return Transformations.map(getLivePreferences(id)) { it[id] as T }
+    return getLivePreferences(id).map { it[id] as T }
 }

@@ -22,7 +22,7 @@ class PreferenceLiveData(
         preferenceHelper.preferences.registerOnSharedPreferenceChangeListener(this)
     }
 
-    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
+    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
         keyMap[key] ?: return
         setValue()
     }

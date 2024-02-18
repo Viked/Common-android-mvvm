@@ -56,6 +56,7 @@ class AvatarDrawable(private val text: String) : Drawable() {
         backgroundPaint.alpha = alpha
     }
 
+    @Deprecated("Deprecated in Java")
     override fun getOpacity(): Int {
         return PixelFormat.TRANSLUCENT
     }

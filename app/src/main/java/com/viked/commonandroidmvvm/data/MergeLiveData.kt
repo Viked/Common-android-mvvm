@@ -3,7 +3,7 @@ package com.viked.commonandroidmvvm.data
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.Observer
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.map
 import com.viked.commonandroidmvvm.log.log
 import com.viked.commonandroidmvvm.progress.Progress
 import com.viked.commonandroidmvvm.text.TextWrapper
@@ -23,14 +23,14 @@ class MergeLiveData(
 
     init {
         addSource(preferences, this)
-        addSource(Transformations.map(progress) { p -> p as Any? }, this)
+        addSource(progress.map { p -> p as Any? }, this)
         listenSources()
     }
 
     private var updateJob: Job? = null
 
     private fun listenSources() =
-        sources.forEach { addSource(Transformations.map(it) { p -> p }, this) }
+        sources.forEach { addSource(it.map{ p -> p }, this) }
 
     override fun onChanged(t: Any?) {
         val active = progress.value ?: listOf()

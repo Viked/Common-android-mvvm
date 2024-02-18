@@ -6,14 +6,23 @@ plugins {
 }
 
 android {
-
-    compileSdkVersion project.ext.compileSdkVersion
+    namespace = "com.viked.commonandroidmvvm"
+    compileSdk project.ext.compileSdkVersion
 
     defaultConfig {
-        minSdkVersion project.ext.minSdkVersion
-        targetSdkVersion project.ext.compileSdkVersion
+        minSdk project.ext.minSdkVersion
+        targetSdk project.ext.compileSdkVersion
         versionCode 1
         versionName "1.0"
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    kotlin {
+        jvmToolchain(17)
     }
 
     buildTypes {
@@ -49,7 +58,7 @@ dependencies {
     api 'androidx.multidex:multidex:2.0.1'
     api "androidx.room:room-runtime:$room_version"
     api "androidx.work:work-runtime-ktx:$workVersion"
-    api "androidx.fragment:fragment-ktx:1.5.0"
+    api "androidx.fragment:fragment-ktx:1.6.2"
     api 'androidx.constraintlayout:constraintlayout:2.1.4'
     api 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
 
@@ -71,11 +80,11 @@ dependencies {
 
     api 'com.google.code.gson:gson:2.8.9'
 
-    api "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.1"
-    api "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.1"
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4"
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4"
 
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
     kapt "com.google.dagger:dagger-android-processor:$dagger_version"
-    kapt 'androidx.lifecycle:lifecycle-common-java8:2.5.0'
+    kapt 'androidx.lifecycle:lifecycle-common-java8:2.7.0'
     kapt "androidx.room:room-compiler:$room_version"
 }

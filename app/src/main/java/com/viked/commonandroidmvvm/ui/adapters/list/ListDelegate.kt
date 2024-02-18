@@ -8,20 +8,15 @@ import com.viked.commonandroidmvvm.ui.data.Resource
 
 class ListDelegate(private val statusTextView: TextView, private val adapter: DelegateRecyclerViewAdapter) : Observer<Resource<List<ItemWrapper>>> {
 
-    override fun onChanged(t: Resource<List<ItemWrapper>>?) {
+    override fun onChanged(value: Resource<List<ItemWrapper>>) {
         when {
-            t == null -> {
+            value.status != null -> {
                 adapter.items = listOf()
-                statusTextView.setText(R.string.empty_list)
-                statusTextView.visibility = View.VISIBLE
-            }
-            t.status != null -> {
-                adapter.items = listOf()
-                statusTextView.text = t.status[statusTextView.context]
+                statusTextView.text = value.status[statusTextView.context]
                 statusTextView.visibility = View.VISIBLE
             }
             else -> {
-                adapter.items = t.data ?: listOf()
+                adapter.items = value.data ?: listOf()
                 statusTextView.visibility = View.GONE
             }
         }

@@ -27,6 +27,7 @@ abstract class BaseActivity : AppCompatActivity(), HasAndroidInjector {
         }
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         if ((supportFragmentManager.isStateSaved || !supportFragmentManager.handleOnBackPressed())) {
             super.onBackPressed()

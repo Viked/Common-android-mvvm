@@ -11,9 +11,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class Async<X, Y>(private val function: (X) -> Y) : Function<X, LiveData<Resource<Y>>> {
+class Async<X, Y>(private val function: (X) -> Y) : (@JvmSuppressWildcards X) -> (@JvmSuppressWildcards LiveData<Resource<Y>>) {
 
-    override fun apply(input: X): LiveData<Resource<Y>> {
+    override fun invoke(input: X): LiveData<Resource<Y>> {
         val result = MutableLiveData<Resource<Y>>()
 
         coroutineScope.launch {

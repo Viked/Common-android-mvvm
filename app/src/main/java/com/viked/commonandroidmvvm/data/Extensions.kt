@@ -2,11 +2,11 @@ package com.viked.commonandroidmvvm.data
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.map
 import com.viked.commonandroidmvvm.text.TextWrapper
 import com.viked.commonandroidmvvm.ui.data.Resource
 
-fun <T, Y> LiveData<Resource<T>>.transform(map: (T) -> Y): LiveData<Resource<Y>> = Transformations.map(this) {
+fun <T, Y> LiveData<Resource<T>>.transform(map: (T) -> Y): LiveData<Resource<Y>> = this.map {
     if (it.data != null)
         Resource.success(map.invoke(it.data))
     else

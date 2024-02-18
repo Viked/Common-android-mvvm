@@ -4,7 +4,7 @@ import android.view.MenuItem
 import androidx.lifecycle.Observer
 
 class MenuCheckedLiveItem(private val menuItem: MenuItem) : Observer<Boolean> {
-    override fun onChanged(t: Boolean?) {
-        menuItem.isChecked = t == true
+    override fun onChanged(value: Boolean) {
+        menuItem.isChecked = value == true
     }
 }

@@ -10,12 +10,11 @@ class ListVisibilityDelegate(private val view: View,
                              private val condition: ((Resource<List<ItemWrapper>>) -> Boolean)? = null,
                              private val invisibleState: Int = View.GONE) : Observer<Resource<List<ItemWrapper>>> {
 
-    override fun onChanged(t: Resource<List<ItemWrapper>>?) {
+    override fun onChanged(value: Resource<List<ItemWrapper>>) {
         val visible = when {
-            t == null -> false
-            condition != null -> condition.invoke(t)
-            t.data == null -> !displayIfDataNotNull
-            t.data.isEmpty() -> !displayIfDataNotEmpty
+            condition != null -> condition.invoke(value)
+            value.data == null -> !displayIfDataNotNull
+            value.data.isEmpty() -> !displayIfDataNotEmpty
             else -> true
         }
         view.visibility = if (visible) View.VISIBLE else invisibleState
@@ -26,8 +25,8 @@ class ListVisibilityDelegate(private val view: View,
 class VisibilityDelegate(private val view: View,
                          private val invisibleState: Int = View.GONE) : Observer<Boolean> {
 
-    override fun onChanged(t: Boolean?) {
-        view.visibility = if (t == true) View.VISIBLE else invisibleState
+    override fun onChanged(value: Boolean) {
+        view.visibility = if (value == true) View.VISIBLE else invisibleState
     }
 
 }
