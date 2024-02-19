@@ -76,12 +76,12 @@ dependencies {
 
     api 'com.jakewharton.timber:timber:4.6.0'
 
-    api 'com.android.billingclient:billing:5.0.0'
+    api 'com.android.billingclient:billing:6.1.0'
 
-    api 'com.google.code.gson:gson:2.8.9'
+    api 'com.google.code.gson:gson:2.10'
 
-    api "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4"
-    api "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4"
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3"
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3"
 
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
     kapt "com.google.dagger:dagger-android-processor:$dagger_version"
