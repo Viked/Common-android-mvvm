@@ -3,19 +3,40 @@ package com.viked.commonandroidmvvm.billing
 import android.app.Activity
 import android.app.Application
 import android.text.format.DateUtils.SECOND_IN_MILLIS
-import androidx.lifecycle.*
-import com.android.billingclient.api.*
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ProcessLifecycleOwner
+import com.android.billingclient.api.AcknowledgePurchaseParams
+import com.android.billingclient.api.BillingClient
+import com.android.billingclient.api.BillingClientStateListener
+import com.android.billingclient.api.BillingFlowParams
+import com.android.billingclient.api.BillingResult
+import com.android.billingclient.api.ProductDetails
+import com.android.billingclient.api.ProductDetailsResponseListener
+import com.android.billingclient.api.Purchase
+import com.android.billingclient.api.PurchasesResponseListener
+import com.android.billingclient.api.PurchasesUpdatedListener
+import com.android.billingclient.api.QueryProductDetailsParams
+import com.android.billingclient.api.QueryPurchasesParams
 import com.viked.commonandroidmvvm.log.log
 import com.viked.commonandroidmvvm.ui.adapters.list.ItemWrapper
 import com.viked.commonandroidmvvm.ui.data.Resource
 import com.viked.commonandroidmvvm.ui.dialog.purchase.PurchaseItemWrapper
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 import javax.inject.Singleton
 
 
 const val MAX_CURRENT_PURCHASES_ALLOWED = 1
+const val accountId = ""
+const val profileId = ""
 
 /**
  * Created by yevgeniishein on 3/2/18.
@@ -130,12 +151,15 @@ class BillingRepository @Inject constructor(
                     processPurchases(purchases)
                 }
             }
+
             BillingClient.BillingResponseCode.USER_CANCELED -> {
                 Timber.i("BillingRepository - onPurchasesUpdated: User canceled the purchase")
             }
+
             BillingClient.BillingResponseCode.ITEM_ALREADY_OWNED -> {
                 Timber.i("BillingRepository - onPurchasesUpdated: The user already owns this item")
             }
+
             BillingClient.BillingResponseCode.DEVELOPER_ERROR -> {
                 Timber.i(
                     "BillingRepository - onPurchasesUpdated: Developer error means that Google Play " +
@@ -145,6 +169,7 @@ class BillingRepository @Inject constructor(
                             "are using must be signed with release keys."
                 )
             }
+
             else -> Timber.i("BillingRepository - onPurchasesUpdated: Got unknown resultCode")
         }
     }
@@ -272,10 +297,12 @@ class BillingRepository @Inject constructor(
                     )
                 }
             }
+
             response.isTerribleFailure -> {
                 // These response codes are not expected.
                 Timber.i("BillingRepository - product details response: : ${response.code} $debugMessage")
             }
+
             else -> {
                 Timber.e("BillingRepository - product details response: : ${response.code} $debugMessage")
             }
@@ -296,7 +323,7 @@ class BillingRepository @Inject constructor(
      */
     private fun processPurchases(purchasesList: List<Purchase>?) {
         Timber.i("BillingRepository - process purchases: ${purchasesList?.size} purchase(s)")
-        if (purchasesList == null || purchasesList.isEmpty()) {
+        if (purchasesList.isNullOrEmpty()) {
             Timber.i("BillingRepository - process purchases: No purchases found")
             return
         }
@@ -384,9 +411,7 @@ class BillingRepository @Inject constructor(
                     billingParams.build()
                 )
             }
-        } else if (currentPurchases.isNotEmpty() &&
-            currentPurchases.size > MAX_CURRENT_PURCHASES_ALLOWED
-        ) {
+        } else {
             // The developer has allowed users  to have more than 1 purchase, so they need to
             /// implement a logic to find which one to use.
             Timber.i("BillingRepository - launch billing flow: User has more than $MAX_CURRENT_PURCHASES_ALLOWED current purchase.")
@@ -454,11 +479,12 @@ class BillingRepository @Inject constructor(
         ).setSubscriptionUpdateParams(
             BillingFlowParams.SubscriptionUpdateParams.newBuilder()
                 .setOldPurchaseToken(oldToken)
-                .setReplaceProrationMode(
-                    BillingFlowParams.ProrationMode.IMMEDIATE_AND_CHARGE_FULL_PRICE
-                )
+                .setSubscriptionReplacementMode(BillingFlowParams.SubscriptionUpdateParams.ReplacementMode.CHARGE_FULL_PRICE)
                 .build()
-        ).build()
+        )
+            .setObfuscatedAccountId(accountId)
+            .setObfuscatedProfileId(profileId)
+            .build()
     }
 
     /**
@@ -481,6 +507,8 @@ class BillingRepository @Inject constructor(
                     .build()
             )
         )
+            .setObfuscatedAccountId(accountId)
+            .setObfuscatedProfileId(profileId)
     }
 
     private fun acknowledgePurchase(purchaseToken: String) {
