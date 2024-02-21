@@ -74,7 +74,7 @@ class BillingRepository @Inject constructor(
         addSource(purchases) {
             val value = it.any { p -> p.purchaseState == Purchase.PurchaseState.PURCHASED }
             postValue(value)
-            updateValidSubscription()
+            updateValidSubscription(it)
         }
     }
 
@@ -98,8 +98,7 @@ class BillingRepository @Inject constructor(
         list.postValue(Resource.success(listWrappers))
     }
 
-    private fun updateValidSubscription() {
-        val purchaseList = purchases.value ?: emptyList()
+    private fun updateValidSubscription(purchaseList: List<Purchase>) {
         externalScope.launch {
             val hasValid = try {
                 hasValidSubscription(purchaseList)
@@ -149,6 +148,7 @@ class BillingRepository @Inject constructor(
                     processPurchases(null)
                 } else {
                     processPurchases(purchases)
+                    updateValidSubscription(purchases)
                 }
             }
 
