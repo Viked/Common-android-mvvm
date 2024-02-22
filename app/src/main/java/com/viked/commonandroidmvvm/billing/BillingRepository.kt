@@ -67,6 +67,7 @@ class BillingRepository @Inject constructor(
     val list = MediatorLiveData<Resource<List<ItemWrapper>>>().apply {
         addSource(products) { updateList() }
         addSource(purchases) { updateList() }
+
     }
 
     val hasValidSubscription = MediatorLiveData<Boolean>().apply {
@@ -323,12 +324,15 @@ class BillingRepository @Inject constructor(
      */
     private fun processPurchases(purchasesList: List<Purchase>?) {
         Timber.i("BillingRepository - process purchases: ${purchasesList?.size} purchase(s)")
-        if (purchasesList.isNullOrEmpty()) {
+
+        val list = purchasesList ?: listOf()
+        purchases.postValue(list)
+
+        if (list.isEmpty()) {
             Timber.i("BillingRepository - process purchases: No purchases found")
-            return
+        } else {
+            logAcknowledgementStatus(list)
         }
-        purchases.postValue(purchasesList)
-        logAcknowledgementStatus(purchasesList)
     }
 
     /**
